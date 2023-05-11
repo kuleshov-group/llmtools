@@ -6,7 +6,6 @@ from llmtune.llms.llama.model import load_llama
 from llmtune.llms.opt.model import load_opt
 from llmtune.engine.data import TrainTxt, TrainSAD, TrainGPT4All
 from llmtune.engine.lora.peft import quant_peft
-from llmtune.engine.quant.autograd import load_llama_model_4bit_low_ram
 from llmtune.utils import to_half_precision
 
 def load_llm(model, weights):

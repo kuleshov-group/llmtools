@@ -55,7 +55,7 @@ class TrainSAD(AbstractTrainData):
 
     # Auxiliary methods
     def generate_prompt(self, data_point, **kwargs):
-        return make_alpaca_prompt(
+        return make_prompt(
             data_point["instruction"],
             data_point["input"],
             data_point["output"]
