@@ -25,7 +25,7 @@ def make_parser():
         help='Instruction for an alpaca-style model')    
     gen_parser.add_argument('--min-length', type=int, default=10, 
         help='Minimum length of the sequence to be generated.')
-    gen_parser.add_argument('--max-length', type=int, default=50,
+    gen_parser.add_argument('--max-length', type=int, default=200,
         help='Maximum length of the sequence to be generated.')
     gen_parser.add_argument('--top_p', type=float, default=.95,
         help='Top p sampling parameter.')
