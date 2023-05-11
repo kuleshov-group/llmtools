@@ -1,0 +1,6 @@
+.flake8
+__pycache__
+.ipynb_checkpoints
+sftp-config.json
+tidbits
+llmtune/llms/alpaca
