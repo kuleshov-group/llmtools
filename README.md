@@ -52,7 +52,7 @@ References
 [3] A. Krizhevsky, I. Sutskever, and G. H. Bradshaw, “Imagenet classification with deep convolutional neural networks,” J. Comput. Vis., vol. 5, no. 3, pp. 219–225, 2012.
 ```
 
-This example is based on an Alpaca prompt. See below for additional examples.
+This example is based on an Alpaca demo prompt. See below for additional examples.
 
 ## Installation
 
@@ -72,11 +72,8 @@ LLMTune also requries an NVIDIA GPU (Pascal architecture or newer); other platfo
 
 We use `distutils` to package LLMTune. If you are not running conda, you can also create a `virtualenv`.
 ```
-virtualenv llmtune_env
-source /llmtune_env/bin/activate
 pip install -r requirements.txt   # installs torch and two other packages
 python setup.py install           # installs llmtune in your environment
-export CUDA_VISIBLE_DEVICES=0     # your GPU should be visible
 ```
 
 Note that this process compiles and installs a custom CUDA kernel that is necessary to run quantized models.
@@ -87,43 +84,111 @@ The above process installs a `llmtune` command in your environment.
 
 ### Download Models
 
-First, start by downloading the weights of an LLM model:
+First, start by downloading the weights of a base LLM model:
 ```
-llmtune download --model llama-7b-4bit --weights llama-7b-4bit.pt
+wget https://huggingface.co/kuleshov/llama-65b-4bit/resolve/main/llama-65b-4bit.pt
 ```
-You can also download the weights directly using `wget`:
+The pre-quantized models are available for download from the HF hub. We will add the quantization code to `llmtune` if there is demand.
 ```
+wget https://huggingface.co/kuleshov/llama-13b-4bit/resolve/main/llama-13b-4bit.pt
 wget https://huggingface.co/kuleshov/llama-30b-4bit/resolve/main/llama-30b-4bit.pt
 wget https://huggingface.co/kuleshov/llama-65b-4bit/resolve/main/llama-65b-4bit.pt
 ```
-The following models have pre-quantized weights: `llama-65b-4bit`,`llama-65b-4bit`, `llama-llmtuned-65b-4bit`.
+You can finetune these models yourself, or you can optionally download LoRA adapter weights that have already been finetuned for you using `llmtune`.
+```
+mkdir alpaca-adapter-65b-4bit && cd alpaca-adapter-65b-4bit
+wget https://huggingface.co/kuleshov/alpaca-adapter-65b-4bit/resolve/main/adapter_config.json
+wget https://huggingface.co/kuleshov/alpaca-adapter-65b-4bit/resolve/main/adapter_model.bin
+```
 
 ### Generate Text
 
-You can generate text directly from the command line:
+You can generate text directly from the command line. This generates text from the base model:
 ```
-llmtune generate --model llama-7b-4bit --weights llama-7b-4bit.pt --prompt "compose a haiku about rain"
+llmtune generate --model llama-65b-4bit --weights llama-65b-4bit.pt --prompt "the pyramids were built by"
 ```
+More interestingly, we can generate output from instructions to a finetuned model. 
+```
+llmtune generate --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-65b-4bit --instruction "Write a well-thought out recipe for a blueberry lasagna dish." --max-length 500
+```
+In the above example, `--instruct` applies the Alpaca-style prompt template, although you can also use `--prompt` to feed the model text without any pre-processing:
 
 The LLMTune interface also provides additional command-line options.
 ```
-usage: llmtune generate [-h] --model {llama-7b-4bit,llama-13b-4bit} --weights WEIGHTS [--prompt PROMPT]
-                        [--min-length MIN_LENGTH] [--max-length MAX_LENGTH] [--top_p TOP_P]
-                        [--temperature TEMPERATURE]
+usage: llmtune generate [-h] --model {llama-7b-4bit,llama-13b-4bit,llama-30b-4bit,llama-65b-4bit,opt-6.7b-4bit} --weights WEIGHTS
+                        [--adapter ADAPTER] [--prompt PROMPT] [--instruction INSTRUCTION] [--min-length MIN_LENGTH]
+                        [--max-length MAX_LENGTH] [--top_p TOP_P] [--top_k TOP_K] [--temperature TEMPERATURE]
 
 options:
   -h, --help            show this help message and exit
-  --model {llama-7b-4bit,llama-13b-4bit}
+  --model {llama-7b-4bit,llama-13b-4bit,llama-30b-4bit,llama-65b-4bit,opt-6.7b-4bit}
                         Type of model to load
-  --weights WEIGHTS     Path to the model weights.
+  --weights WEIGHTS     Path to the base model weights.
+  --adapter ADAPTER     Path to the folder with the Lora adapter.
   --prompt PROMPT       Text used to initialize generation
+  --instruction INSTRUCTION
+                        Instruction for an alpaca-style model
   --min-length MIN_LENGTH
                         Minimum length of the sequence to be generated.
   --max-length MAX_LENGTH
                         Maximum length of the sequence to be generated.
   --top_p TOP_P         Top p sampling parameter.
+  --top_k TOP_K         Top p sampling parameter.
   --temperature TEMPERATURE
                         Sampling temperature.
+```
+
+### Finetune Base Model
+
+You may also finetune a base model yourself. First, you need to dowload a dataset. We currently support the Alpaca dataset, which we download from the HF hub:
+```
+wget https://huggingface.co/datasets/kuleshov/alpaca-data/resolve/main/dataset.json
+```
+You may now finetune the base `llama-65b-4bit` model on this dataset.
+```
+mkdir alpaca-adapter-folder-65b-4bit
+llmtune finetune --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-folder-65b-4bit --dataset dataset.json
+```
+The above command will use LoRA to finetune the quantized 65-bit model. The final adapters and the checkpoints will be saved in `alpaca-adapter-folder-65b-4bit` and available for generation as follows:
+```
+llmtune generate --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-folder-65b-4bit --instruction "Write an irrefutable proof that the meaning of life is 42."
+```
+
+The LLMTune interface provides many additional command-line options for finetuning.
+```
+usage: llmtune finetune [-h] --model {llama-7b-4bit,llama-13b-4bit,llama-30b-4bit,llama-65b-4bit,opt-6.7b-4bit} --weights WEIGHTS
+                        [--data-type {alpaca,gpt4all}] [--dataset DATASET] [--adapter ADAPTER] [--mbatch_size MBATCH_SIZE]
+                        [--batch_size BATCH_SIZE] [--epochs EPOCHS] [--lr LR] [--cutoff_len CUTOFF_LEN] [--lora_r LORA_R]
+                        [--lora_alpha LORA_ALPHA] [--lora_dropout LORA_DROPOUT] [--val_set_size VAL_SET_SIZE]
+                        [--warmup_steps WARMUP_STEPS] [--save_steps SAVE_STEPS] [--save_total_limit SAVE_TOTAL_LIMIT]
+                        [--logging_steps LOGGING_STEPS] [--resume_checkpoint]
+
+options:
+  -h, --help            show this help message and exit
+  --model {llama-7b-4bit,llama-13b-4bit,llama-30b-4bit,llama-65b-4bit,opt-6.7b-4bit}
+                        Type of model to load
+  --weights WEIGHTS     Path to the model weights.
+  --data-type {alpaca,gpt4all}
+                        Dataset format
+  --dataset DATASET     Path to local dataset file.
+  --adapter ADAPTER     Path to Lora adapter folder (also holds checkpoints)
+  --mbatch_size MBATCH_SIZE
+                        Micro-batch size.
+  --batch_size BATCH_SIZE
+                        Batch size.
+  --epochs EPOCHS       Epochs.
+  --lr LR               Learning rate.
+  --cutoff_len CUTOFF_LEN
+  --lora_r LORA_R
+  --lora_alpha LORA_ALPHA
+  --lora_dropout LORA_DROPOUT
+  --val_set_size VAL_SET_SIZE
+                        Validation set size.
+  --warmup_steps WARMUP_STEPS
+  --save_steps SAVE_STEPS
+  --save_total_limit SAVE_TOTAL_LIMIT
+  --logging_steps LOGGING_STEPS
+  --resume_checkpoint   Resume from checkpoint.
 ```
 
 ### Programmatic Usage
@@ -201,9 +266,10 @@ So, Roger has 5 + 2 x 3 = 11 balls now!
 
 ## Todos
 
-This is experimental work in progress. Things which still need work include:
+This is experimental work in progress. Work that stills needs to be done:
 * Make it easy to load models directly from the HF hub
 * Out-of-the-box support for additional LLMs
+* Improve the interface with things like automatic termination
 * Automated quantization scripts
 
 ## Acknowledgements
@@ -232,4 +298,4 @@ We also recommend you cite the above projects on which this work is based.
 
 ## Feedback
 
-Please send feedback to [Volodymyr Kuleshov](https://www.cs.cornell.edu/~kuleshov/).
+Please send feedback to [Volodymyr Kuleshov](https://twitter.com/volokuleshov).
