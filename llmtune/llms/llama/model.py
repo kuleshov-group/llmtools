@@ -22,7 +22,7 @@ def load_llama(llm_config, checkpoint):
                 del layers[name]
         make_quant(model, layers, llm_config.bits)
     model = accelerate.load_checkpoint_and_dispatch(
-        model=model, checkpoint=checkpoint, device_map='auto'
+        model=model, checkpoint=checkpoint, device_map={'': 0}
     )
     model.seqlen = 2048
 

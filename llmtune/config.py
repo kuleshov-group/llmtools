@@ -11,7 +11,7 @@ from llmtune.engine.lora.config import Finetune4bConfig
 # ----------------------------------------------------------------------------
 
 # define some constants
-DEV = torch.device('cuda:0')
+DEV = torch.device('cuda')
 LLAMA_MODELS = [
     "llama-7b-4bit", "llama-13b-4bit", "llama-30b-4bit", "llama-65b-4bit"
 ]
