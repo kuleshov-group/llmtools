@@ -5,7 +5,9 @@ from llmtune.config import DEV, LLAMA_MODELS, OPT_MODELS, get_llm_config
 from llmtune.llms.llama.model import load_llama
 from llmtune.llms.opt.model import load_opt
 from llmtune.engine.data import TrainTxt, TrainSAD, TrainGPT4All
+from llmtune.engine.data.calibration import get_calibration_loaders
 from llmtune.engine.lora.peft import quant_peft
+from llmtune.engine.quant.algorithm import executor as quant_executor
 from llmtune.utils import to_half_precision
 
 def load_llm(model, weights):
@@ -87,8 +89,8 @@ def finetune(llm, tokenizer, tune_config):
     data = load_data(tune_config, tokenizer)
 
     training_arguments = transformers.TrainingArguments(
-        per_device_train_batch_size=tune_config.mbatch_size,
-        gradient_accumulation_steps=tune_config.gradient_accumulation_steps,
+        per_device_train_batch_size=4,#tune_config.mbatch_size,
+        gradient_accumulation_steps=1, #tune_config.gradient_accumulation_steps,
         warmup_steps=tune_config.warmup_steps,
         num_train_epochs=tune_config.epochs,
         learning_rate=tune_config.lr,
@@ -111,8 +113,11 @@ def finetune(llm, tokenizer, tune_config):
         train_dataset=data.train_data,
         eval_dataset=data.val_data,
         args=training_arguments,
-        data_collator=transformers.DataCollatorForLanguageModeling(tokenizer, mlm=False),
+        data_collator=transformers.DataCollatorForLanguageModeling(
+            tokenizer, mlm=False
+        ),
     )
+    print(training_arguments.parallel_mode)
     model.config.use_cache = False
 
     # use half precision
@@ -129,3 +134,24 @@ def finetune(llm, tokenizer, tune_config):
 
     # Save Model
     model.save_pretrained(tune_config.adapter)
+
+def quantize(
+    llm_config, dataset, nsamples, wbits, groupsize, percdamp, seed, weights
+):
+    model = load_llama_unquantized(llm_config)
+    model.eval()
+    dataloader, _ = get_calibration_loaders(
+        dataset, 
+        nsamples=nsamples, 
+        seed=seed, 
+        model=model, 
+        seqlen=model.seqlen
+    )
+
+    tick = time.time()
+    quantizers = quant_executor.quantize_llama(model, dataloader, DEV)
+    print(f'Quantization time (s): {time.time() - tick}')
+
+    quant_executor.pack_llama(model, quantizers, wbits)
+    torch.save(model.state_dict(), weights) 
+    print(f'Model weights saved to: {weights}')

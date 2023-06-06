@@ -34,6 +34,31 @@ def make_parser():
     gen_parser.add_argument('--temperature', type=float, default=1.0,
         help='Sampling temperature.')
 
+    # quantize
+
+    quant_parser = subparsers.add_parser('quantize')
+    quant_parser.set_defaults(func=quantize)
+
+    quant_parser.add_argument('--model', choices=LLM_MODELS, required=True,
+        help='Type of model to load')
+    quant_parser.add_argument('--weights', type=str, required=True,
+        help='Path to the saved model weights.')
+    quant_parser.add_argument('dataset', type=str, 
+        choices=['wikitext2', 'ptb', 'c4'],
+        help='Where to extract calibration data from.')
+    quant_parser.add_argument('--seed', type=int, default=0, 
+        help='Seed for sampling the calibration data.')
+    quant_parser.add_argument('--nsamples', type=int, default=128,
+        help='Number of calibration data samples.')
+    quant_parser.add_argument('--percdamp', type=float, default=.01,
+        help='Percent of the average Hessian diagonal to use for dampening.')
+    quant_parser.add_argument('--wbits', type=int, default=4, 
+        choices=[2, 3, 4, 8], help='#bits to use for quantization.')
+    quant_parser.add_argument('--groupsize', type=int, default=-1,
+        help='Groupsize to use for quantization; default uses full row.')
+    quant_parser.add_argument('--save', type=str, default='',
+        help='Save quantized checkpoint under this name.')
+
     # download
 
     dl_parser = subparsers.add_parser('download')
@@ -145,6 +170,21 @@ def finetune(args):
     finetune_config = get_finetune_config(args)
     from llmtune.executor import finetune
     finetune(llm, tokenizer, finetune_config)
+
+def quantize(args):
+    from llmtune.config import get_llm_config
+    import llmtune.executor as llmtune
+    llm_config = get_llm_config(args.model)
+    output = llmtune.quantize(
+        llm_config, 
+        args.dataset, 
+        args.nsamples, 
+        args.wbits, 
+        args.groupsize, 
+        args.percdamp, 
+        args.seed,  
+        args.weights     
+    )
 
 if __name__ == '__main__':
     main()    
