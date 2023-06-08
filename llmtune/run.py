@@ -19,6 +19,8 @@ def make_parser():
         help='Path to the base model weights.')
     gen_parser.add_argument('--adapter', type=str, required=False,
         help='Path to the folder with the Lora adapter.')
+    gen_parser.add_argument('--groupsize', type=int, default=-1,
+        help='Groupsize used for quantization; default uses full row.')
     gen_parser.add_argument('--prompt', type=str, default='',
         help='Text used to initialize generation')
     gen_parser.add_argument('--instruction', type=str, default='',
@@ -85,6 +87,8 @@ def make_parser():
         help="Path to local dataset file.")
     tune_parser.add_argument('--adapter', type=str, required=False,
         help='Path to Lora adapter folder (also holds checkpoints)')
+    tune_parser.add_argument('--groupsize', type=int, default=-1,
+        help='Groupsize used for quantization; default uses full row.')
 
     # Training args group
     tune_parser.add_argument("--mbatch_size", default=1, type=int, 
@@ -127,7 +131,7 @@ def main():
 
 def generate(args):
     import llmtune.executor as llmtune
-    llm, tokenizer = llmtune.load_llm(args.model, args.weights)
+    llm, tokenizer = llmtune.load_llm(args.model, args.weights, args.groupsize)
     if args.adapter is not None:
         llm = llmtune.load_adapter(llm, adapter_path=args.adapter)
     if args.prompt and args.instruction:
@@ -165,7 +169,7 @@ def download(args):
 
 def finetune(args):
     from llmtune.executor import load_llm
-    llm, tokenizer = load_llm(args.model, args.weights)
+    llm, tokenizer = load_llm(args.model, args.weights, args.groupsize)
     from llmtune.config import get_finetune_config
     finetune_config = get_finetune_config(args)
     from llmtune.executor import finetune

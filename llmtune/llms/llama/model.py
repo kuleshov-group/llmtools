@@ -18,7 +18,7 @@ def load_llama_unquantized(llm_config):
     model.seqlen = 2048
     return model
 
-def load_llama(llm_config, checkpoint):
+def load_llama(llm_config, checkpoint, groupsize=-1):
     import transformers, accelerate
     from transformers import LlamaConfig, LlamaForCausalLM, LlamaTokenizer
     
@@ -34,10 +34,16 @@ def load_llama(llm_config, checkpoint):
         for name in ['lm_head']:
             if name in layers:
                 del layers[name]
-        make_quant(model, layers, llm_config.bits)
+        make_quant(model, layers, llm_config.bits, groupsize=groupsize)
     model = accelerate.load_checkpoint_and_dispatch(
         model=model, checkpoint=checkpoint, device_map={'': 0}
     )
+    # model = accelerate.load_checkpoint_and_dispatch(
+    #         model=model,
+    #         checkpoint=model_path,
+    #         device_map="auto",
+    #         no_split_module_classes=["LlamaDecoderLayer"]
+    # )
     model.seqlen = 2048
 
     tokenizer = LlamaTokenizer.from_pretrained(llm_config.hf_tokenizer_config)

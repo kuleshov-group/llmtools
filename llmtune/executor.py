@@ -10,10 +10,10 @@ from llmtune.engine.lora.peft import quant_peft
 from llmtune.engine.quant.algorithm import executor as quant_executor
 from llmtune.utils import to_half_precision
 
-def load_llm(model, weights):
+def load_llm(model, weights, groupsize=-1):
     llm_config = get_llm_config(model)
     if model in LLAMA_MODELS:
-        llm, tokenizer = load_llama(llm_config, weights)
+        llm, tokenizer = load_llama(llm_config, weights, groupsize)
     elif model in OPT_MODELS:
         llm, tokenizer = load_opt(llm_config, weights)
     else:

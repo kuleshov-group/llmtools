@@ -1,4 +1,5 @@
-from llmtune.engine.quant.algorithm.gpq import GPTQ
+import torch
+from llmtune.engine.quant.algorithm.gptq import GPTQ
 from llmtune.engine.quant.algorithm.quantizer import Quantizer
 
 @torch.no_grad()
