@@ -14,8 +14,10 @@ def find_layers(module, layers=[nn.Conv2d, nn.Linear], name=''):
 def to_half_precision(model):
     for n, m in model.named_modules():
         if '4bit' in str(type(m)) or 'QuantLinear' in str(type(m)):
-            m.zeros = m.zeros.half()
+            # m.zeros = m.zeros.half()
             m.scales = m.scales.half()    
+            if m.bias:
+                m.bias = m.bias.half()    
     return model
 
 def download_file(url, path):

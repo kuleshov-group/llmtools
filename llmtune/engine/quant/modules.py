@@ -140,16 +140,23 @@ class QuantLinear(nn.Module):
         # if torch.is_grad_enabled():
         if True:
             out = AutogradMatmul4bit.apply(
-                x, self.qweight, self.scales, self.zeros
+                x, 
+                self.qweight, 
+                self.scales, 
+                self.qzeros, 
+                self.g_idx, 
+                self.bits, 
+                self.maxq
             )
-            out += self.bias
+            if self.bias:
+                out += self.bias
         else:
             out = classic_forward(
                 x, 
                 qweight=self.qweight, 
                 bias=self.bias, 
                 scales=self.scales, 
-                zeros=self.zeros, 
+                qzeros=self.qzeros, 
                 g_idx=self.g_idx, 
                 outfeatures=self.out_features, 
                 wf=self.wf,
@@ -162,32 +169,32 @@ class QuantLinear(nn.Module):
 # ----------------------------------------------------------------------------
 # helpers
 
-class AutogradMatmul4bit(torch.autograd.Function):
-    @staticmethod
-    def forward(ctx, x, qweight, scales, zeros):
-        ctx.save_for_backward(qweight, scales, zeros)
-        buff = get_buffer(
-            qweight.shape, dtype=scales.dtype, device=qweight.device
-        )
-        quant_cuda.vecquant4recons(qweight, buff, scales, zeros)
-        # dtype = x.dtype
-        # x = x.float()
-        y = torch.matmul(x, buff).clone()
-        # y = y.to(dtype)
-        return y
+# class AutogradMatmul4bit(torch.autograd.Function):
+#     @staticmethod
+#     def forward(ctx, x, qweight, scales, zeros):
+#         ctx.save_for_backward(qweight, scales, zeros)
+#         buff = get_buffer(
+#             qweight.shape, dtype=scales.dtype, device=qweight.device
+#         )
+#         quant_cuda.vecquant4recons(qweight, buff, scales, zeros)
+#         # dtype = x.dtype
+#         # x = x.float()
+#         y = torch.matmul(x, buff).clone()
+#         # y = y.to(dtype)
+#         return y
 
-    @staticmethod
-    def backward(ctx, grad_output):
-        qweight, scales, zeros = ctx.saved_tensors
-        buff = get_buffer(
-            qweight.shape, dtype=scales.dtype, device=qweight.device
-        )
-        # dtype = grad_output.dtype
-        # grad_output = grad_output.float()
-        quant_cuda.vecquant4recons(qweight, buff, scales, zeros)
-        grad = torch.matmul(grad_output, buff.T)
-        # grad = grad.to(dtype)
-        return grad, None, None, None
+#     @staticmethod
+#     def backward(ctx, grad_output):
+#         qweight, scales, zeros = ctx.saved_tensors
+#         buff = get_buffer(
+#             qweight.shape, dtype=scales.dtype, device=qweight.device
+#         )
+#         # dtype = grad_output.dtype
+#         # grad_output = grad_output.float()
+#         quant_cuda.vecquant4recons(qweight, buff, scales, zeros)
+#         grad = torch.matmul(grad_output, buff.T)
+#         # grad = grad.to(dtype)
+#         return grad, None, None, None
 
 class AutogradMatmul4bit(torch.autograd.Function):
     @staticmethod
@@ -240,7 +247,7 @@ class AutogradMatmul2bit(torch.autograd.Function):
         return grad, None, None, None, None, None, None        
 
 def classic_forward(
-    x, qweight, bias, scales, zeros, g_idx, outfeatures, wf=None,
+    x, qweight, bias, scales, qzeros, g_idx, outfeatures, wf=None,
     bits=4, is_cuda=True, kernel_switch_threshold=128
 ):
     out_shape = x.shape[:-1] + (outfeatures, )
