@@ -1,14 +1,14 @@
-# LLMTune: 4-Bit Finetuning of Large Language Models on One Consumer GPU
+# LLMTune: 4-Bit Finetuning of LLMs on a Consumer GPU
 
-LLMTune allows finetuning LLMs (including the largest 65B LLAMA models) on as little as one consumer-grade GPU.
+LLMTune allows finetuning LLMs (e.g., the largest 65B LLAMA models) on as little as one consumer-grade GPU.
 
 Its features include:
 
 * Modular support for multiple LLMs (currently LLAMA, OPT)
-* Support for a wide range of consumer-grade Nvidia GPUs; 65B LLAMAs finetune on one A6000
+* Support for a wide range of consumer-grade NVidia GPUs; 65B LLAMAs finetune on one A6000
 * Tiny and easy-to-use codebase
 
-One benefit of being able to finetune larger LLMs (e.g., 65B params) on one GPU is the ability to easily scale up training using only data parallelism.
+One benefit of being able to finetune larger LLMs (e.g., 65B params) on one GPU is the ability to easily leverage data parallelism for large models.
 
 Underneath the hood, LLMTune implements the LoRA algorithm over an LLM compressed using the GPTQ algorithm, which requires implementing a backward pass for the quantized LLM. See the hardware requirements for more information on which LLMs are supported by various GPUs.
 
@@ -88,7 +88,7 @@ First, start by downloading the weights of a base LLM model:
 ```
 wget https://huggingface.co/kuleshov/llama-65b-4bit/resolve/main/llama-65b-4bit.pt
 ```
-The pre-quantized models are available for download from the HF hub. We will add the quantization code to `llmtune` if there is demand.
+The pre-quantized models are available for download. We will add the quantization code to `llmtune` if there is demand.
 ```
 wget https://huggingface.co/kuleshov/llama-13b-4bit/resolve/main/llama-13b-4bit.pt
 wget https://huggingface.co/kuleshov/llama-30b-4bit/resolve/main/llama-30b-4bit.pt
@@ -107,11 +107,11 @@ You can generate text directly from the command line. This generates text from t
 ```
 llmtune generate --model llama-65b-4bit --weights llama-65b-4bit.pt --prompt "the pyramids were built by"
 ```
-More interestingly, we can generate output from instructions to a finetuned model. 
+More interestingly, we can generate output from an instruction-finetuned model by also providing a path to LoRA adapter weights. 
 ```
 llmtune generate --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-65b-4bit --instruction "Write a well-thought out recipe for a blueberry lasagna dish." --max-length 500
 ```
-In the above example, `--instruct` applies the Alpaca-style prompt template, although you can also use `--prompt` to feed the model text without any pre-processing:
+In the above example, `--instruct` applies the Alpaca-style prompt template, although you can also use `--prompt` to feed the model initial text without any pre-processing:
 
 The LLMTune interface also provides additional command-line options.
 ```
@@ -138,7 +138,7 @@ options:
                         Sampling temperature.
 ```
 
-### Finetune Base Model
+### Finetune A Base Model
 
 You may also finetune a base model yourself. First, you need to dowload a dataset. We currently support the Alpaca dataset, which we download from the HF hub:
 ```
@@ -277,7 +277,8 @@ This is experimental work in progress. Work that stills needs to be done:
 LLMTune is based on the following projects:
 * The GPTQ algorithm and codebase by the [IST-DASLAB](https://github.com/IST-DASLab/gptq) with modifications by [@qwopqwop200](https://github.com/qwopqwop200/)
 * The `alpaca_lora_4bit` repo by [johnsmith0031](https://github.com/johnsmith0031)
-* The LLAMA, OPT, and BLOOM models by META FAIR and the BigScience consortium.
+* The PEFT repo and its implementation of LoRA
+* The LLAMA, OPT, and BLOOM models by META FAIR and the BigScience consortium
 
 ## Citations
 
