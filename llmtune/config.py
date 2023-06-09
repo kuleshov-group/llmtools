@@ -4,7 +4,8 @@ from llmtune.llms.llama.config import (
     LLama7B4BitConfig, 
     LLama13B4BitConfig, 
     LLama30B4BitConfig, 
-    LLama65B4BitConfig
+    LLama65B4BitConfig,
+    LLama7B2BitConfig, 
 )
 from llmtune.engine.lora.config import Finetune4bConfig
 
@@ -13,7 +14,8 @@ from llmtune.engine.lora.config import Finetune4bConfig
 # define some constants
 DEV = torch.device('cuda')
 LLAMA_MODELS = [
-    "llama-7b-4bit", "llama-13b-4bit", "llama-30b-4bit", "llama-65b-4bit"
+    "llama-7b-4bit", "llama-13b-4bit", "llama-30b-4bit", "llama-65b-4bit",
+    "llama-7b-2bit", 
 ]
 OPT_MODELS  = ["opt-6.7b-4bit"]
 LLM_MODELS = LLAMA_MODELS + OPT_MODELS
@@ -22,6 +24,8 @@ LLM_MODELS = LLAMA_MODELS + OPT_MODELS
 def get_llm_config(model):
     if model == "llama-7b-4bit":
         return LLama7B4BitConfig
+    elif model == "llama-7b-2bit":
+        return LLama7B2BitConfig        
     elif model == "llama-13b-4bit":
         return LLama13B4BitConfig
     elif model == "llama-30b-4bit":
