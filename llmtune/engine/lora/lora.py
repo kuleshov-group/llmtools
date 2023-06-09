@@ -100,10 +100,13 @@ class QuantLoraModel(torch.nn.Module):
                 elif isinstance(target, torch.nn.Linear) and self.peft_config.enable_lora is None:
                     new_module = Linear(target.in_features, target.out_features, bias=bias, **kwargs)
                 elif isinstance(target, QuantLinear) and self.peft_config.enable_lora is None:
-                    new_module = Linear4bitLt(
+                    new_module = LinearQuantLt(
+                        target.bits,
                         target.in_features, 
                         target.out_features, 
+                        target.groupsize,
                         bias=bias, 
+                        is_cuda=target.is_cuda,
                         **kwargs
                     )
                 elif self.peft_config.enable_lora is not None:
@@ -134,45 +137,21 @@ class QuantLoraModel(torch.nn.Module):
         target = self.model.get_submodule(key)
         return parent, target, target_name
 
-    # def _replace_module(self, parent_module, child_name, new_module, old_module):
-    #     setattr(parent_module, child_name, new_module)
-    #     if isinstance(old_module, QuantLinear) and isinstance(new_module, Linear4bitLt):
-    #         new_module.qweight = old_module.qweight
-    #         new_module.scales = old_module.scales
-    #         new_module.zeros = old_module.zeros
-    #         new_module.bias = old_module.bias
-    #         if getattr(old_module, "state", None) is not None:
-    #             new_module.state = old_module.state
-    #             new_module.to(old_module.qweight.device)
-
-    #         # dispatch to correct device
-    #         for name, module in new_module.named_modules():
-    #             if "lora_" in name:
-    #                 module.to(old_module.qweight.device)
-    #     else:
-    #         new_module.weight = old_module.weight
-    #         if old_module.bias is not None:
-    #             new_module.bias = old_module.bias
-    #         if getattr(old_module, "state", None) is not None:
-    #             new_module.state = old_module.state
-    #             new_module.to(old_module.weight.device)
-
-    #         # dispatch to correct device
-    #         for name, module in new_module.named_modules():
-    #             if "lora_" in name:
-    #                 module.to(old_module.weight.device)
-
     def _replace_module(self, parent_module, child_name, new_module, old_module):
         setattr(parent_module, child_name, new_module)
-        if isinstance(old_module, QuantLinear) and isinstance(new_module, Linear4bitLt):
+        if isinstance(old_module, QuantLinear) and isinstance(new_module, LinearQuantLt):
             new_module.qweight = old_module.qweight
             new_module.scales = old_module.scales
-            # if old_module.is_v1_model:
-            #     new_module.zeros = old_module.zeros
-            # else:
             new_module.qzeros = old_module.qzeros
             new_module.g_idx = old_module.g_idx
             new_module.bias = old_module.bias
+            new_module.groupsize = old_module.groupsize
+            new_module.maxq = old_module.maxq
+            new_module.bits = old_module.bits
+            new_module.wf = old_module.wf
+            new_module.is_cuda = old_module.is_cuda
+            new_module.kernel_switch_threshold \
+                = old_module.kernel_switch_threshold
             if getattr(old_module, "state", None) is not None:
                 new_module.state = old_module.state
                 new_module.to(old_module.qweight.device)
@@ -223,24 +202,29 @@ class QuantLoraModel(torch.nn.Module):
         self._set_adapter_layers(enabled=False)
 
 
-class Linear4bitLt(QuantLinear, LoraLayer):
+class LinearQuantLt(QuantLinear, LoraLayer):
     # Lora implemented in a dense layer
     def __init__(
             self,
+            bits,
             in_features,
             out_features,
+            groupsize,
+            bias=False,
             r: int = 0,
             lora_alpha: int = 1,
             lora_dropout: float = 0.0,
+            is_cuda=True,
             **kwargs,
     ):
         QuantLinear.__init__(
             self,
-            bits=4,
+            bits=bits,
             in_features=in_features,
             out_features=out_features,
-            bias=None,
-            groupsize=64
+            groupsize=groupsize,
+            bias=bias,
+            is_cuda=is_cuda,
         )
         LoraLayer.__init__(
             self, 
@@ -257,9 +241,6 @@ class Linear4bitLt(QuantLinear, LoraLayer):
             # Freezing the pre-trained weight matrix
             self.qweight.requires_grad = False
             self.scales.requires_grad = False
-            # if self.is_v1_model:
-            #     self.zeros.requires_grad = False
-            # else:
             self.qzeros.requires_grad = False
             self.g_idx.requires_grad = False
             if self.bias:
