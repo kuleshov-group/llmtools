@@ -19,8 +19,8 @@ def make_parser():
         help='Path to the base model weights.')
     gen_parser.add_argument('--adapter', type=str, required=False,
         help='Path to the folder with the Lora adapter.')
-    gen_parser.add_argument('--groupsize', type=int, default=-1,
-        help='Groupsize used for quantization; default uses full row.')
+    gen_parser.add_argument('--groupsize', type=int, 
+        help='Groupsize used for quantization; -1 uses full row.')
     gen_parser.add_argument('--prompt', type=str, default='',
         help='Text used to initialize generation')
     gen_parser.add_argument('--instruction', type=str, default='',
@@ -56,8 +56,8 @@ def make_parser():
         help='Percent of the average Hessian diagonal to use for dampening.')
     quant_parser.add_argument('--wbits', type=int, default=4, 
         choices=[2, 3, 4, 8], help='#bits to use for quantization.')
-    quant_parser.add_argument('--groupsize', type=int, default=-1,
-        help='Groupsize to use for quantization; default uses full row.')
+    quant_parser.add_argument('--groupsize', type=int,
+        help='Groupsize to use for quantization; -1 uses full row.')
     quant_parser.add_argument('--save', type=str, default='',
         help='Save quantized checkpoint under this name.')
 
@@ -87,8 +87,8 @@ def make_parser():
         help="Path to local dataset file.")
     tune_parser.add_argument('--adapter', type=str, required=False,
         help='Path to Lora adapter folder (also holds checkpoints)')
-    tune_parser.add_argument('--groupsize', type=int, default=-1,
-        help='Groupsize used for quantization; default uses full row.')
+    tune_parser.add_argument('--groupsize', type=int,
+        help='Groupsize used for quantization; -1 uses full row.')
 
     # Training args group
     tune_parser.add_argument("--mbatch_size", default=1, type=int, 
