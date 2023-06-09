@@ -104,8 +104,6 @@ def finetune(llm, tokenizer, tune_config):
         save_total_limit=tune_config.save_total_limit,
         load_best_model_at_end=False,
         ddp_find_unused_parameters=False if tune_config.ddp else None,
-        # resume_from_checkpoint=tune_config.resume_checkpoint,
-        resume_from_checkpoint=True,
     )
 
     trainer = transformers.Trainer(
@@ -123,14 +121,8 @@ def finetune(llm, tokenizer, tune_config):
     # use half precision
     model = to_half_precision(model)
 
-    # if tune_config.resume_checkpoint:
-    #     print('Resuming from {} ...'.format(tune_config.resume_checkpoint))
-    #     trainer.train(tune_config.resume_checkpoint)
-    # else:
-    #     trainer.train()
-
-    # trainer.train(resume_from_checkpoint=True)
-    trainer.train()
+    # start training
+    trainer.train(resume_from_checkpoint=True)
 
     # Save Model
     model.save_pretrained(tune_config.adapter)

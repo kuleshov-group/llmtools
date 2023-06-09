@@ -117,8 +117,6 @@ def make_parser():
         help="")
     tune_parser.add_argument("--logging_steps", default=10, type=int, 
         help="")
-    tune_parser.add_argument("--resume_checkpoint", action="store_true", 
-        help="Resume from checkpoint.")
 
     return parser
 
