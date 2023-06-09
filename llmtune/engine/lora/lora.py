@@ -100,7 +100,12 @@ class QuantLoraModel(torch.nn.Module):
                 elif isinstance(target, torch.nn.Linear) and self.peft_config.enable_lora is None:
                     new_module = Linear(target.in_features, target.out_features, bias=bias, **kwargs)
                 elif isinstance(target, QuantLinear) and self.peft_config.enable_lora is None:
-                    new_module = Linear4bitLt(target.in_features, target.out_features, bias=bias, **kwargs)
+                    new_module = Linear4bitLt(
+                        target.in_features, 
+                        target.out_features, 
+                        bias=bias, 
+                        **kwargs
+                    )
                 elif self.peft_config.enable_lora is not None:
                     kwargs.update({"enable_lora": self.peft_config.enable_lora})
                     if isinstance(target, Conv1D):
@@ -129,12 +134,44 @@ class QuantLoraModel(torch.nn.Module):
         target = self.model.get_submodule(key)
         return parent, target, target_name
 
+    # def _replace_module(self, parent_module, child_name, new_module, old_module):
+    #     setattr(parent_module, child_name, new_module)
+    #     if isinstance(old_module, QuantLinear) and isinstance(new_module, Linear4bitLt):
+    #         new_module.qweight = old_module.qweight
+    #         new_module.scales = old_module.scales
+    #         new_module.zeros = old_module.zeros
+    #         new_module.bias = old_module.bias
+    #         if getattr(old_module, "state", None) is not None:
+    #             new_module.state = old_module.state
+    #             new_module.to(old_module.qweight.device)
+
+    #         # dispatch to correct device
+    #         for name, module in new_module.named_modules():
+    #             if "lora_" in name:
+    #                 module.to(old_module.qweight.device)
+    #     else:
+    #         new_module.weight = old_module.weight
+    #         if old_module.bias is not None:
+    #             new_module.bias = old_module.bias
+    #         if getattr(old_module, "state", None) is not None:
+    #             new_module.state = old_module.state
+    #             new_module.to(old_module.weight.device)
+
+    #         # dispatch to correct device
+    #         for name, module in new_module.named_modules():
+    #             if "lora_" in name:
+    #                 module.to(old_module.weight.device)
+
     def _replace_module(self, parent_module, child_name, new_module, old_module):
         setattr(parent_module, child_name, new_module)
         if isinstance(old_module, QuantLinear) and isinstance(new_module, Linear4bitLt):
             new_module.qweight = old_module.qweight
             new_module.scales = old_module.scales
-            new_module.zeros = old_module.zeros
+            # if old_module.is_v1_model:
+            #     new_module.zeros = old_module.zeros
+            # else:
+            new_module.qzeros = old_module.qzeros
+            new_module.g_idx = old_module.g_idx
             new_module.bias = old_module.bias
             if getattr(old_module, "state", None) is not None:
                 new_module.state = old_module.state
@@ -201,7 +238,9 @@ class Linear4bitLt(QuantLinear, LoraLayer):
             self,
             bits=4,
             in_features=in_features,
-            out_features=out_features
+            out_features=out_features,
+            bias=None,
+            groupsize=64
         )
         LoraLayer.__init__(
             self, 
@@ -218,8 +257,13 @@ class Linear4bitLt(QuantLinear, LoraLayer):
             # Freezing the pre-trained weight matrix
             self.qweight.requires_grad = False
             self.scales.requires_grad = False
-            self.zeros.requires_grad = False
-            self.bias.requires_grad = False
+            # if self.is_v1_model:
+            #     self.zeros.requires_grad = False
+            # else:
+            self.qzeros.requires_grad = False
+            self.g_idx.requires_grad = False
+            if self.bias:
+                self.bias.requires_grad = False
         self.reset_parameters()
 
     def reset_parameters(self):
