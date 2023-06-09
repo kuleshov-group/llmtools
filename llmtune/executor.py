@@ -1,3 +1,4 @@
+import os
 import torch
 import torch.nn as nn
 
@@ -122,7 +123,11 @@ def finetune(llm, tokenizer, tune_config):
     model = to_half_precision(model)
 
     # start training
-    trainer.train(resume_from_checkpoint=True)
+    checkpoint_dir = tune_config.lora_out_dir
+    if os.path.exists(checkpoint_dir) and os.listdir(checkpoint_dir):
+        trainer.train(resume_from_checkpoint=True)
+    else:
+        trainer.train()
 
     # Save Model
     model.save_pretrained(tune_config.adapter)
