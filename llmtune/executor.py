@@ -89,8 +89,8 @@ def finetune(llm, tokenizer, tune_config):
     data = load_data(tune_config, tokenizer)
 
     training_arguments = transformers.TrainingArguments(
-        per_device_train_batch_size=4,#tune_config.mbatch_size,
-        gradient_accumulation_steps=1, #tune_config.gradient_accumulation_steps,
+        per_device_train_batch_size=tune_config.mbatch_size,
+        gradient_accumulation_steps=tune_config.gradient_accumulation_steps,
         warmup_steps=tune_config.warmup_steps,
         num_train_epochs=tune_config.epochs,
         learning_rate=tune_config.lr,
