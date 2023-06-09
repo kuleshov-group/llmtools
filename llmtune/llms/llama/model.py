@@ -59,6 +59,35 @@ def fix_tokenizer(tokenizer):
     print("SEP: ", tokenizer.sep_token_id, tokenizer.sep_token)
     return tokenizer
 
+def fix_model(model, tokenizer, use_resize=True):
+    model.config.pad_token_id = tokenizer.pad_token_id
+    assert model.config.pad_token_id is not None
+
+    bos_candidates = (
+        tokenizer.bos_token_id,
+        tokenizer.cls_token_id,
+        tokenizer.sep_token_id,
+        tokenizer.unk_token_id
+    )
+    for bos_candidate in bos_candidates:
+        model.config.bos_token_id = bos_candidate
+        if bos_candidate is not None:
+            break
+    assert model.config.bos_token_id is not None
+    model.config.decoder_start_token_id = model.config.bos_token_id
+
+    eos_candidates = (tokenizer.eos_token_id, tokenizer.sep_token_id)
+    for eos_candidate in eos_candidates:
+        model.config.eos_token_id = eos_candidate
+        if eos_candidate is not None:
+            break
+    assert model.config.eos_token_id is not None
+
+    if use_resize:
+        model.resize_token_embeddings(len(tokenizer))
+
+    return model
+
 def load_llama(llm_config, checkpoint):
     import transformers, accelerate
     from transformers import LlamaConfig, LlamaForCausalLM, LlamaTokenizer
@@ -68,7 +97,13 @@ def load_llama(llm_config, checkpoint):
         torch.set_default_dtype(torch.half)
         transformers.modeling_utils._init_weights = False
         torch.set_default_dtype(torch.half)
+
+        tokenizer = LlamaTokenizer.from_pretrained(llm_config.hf_tokenizer_config)
+        tokenizer = fix_tokenizer(tokenizer)
+        # tokenizer.truncation_side = 'left'
+
         model = LlamaForCausalLM(config)
+        model = fix_model(model, tokenizer, use_resize=False)
         torch.set_default_dtype(torch.float)
         model = model.eval()
         layers = find_layers(model)
@@ -81,8 +116,6 @@ def load_llama(llm_config, checkpoint):
     )
     model.seqlen = 2048
 
-    tokenizer = LlamaTokenizer.from_pretrained(llm_config.hf_tokenizer_config)
-    tokenizer = fix_tokenizer(tokenizer)
-    # tokenizer.truncation_side = 'left'
+    
 
     return model, tokenizer
