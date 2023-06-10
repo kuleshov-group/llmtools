@@ -1,7 +1,7 @@
 import argparse
 from llmtune.config import LLM_MODELS
 import torch
-
+import torch.nn as nn
 # ----------------------------------------------------------------------------
 
 def make_parser():
