@@ -165,6 +165,7 @@ def download(args):
     download_file(llm_config.weights_url, args.weights)
 
 def finetune(args):
+    import torch
     from llmtune.executor import load_llm
     llm, tokenizer = load_llm(args.model, args.weights)
     from llmtune.config import get_finetune_config
