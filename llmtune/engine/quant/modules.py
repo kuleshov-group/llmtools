@@ -139,7 +139,11 @@ class QuantLinear(nn.Module):
     def forward(self, x):
         # if torch.is_grad_enabled():
         if True:
-            out = AutogradMatmul4bit.apply(
+            if self.bits == 4:
+                AutogradMatmul = AutogradMatmul4bit
+            elif self.bits == 2:
+                AutogradMatmul = AutogradMatmul2bit
+            out = AutogradMatmul.apply(
                 x, 
                 self.qweight, 
                 self.scales, 
