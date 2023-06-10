@@ -1,3 +1,6 @@
+import torch
+from torch.nn import nn
+
 from llmtune.engine.quant.algorithm.gptq import GPTQ
 from llmtune.engine.quant.algorithm.quantizer import Quantizer
 
