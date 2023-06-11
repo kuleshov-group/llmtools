@@ -23,6 +23,12 @@ class LLama65B4BitConfig:
     weights_url = "https://huggingface.co/kuleshov/llama-65b-4bit/resolve/main/llama-65b-4bit.pt"
     bits = 4
 
+class LLama7B3BitConfig:
+    hf_config_name = "decapoda-research/llama-7b-hf"
+    hf_tokenizer_config = "huggyllama/llama-13b"
+    weights_url = None
+    bits = 3
+
 class LLama7B2BitConfig:
     hf_config_name = "decapoda-research/llama-7b-hf"
     hf_tokenizer_config = "huggyllama/llama-13b"
