@@ -137,13 +137,20 @@ class QuantLinear(nn.Module):
         self.qzeros = torch.from_numpy(qzeros) 
 
     def forward(self, x):
-        # if torch.is_grad_enabled():
-        if True:
-            if self.bits == 4:
-                AutogradMatmul = AutogradMatmul4bit
-            elif self.bits == 2:
-                AutogradMatmul = AutogradMatmul2bit
-            out = AutogradMatmul.apply(
+        if self.bits == 4:
+            out = AutogradMatmul4bit.apply(
+                x, 
+                self.qweight, 
+                self.scales, 
+                self.qzeros, 
+                self.g_idx, 
+                self.bits, 
+                self.maxq
+            )
+            if self.bias:
+                out += self.bias
+        elif self.bits == 2:
+            out = AutogradMatmul2bit.apply(
                 x, 
                 self.qweight, 
                 self.scales, 
@@ -165,7 +172,7 @@ class QuantLinear(nn.Module):
                 outfeatures=self.out_features, 
                 wf=self.wf,
                 bits=self.bits, 
-                is_cuda=self.is_cuda, 
+                is_cuda=False,
                 kernel_switch_threshold=self.kernel_switch_threshold
             )
         return out
@@ -299,7 +306,8 @@ def classic_forward(
                 
          weight = weight.reshape(weight.shape[0] * weight.shape[1], weight.shape[2])
                 
-         weights = (scales[g_idx] * (weight - zeros[g_idx]))
+         g_idx_long = g_idx.type(torch.LongTensor)
+         weights = (scales[g_idx_long] * (weight - zeros[g_idx_long]))
          out = torch.matmul(x.half(), weights)
     out = out.reshape(out_shape)
     out = out + bias if bias is not None else out
