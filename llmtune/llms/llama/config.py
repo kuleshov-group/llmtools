@@ -29,6 +29,24 @@ class LLama7B3BitConfig:
     weights_url = None
     bits = 3
 
+class LLama13B3BitConfig:
+    hf_config_name = "decapoda-research/llama-13b-hf"
+    hf_tokenizer_config = "huggyllama/llama-13b"
+    weights_url = None
+    bits = 3
+
+class LLama30B3BitConfig:
+    hf_config_name = "decapoda-research/llama-30b-hf"
+    hf_tokenizer_config = "huggyllama/llama-13b"
+    weights_url = None
+    bits = 3
+
+class LLama65B3BitConfig:
+    hf_config_name = "decapoda-research/llama-65b-hf"
+    hf_tokenizer_config = "huggyllama/llama-13b"
+    weights_url = None
+    bits = 3
+
 class LLama7B2BitConfig:
     hf_config_name = "decapoda-research/llama-7b-hf"
     hf_tokenizer_config = "huggyllama/llama-13b"
