@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from llmtune.engine.quant.autograd import (
-    Autograd2bit, Autograd4bit, classic_forward
+    Autograd2bit, Autograd4bit, Autograd3bit
 )
 
 try:

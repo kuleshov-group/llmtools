@@ -58,8 +58,8 @@ class Autograd2bit(torch.autograd.Function):
 class Autograd3bit(torch.autograd.Function):
     @staticmethod
     @custom_fwd(cast_inputs=torch.float16)
-    def forward(ctx, x, qweight, scales, zeros, g_idx, wf):
-        ctx.save_for_backward(qweight, scales, zeros, g_idx, wf)
+    def forward(ctx, x, qweight, scales, qzeros, g_idx, wf):
+        ctx.save_for_backward(qweight, scales, qzeros, g_idx, wf)
         weight = unpack_weight(qweight, scales, qzeros, g_idx, wf, bits=3)
         output = torch.matmul(x.half(), weight)
         # output.reshape(x.shape[:-1] + (outfeatures,))
@@ -68,10 +68,10 @@ class Autograd3bit(torch.autograd.Function):
     @staticmethod
     @custom_bwd
     def backward(ctx, grad_output):
-        qweight, scales, zeros, g_idx, wf = ctx.saved_tensors
+        qweight, scales, qzeros, g_idx, wf = ctx.saved_tensors
         if ctx.needs_input_grad[0]:
             weight = unpack_weight(qweight, scales, qzeros, g_idx, wf, bits=3)
-            grad = torch.matmul(x.half(), weight.T)
+            grad = torch.matmul(grad_output.half(), weight.T)
         return grad, None, None, None, None, None, None      
 
 def classic_forward(
