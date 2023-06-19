@@ -8,7 +8,7 @@ from torch.cuda.amp import custom_bwd, custom_fwd
 class Autograd4bit(torch.autograd.Function):
     @staticmethod
     @custom_fwd(cast_inputs=torch.float16)
-    def forward(ctx, x, qweight, scales, zeros, g_idx, bits, maxq):
+    def forward(ctx, x, qweight, scales, zeros, g_idx):
         ctx.save_for_backward(qweight, scales, zeros, g_idx)
         if g_idx is None:
             output = mm._matmul4bit_v1_recons(
@@ -39,7 +39,7 @@ class Autograd4bit(torch.autograd.Function):
 class Autograd2bit(torch.autograd.Function):
     @staticmethod
     @custom_fwd(cast_inputs=torch.float16)
-    def forward(ctx, x, qweight, scales, zeros, g_idx, bits, maxq):
+    def forward(ctx, x, qweight, scales, zeros, g_idx):
         ctx.save_for_backward(qweight, scales, zeros, g_idx)
         output = mm._matmul2bit_v2_recons(x, qweight, scales, zeros, g_idx)
         output = output.clone()
@@ -58,20 +58,20 @@ class Autograd2bit(torch.autograd.Function):
 class Autograd3bit(torch.autograd.Function):
     @staticmethod
     @custom_fwd(cast_inputs=torch.float16)
-    def forward(ctx, x, qweight, scales, zeros, g_idx, bits, maxq):
-        ctx.save_for_backward(qweight, scales, zeros, g_idx)
-        output = mm._matmul2bit_v2_recons(x, qweight, scales, zeros, g_idx)
-        output = output.clone()
+    def forward(ctx, x, qweight, scales, zeros, g_idx, wf):
+        ctx.save_for_backward(qweight, scales, zeros, g_idx, wf)
+        weight = unpack_weight(qweight, scales, qzeros, g_idx, wf, bits=3)
+        output = torch.matmul(x.half(), weight)
+        # output.reshape(x.shape[:-1] + (outfeatures,))
         return output
 
     @staticmethod
     @custom_bwd
     def backward(ctx, grad_output):
-        qweight, scales, zeros, g_idx = ctx.saved_tensors
+        qweight, scales, zeros, g_idx, wf = ctx.saved_tensors
         if ctx.needs_input_grad[0]:
-            grad = mm._matmul2bit_v2_recons(
-                grad_output, qweight, scales, zeros, g_idx, transpose=True
-            )
+            weight = unpack_weight(qweight, scales, qzeros, g_idx, wf, bits=3)
+            grad = torch.matmul(x.half(), weight.T)
         return grad, None, None, None, None, None, None      
 
 def classic_forward(
@@ -103,7 +103,7 @@ def classic_forward(
     # out = out.to(dtype)
     return out
 
-def unpack_weight(qweight, scales, qzeros, g_idx, wf=None, bits=4)
+def unpack_weight(qweight, scales, qzeros, g_idx, wf=None, bits=4):
     if bits in [2,4,8]:
        zeros = torch.bitwise_right_shift(torch.unsqueeze(qzeros, 2).expand(-1, -1, 32 // bits), wf.unsqueeze(0)).to(torch.int16 if self.bits == 8 else torch.int8)
        torch.bitwise_and(zeros, (2 ** bits) - 1, out=zeros)
@@ -129,35 +129,35 @@ def unpack_weight(qweight, scales, qzeros, g_idx, wf=None, bits=4)
        weight1 = get_buffer(buffer1_shape)
        
        weight = qweight.reshape(qweight.shape[0]//3, 3, 1, qweight.shape[1]).expand(-1, -1, 12, -1)
-       print(qweight.data_ptr(), qweight.requires_grad)
-       print(weight.data_ptr(), weight.requires_grad)
+       # print(qweight.data_ptr(), qweight.requires_grad)
+       # print(weight.data_ptr(), weight.requires_grad)
        weight2 = torch.zeros(weight.shape)
        weight = (weight >> wf.unsqueeze(-1))&0x7
-       print(weight.data_ptr(), weight.requires_grad)
+       # print(weight.data_ptr(), weight.requires_grad)
        weight[:,0,10] = (weight[:,0,10]&0x3) | ((weight[:,1,0] << 2)&0x4)
-       print(weight.data_ptr(), weight.requires_grad)
+       # print(weight.data_ptr(), weight.requires_grad)
        weight[:,1,11] = (weight[:,1,11]&0x1) | ((weight[:,2,0] << 1)&0x6)
-       print(weight.data_ptr(), weight.requires_grad)
+       # print(weight.data_ptr(), weight.requires_grad)
        weight &= 0x7
-       print(weight.data_ptr(), weight.requires_grad)
+       # print(weight.data_ptr(), weight.requires_grad)
        weight = torch.cat([weight[:,0,:11], weight[:,1,1:12], weight[:,2,1:11]], dim=1)
-       print(weight.data_ptr(), weight.requires_grad)
+       # print(weight.data_ptr(), weight.requires_grad)
            
     weight = weight.reshape(weight.shape[0] * weight.shape[1], weight.shape[2])
-    print(weight.data_ptr(), weight.requires_grad)
+    # print(weight.data_ptr(), weight.requires_grad)
            
     g_idx_long = g_idx.to(torch.long)
     # weights = (scales[g_idx_long] * (weight - zeros[g_idx_long]))
     # out = torch.matmul(x.half(), weights)
-    print(weight.dtype)
-    print(zeros.dtype)
-    print(scales.dtype)
+    # print(weight.dtype)
+    # print(zeros.dtype)
+    # print(scales.dtype)
     weight -= zeros[g_idx_long]
-    print(weight.data_ptr(), weight.requires_grad)
+    # print(weight.data_ptr(), weight.requires_grad)
     weight = weight.to(torch.half)
-    print(weight.data_ptr(), weight.requires_grad)
+    # print(weight.data_ptr(), weight.requires_grad)
     weight *= scales[g_idx_long]
-    print(weight.data_ptr(), weight.requires_grad)
+    # print(weight.data_ptr(), weight.requires_grad)
     return weight
 
 # ----------------------------------------------------------------------------

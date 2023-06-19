@@ -145,8 +145,6 @@ class QuantLinear(nn.Module):
                 self.scales, 
                 self.qzeros, 
                 self.g_idx, 
-                self.bits, 
-                self.maxq
             )
             if self.bias:
                 out += self.bias
@@ -157,23 +155,20 @@ class QuantLinear(nn.Module):
                 self.scales, 
                 self.qzeros, 
                 self.g_idx, 
-                self.bits, 
-                self.maxq
+            )
+            if self.bias:
+                out += self.bias
+        elif self.bits == 3:
+            out = Autograd3bit.apply(
+                x, 
+                self.qweight, 
+                self.scales, 
+                self.qzeros, 
+                self.g_idx, 
+                self.wf
             )
             if self.bias:
                 out += self.bias
         else:
-            out = classic_forward(
-                x, 
-                qweight=self.qweight, 
-                bias=self.bias, 
-                scales=self.scales, 
-                qzeros=self.qzeros, 
-                g_idx=self.g_idx, 
-                outfeatures=self.out_features, 
-                wf=self.wf,
-                bits=self.bits, 
-                is_cuda=False,
-                kernel_switch_threshold=self.kernel_switch_threshold
-            )
+            raise NotImplementedError()
         return out
