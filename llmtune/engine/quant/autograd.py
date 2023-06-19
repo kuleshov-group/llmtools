@@ -56,57 +56,24 @@ class Autograd2bit(torch.autograd.Function):
         return grad, None, None, None, None, None, None        
 
 class Autograd3bit(torch.autograd.Function):
-    # @staticmethod
-    # @custom_fwd(cast_inputs=torch.float16)
-    # def forward(ctx, x, qweight, scales, qzeros, g_idx, wf, outfeatures, infeatures):
-    #     zero_grad = torch.zeros(x.shape[:-1] + (infeatures,), device=x.device)
-    #     ctx.save_for_backward(qweight, scales, qzeros, g_idx, wf, zero_grad)
-        
-    #     zeros = qzeros.reshape(qzeros.shape[0], qzeros.shape[1]//3, 3, 1).expand(-1, -1, -1, 12)
-    #     zeros = (zeros >> wf.unsqueeze(0))
-    #     zeros[:,:,0,10] = (zeros[:,:,0,10]&0x3) | ((zeros[:,:,1,0] << 2)&0x4)
-    #     zeros[:,:,1,11] = (zeros[:,:,1,11]&0x1) | ((zeros[:,:,2,0] << 1)&0x6)
-    #     zeros = zeros & 0x7
-    #     zeros = torch.cat([zeros[:,:,0,:11], zeros[:,:,1,1:12], zeros[:,:,2,1:11]], dim=2)
-
-    #     zeros = zeros + 1
-    #     zeros = zeros.reshape(scales.shape)  
-
-    #     weight = qweight.reshape(qweight.shape[0]//3, 3, 1, qweight.shape[1]).expand(-1, -1, 12, -1)
-    #     weight = (weight >> wf.unsqueeze(-1))&0x7
-    #     weight[:,0,10] = (weight[:,0,10]&0x3) | ((weight[:,1,0] << 2)&0x4)
-    #     weight[:,1,11] = (weight[:,1,11]&0x1) | ((weight[:,2,0] << 1)&0x6)
-    #     weight &= 0x7
-    #     weight = torch.cat([weight[:,0,:11], weight[:,1,1:12], weight[:,2,1:11]], dim=1)
-               
-    #     weight = weight.reshape(weight.shape[0] * weight.shape[1], weight.shape[2])
-               
-    #     g_idx_long = g_idx.to(torch.long)
-    #     weight -= zeros[g_idx_long]
-    #     weight = weight.to(torch.half)
-    #     weight *= scales[g_idx_long]
-    #     output = torch.matmul(x.half(), weight)
-    #     output.reshape(x.shape[:-1] + (outfeatures,))
-    #     return output
-
     @staticmethod
     @custom_fwd(cast_inputs=torch.float16)
     def forward(ctx, x, qweight, scales, qzeros, g_idx, wf, outfeatures, infeatures):
         zero_grad = torch.zeros(x.shape[:-1] + (infeatures,), device=x.device, dtype=torch.int8)
-        ctx.save_for_backward(qweight, scales, qzeros, g_idx, wf, zero_grad)
-        weight = unpack_weight(qweight, scales, qzeros, g_idx, wf, bits=3)
+        ctx.save_for_backward(qweight, scales, qzeros, g_idx, wf)
+        weight = unpack_weight_3bits(qweight, scales, qzeros, g_idx, wf)
         output = torch.matmul(x.half(), weight)
-        output.reshape(x.shape[:-1] + (outfeatures,))
+        # output.reshape(x.shape[:-1] + (outfeatures,))
         return output
 
     @staticmethod
     @custom_bwd
     def backward(ctx, grad_output):
-        qweight, scales, qzeros, g_idx, wf, zero_grad = ctx.saved_tensors
+        qweight, scales, qzeros, g_idx, wf = ctx.saved_tensors
         if ctx.needs_input_grad[0]:
-            weight = unpack_weight(qweight, scales, qzeros, g_idx, wf, bits=3)
+            weight = unpack_weight_3bits(qweight, scales, qzeros, g_idx, wf)
             grad = torch.matmul(grad_output.half(), weight.T)
-        return grad, None, None, None, None, None, None, None  
+        return grad, None, None, None, None, None, None, None
 
 def classic_forward(
     x, qweight, bias, scales, qzeros, g_idx, outfeatures, wf=None,
@@ -138,7 +105,9 @@ def classic_forward(
     return out
 
 def unpack_weight(qweight, scales, qzeros, g_idx, wf=None, bits=4):
-    if bits in [2,4,8]:
+    if bits == 3:
+        return unpack_weight_3bits(qweight, scales, qzeros, g_idx, wf)
+    elif bits in [2,4,8]:
        zeros = torch.bitwise_right_shift(torch.unsqueeze(qzeros, 2).expand(-1, -1, 32 // bits), wf.unsqueeze(0)).to(torch.int16 if self.bits == 8 else torch.int8)
        torch.bitwise_and(zeros, (2 ** bits) - 1, out=zeros)
            
@@ -147,33 +116,43 @@ def unpack_weight(qweight, scales, qzeros, g_idx, wf=None, bits=4):
                    
        weight = torch.bitwise_right_shift(torch.unsqueeze(qweight, 1).expand(-1, 32 // bits, -1), wf.unsqueeze(-1)).to(torch.int16 if bits == 8 else torch.int8)
        torch.bitwise_and(weight,(2 ** bits) - 1, out=weight)
-    elif bits == 3:
-       zeros = qzeros.reshape(qzeros.shape[0], qzeros.shape[1]//3, 3, 1).expand(-1, -1, -1, 12)
-       zeros = (zeros >> wf.unsqueeze(0))
-       zeros[:,:,0,10] = (zeros[:,:,0,10]&0x3) | ((zeros[:,:,1,0] << 2)&0x4)
-       zeros[:,:,1,11] = (zeros[:,:,1,11]&0x1) | ((zeros[:,:,2,0] << 1)&0x6)
-       zeros = zeros & 0x7
-       zeros = torch.cat([zeros[:,:,0,:11], zeros[:,:,1,1:12], zeros[:,:,2,1:11]], dim=2)
-       
-       zeros = zeros + 1
-       zeros = zeros.reshape(scales.shape)  
-       
-       weight = qweight.reshape(qweight.shape[0]//3, 3, 1, qweight.shape[1]).expand(-1, -1, 12, -1)
-       weight = (weight >> wf.unsqueeze(-1))&0x7
-       weight[:,0,10] = (weight[:,0,10]&0x3) | ((weight[:,1,0] << 2)&0x4)
-       weight[:,1,11] = (weight[:,1,11]&0x1) | ((weight[:,2,0] << 1)&0x6)
-       weight &= 0x7
-       weight = torch.cat([weight[:,0,:11], weight[:,1,1:12], weight[:,2,1:11]], dim=1)
+
+       weight = weight.reshape(weight.shape[0] * weight.shape[1], weight.shape[2])
+              
+       g_idx_long = g_idx.to(torch.long)
+       weight = (scales[g_idx_long] * (weight - zeros[g_idx_long]))
+    else:
+        raise NotImplementedError()
+
+    return weight    
+
+def unpack_weight_3bits(qweight, scales, qzeros, g_idx, wf=None):
+    zeros = qzeros.reshape(qzeros.shape[0], qzeros.shape[1]//3, 3, 1).expand(-1, -1, -1, 12)
+    zeros = (zeros >> wf.unsqueeze(0))
+    zeros[:,:,0,10] = (zeros[:,:,0,10]&0x3) | ((zeros[:,:,1,0] << 2)&0x4)
+    zeros[:,:,1,11] = (zeros[:,:,1,11]&0x1) | ((zeros[:,:,2,0] << 1)&0x6)
+    zeros &= 0x7
+    zeros = torch.cat([zeros[:,:,0,:11], zeros[:,:,1,1:12], zeros[:,:,2,1:11]], dim=2)
+
+    zeros = zeros + 1
+    zeros = zeros.reshape(scales.shape)  
+
+    weight = qweight.reshape(qweight.shape[0]//3, 3, 1, qweight.shape[1]).expand(-1, -1, 12, -1)
+    weight = (weight >> wf.unsqueeze(-1))&0x7
+    weight[:,0,10] = (weight[:,0,10]&0x3) | ((weight[:,1,0] << 2)&0x4)
+    weight[:,1,11] = (weight[:,1,11]&0x1) | ((weight[:,2,0] << 1)&0x6)
+    weight &= 0x7
+    weight = torch.cat([weight[:,0,:11], weight[:,1,1:12], weight[:,2,1:11]], dim=1)
 
     weight = weight.reshape(weight.shape[0] * weight.shape[1], weight.shape[2])
            
     g_idx_long = g_idx.to(torch.long)
-    # weights = (scales[g_idx_long] * (weight - zeros[g_idx_long]))
+    weight = (scales[g_idx_long] * (weight - zeros[g_idx_long]))
     # out = torch.matmul(x.half(), weights)
-    weight -= zeros[g_idx_long]
-    weight = weight.to(torch.half)
-    weight *= scales[g_idx_long]
-    return weight    
+    # weight -= zeros[g_idx_long]
+    # weight = weight.to(torch.half)
+    # weight *= scales[g_idx_long]
+    return weight      
 
 # ----------------------------------------------------------------------------
 # helpers
@@ -186,19 +165,3 @@ def get_buffer(shape_of_qweight, dtype=torch.float16, device='cuda'):
             dtype=dtype, device=device
         )
     return buffer_mat_dic[shape_of_qweight]
-
-buffer_mat_dic1 = {}
-def get_buffer1(buffer_shape, dtype=torch.int32, device='cuda'):
-    if buffer_shape not in buffer_mat_dic1.keys():
-        buffer_mat_dic1[buffer_shape] = torch.zeros(
-            buffer_shape, dtype=dtype, device=device
-        )
-    return buffer_mat_dic1[buffer_shape]    
-
-buffer_mat_dic2 = {}
-def get_buffer2(buffer_shape, dtype=torch.float16, device='cuda'):
-    if buffer_shape not in buffer_mat_dic2.keys():
-        buffer_mat_dic2[buffer_shape] = torch.zeros(
-            buffer_shape, dtype=dtype, device=device
-        )
-    return buffer_mat_dic2[buffer_shape]        
