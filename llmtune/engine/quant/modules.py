@@ -27,7 +27,7 @@ class QuantLinear(nn.Module):
         self.register_buffer('qzeros', torch.zeros((math.ceil(in_features / self.groupsize), out_features // 32 * self.bits), dtype=torch.int32))
         self.register_buffer('scales', torch.zeros((math.ceil(in_features / self.groupsize), out_features), dtype=torch.float16))
         self.register_buffer('g_idx', torch.tensor([i // self.groupsize  for i in range(in_features)], dtype = torch.int32))
-        if bias:
+        if bias is not None:
             self.register_buffer('bias', torch.zeros((out_features),dtype=torch.float16))
         else:
             self.bias = None
@@ -146,7 +146,7 @@ class QuantLinear(nn.Module):
                 self.qzeros, 
                 self.g_idx, 
             )
-            if self.bias:
+            if self.bias is not None:
                 out += self.bias
         elif self.bits == 2:
             out = Autograd2bit.apply(
@@ -156,7 +156,7 @@ class QuantLinear(nn.Module):
                 self.qzeros, 
                 self.g_idx, 
             )
-            if self.bias:
+            if self.bias is not None:
                 out += self.bias
         elif self.bits == 3:
             out = Autograd3bit.apply(
@@ -169,7 +169,7 @@ class QuantLinear(nn.Module):
                 self.out_features,
                 self.in_features,
             )
-            if self.bias:
+            if self.bias is not None:
                 out += self.bias
         else:
             raise NotImplementedError()

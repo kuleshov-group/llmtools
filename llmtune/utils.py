@@ -16,7 +16,7 @@ def to_half_precision(model):
         if '4bit' in str(type(m)) or 'QuantLinear' in str(type(m)):
             # m.zeros = m.zeros.half()
             m.scales = m.scales.half()    
-            if m.bias:
+            if m.bias is not None:
                 m.bias = m.bias.half()    
     return model
 

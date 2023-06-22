@@ -6,7 +6,7 @@ from llmtune.engine.quant.converter import make_quant
 
 def load_opt(llm_config, checkpoint):
     import transformers
-    from transformers import OPTConfig, OPTForCausalLM 
+    from transformers import OPTConfig, OPTForCausalLM, AutoTokenizer
     def noop(*args, **kwargs):
         pass
     
@@ -35,5 +35,8 @@ def load_opt(llm_config, checkpoint):
     print('Done')
 
     tokenizer = AutoTokenizer.from_pretrained(llm_config.hf_config_name)
+    tokenizer.truncation_side = 'left'
 
     return model, tokenizer
+
+

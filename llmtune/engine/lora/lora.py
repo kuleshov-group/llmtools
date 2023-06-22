@@ -243,7 +243,7 @@ class LinearQuantLt(QuantLinear, LoraLayer):
             self.scales.requires_grad = False
             self.qzeros.requires_grad = False
             self.g_idx.requires_grad = False
-            if self.bias:
+            if self.bias is not None:
                 self.bias.requires_grad = False
         self.reset_parameters()
 
