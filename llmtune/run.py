@@ -19,7 +19,7 @@ def make_parser():
         help='Path to the base model weights.')
     gen_parser.add_argument('--adapter', type=str, required=False,
         help='Path to the folder with the Lora adapter.')
-    gen_parser.add_argument('--groupsize', type=int, 
+    gen_parser.add_argument('--groupsize', type=int, default=-1,
         help='Groupsize used for quantization; -1 uses full row.')
     gen_parser.add_argument('--prompt', type=str, default='',
         help='Text used to initialize generation')
