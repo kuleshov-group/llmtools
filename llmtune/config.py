@@ -1,5 +1,10 @@
 import torch
-from llmtune.llms.opt.config import OPT7B4BitConfig
+from llmtune.llms.opt.config import (
+    OPT7B4BitConfig,
+    OPT13B4BitConfig,
+    OPT7B3BitConfig,    
+    OPT13B3BitConfig    
+)
 from llmtune.llms.llama.config import (
     LLama7B4BitConfig, 
     LLama13B4BitConfig, 
@@ -23,7 +28,10 @@ LLAMA_MODELS = [
     "llama-7b-3bit", "llama-13b-3bit", "llama-30b-3bit", "llama-65b-3bit",
     "llama-7b-2bit", "llama-65b-2bit", 
 ]
-OPT_MODELS  = ["opt-6.7b-4bit"]
+OPT_MODELS  = [
+    "opt-6.7b-4bit", "opt-13b-4bit",
+    "opt-6.7b-3bit", "opt-13b-3bit",
+]
 LLM_MODELS = LLAMA_MODELS + OPT_MODELS
 
 # define some helpers
@@ -50,6 +58,12 @@ def get_llm_config(model):
         return LLama65B2BitConfig            
     elif model == "opt-6.7b-4bit":
         return OPT7B4BitConfig      
+    elif model == "opt-13b-4bit":
+        return OPT13B4BitConfig
+    elif model == "opt-6.7b-3bit":
+        return OPT7B3BitConfig      
+    elif model == "opt-13b-3bit":
+        return OPT13B3BitConfig
     else:
         raise ValueError(f"Invalid model name: {model}")
 

@@ -3,3 +3,18 @@ class OPT7B4BitConfig:
     hf_config_name = "facebook/opt-6.7b"
     weights_url = None
     bits = 4
+
+class OPT13B4BitConfig:
+    hf_config_name = "facebook/opt-13b"
+    weights_url = None
+    bits = 4
+
+class OPT7B3BitConfig:
+    hf_config_name = "facebook/opt-6.7b"
+    weights_url = None
+    bits = 3
+
+class OPT13B3BitConfig:
+    hf_config_name = "facebook/opt-13b"
+    weights_url = None
+    bits = 3
