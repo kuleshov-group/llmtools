@@ -17,7 +17,7 @@ from llmtune.llms.llama.config import (
     LLama7B2BitConfig, 
     LLama65B2BitConfig,
 )
-from llmtune.engine.lora.config import Finetune4bConfig
+from llmtune.engine.lora.config import FinetuneConfig
 
 # ----------------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ def get_llm_config(model):
 
 # helpers for loading finetuning configs
 def get_finetune_config(args):
-    return Finetune4bConfig(
+    return FinetuneConfig(
         dataset=args.dataset, 
         ds_type=args.data_type, 
         lora_out_dir=args.adapter, 

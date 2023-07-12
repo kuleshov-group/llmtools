@@ -1,6 +1,6 @@
 import os
 
-class Finetune4bConfig:
+class FinetuneConfig:
     """Config holder for 4bit finetuning"""
     def __init__(
         self, dataset: str, ds_type: str, 
