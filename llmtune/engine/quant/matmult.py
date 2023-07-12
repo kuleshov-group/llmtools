@@ -11,7 +11,6 @@ use_new = True
 auto_switch = True
 auto_switch_thd = 8
 debug = False
-faster = True
 cache_buffer = True
 
 def get_buffer(shape_of_qweight, dtype=torch.float16, device='cuda', bits=4):
@@ -26,57 +25,6 @@ def get_buffer(shape_of_qweight, dtype=torch.float16, device='cuda', bits=4):
         if buffer_mat_dic[target_shape].dtype != dtype:
             buffer_mat_dic[target_shape] = buffer_mat_dic[target_shape].to(dtype=dtype)
     return buffer_mat_dic[target_shape]
-
-
-def _matmul4bit_v1(x, qweight, scales, zeros):
-    """
-    input x: (n, m)
-    qweight: (j, k)
-    where m == j*8
-
-    perform x @ qweight
-
-    return y:
-    """
-    if debug:
-        print('_matmul4bit_v1')
-    assert qweight.shape[0] * 8 == x.shape[-1]
-    outshape = x.shape[:-1] + (qweight.shape[1],)
-    x = x.reshape(-1, x.shape[-1])
-    y = torch.zeros((x.shape[0], qweight.shape[-1]), dtype=torch.float16, device=x.device)
-    dtype = x.dtype
-    x = x.half()
-    quant_cuda.vecquant4matmul_v1_faster(x, qweight, y, scales, zeros)
-    y = y.to(dtype)
-    return y.reshape(outshape)
-
-
-def _matmul4bit_v2(x, qweight, scales, zeros, g_idx):
-    """
-    input x: (n, m)
-    qweight: (j, k)
-    where m == j*8
-
-    perform x @ qweight
-
-    return y:
-    """
-    if debug:
-        print('_matmul4bit_v2')
-    assert qweight.shape[0] * 8 == x.shape[-1]
-    outshape = x.shape[:-1] + (qweight.shape[1],)
-    x = x.reshape(-1, x.shape[-1])
-    y = torch.zeros((x.shape[0], qweight.shape[-1]), dtype=torch.float16, device=x.device)
-    dtype = x.dtype
-    if faster:
-        x = x.half()
-        quant_cuda.vecquant4matmul_faster(x, qweight, y, scales, zeros, g_idx, x.shape[-1] // 2)
-    else:
-        x = x.float()
-        quant_cuda.vecquant4matmul(x, qweight, y, scales, zeros, g_idx)
-    y = y.to(dtype)
-    return y.reshape(outshape)
-
 
 def _matmul4bit_v1_recons(x, qweight, scales, zeros, transpose=False):
     if debug:
@@ -130,6 +78,7 @@ def _matmul2bit_v2_recons(x, qweight, scales, zeros, g_idx, transpose=False):
 
 
 def matmul4bit(x, qweight, scales, zeros, g_idx=None):
+    raise NotImplementedError()
     # detect if zeros is int32
     if zeros.dtype != torch.int32:
         # use v1
@@ -156,3 +105,10 @@ def matmul4bit(x, qweight, scales, zeros, g_idx=None):
     return output
 
 
+def matmul3bit(x, qweight, scales, zeros, g_idx, outfeatures):
+    out_shape = x.shape[:-1] + (outfeatures, )
+    x = x.reshape(-1,x.shape[-1])  
+    output = torch.zeros((x.shape[0], outfeatures), device=x.device, dtype=torch.float32)
+    quant_cuda.vecquant3matmul(x.float(), qweight, output, scales.float(), zeros, g_idx)
+    output = output.reshape(out_shape)
+    return output

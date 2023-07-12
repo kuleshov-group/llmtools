@@ -58,10 +58,13 @@ class Autograd2bit(torch.autograd.Function):
 class Autograd3bit(torch.autograd.Function):
     @staticmethod
     @custom_fwd(cast_inputs=torch.float16)
-    def forward(ctx, x, qweight, scales, qzeros, g_idx, wf, outfeatures, infeatures):
+    def forward(ctx, x, qweight, scales, qzeros, g_idx, wf, outfeatures):
         ctx.save_for_backward(qweight, scales, qzeros, g_idx, wf)
-        weight = unpack_weight_3bits(qweight, scales, qzeros, g_idx, wf)
-        output = torch.matmul(x.half(), weight)
+        output = mm.matmul3bit(x, qweight, scales, qzeros, g_idx, outfeatures)
+        output = output.half()
+        # below, we can also unpack weights in pytorch (slower)
+        # weight = unpack_weight_3bits(qweight, scales, qzeros, g_idx, wf)
+        # output = torch.matmul(x.half(), weight)
         # output.reshape(x.shape[:-1] + (outfeatures,))
         return output
 
@@ -83,6 +86,7 @@ def classic_forward(
     # dtype = x.dtype
     # x = x.float()
     if  is_cuda is True and (kernel_switch_threshold is False or x.shape[0] < kernel_switch_threshold):
+        raise NotImplementedError() # code below needs some fixes
         out = torch.zeros((x.shape[0], outfeatures), device=x.device, dtype=torch.float32)
         if bits == 2:
             quant_cuda.vecquant2matmul(x.float(), qweight, out, scales.float(), qzeros, g_idx)

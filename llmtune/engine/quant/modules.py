@@ -167,7 +167,6 @@ class QuantLinear(nn.Module):
                 self.g_idx, 
                 self.wf,
                 self.out_features,
-                self.in_features,
             )
             if self.bias is not None:
                 out += self.bias
