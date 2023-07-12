@@ -59,7 +59,6 @@ class Autograd3bit(torch.autograd.Function):
     @staticmethod
     @custom_fwd(cast_inputs=torch.float16)
     def forward(ctx, x, qweight, scales, qzeros, g_idx, wf, outfeatures, infeatures):
-        zero_grad = torch.zeros(x.shape[:-1] + (infeatures,), device=x.device, dtype=torch.int8)
         ctx.save_for_backward(qweight, scales, qzeros, g_idx, wf)
         weight = unpack_weight_3bits(qweight, scales, qzeros, g_idx, wf)
         output = torch.matmul(x.half(), weight)
