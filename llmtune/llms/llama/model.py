@@ -12,7 +12,7 @@ def load_llama_unquantized(llm_config):
     torch.nn.init.kaiming_uniform_ = skip
     torch.nn.init.uniform_ = skip
     torch.nn.init.normal_ = skip
-    model = LLaMAForCausalLM.from_pretrained(
+    model = LlamaForCausalLM.from_pretrained(
         llm_config.hf_config_name, torch_dtype='auto'
     )
     model.seqlen = 2048
