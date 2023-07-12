@@ -15,12 +15,11 @@ def load_llama_unquantized(llm_config):
     model = LlamaForCausalLM.from_pretrained(
         llm_config.hf_config_name, torch_dtype='auto'
     )
-    model.seqlen = 2048
     return model
 
-def load_llama(llm_config, checkpoint, groupsize=-1):
+def load_llama_quantized(llm_config, checkpoint, groupsize=-1):
     import transformers, accelerate
-    from transformers import LlamaConfig, LlamaForCausalLM, LlamaTokenizer
+    from transformers import LlamaConfig, LlamaForCausalLM
     
     with accelerate.init_empty_weights():
         config = LlamaConfig.from_pretrained(llm_config.hf_config_name)
@@ -42,6 +41,15 @@ def load_llama(llm_config, checkpoint, groupsize=-1):
             # device_map={'': 0},
             no_split_module_classes=["LlamaDecoderLayer"]
     )
+    return model
+
+def load_llama(llm_config, checkpoint, groupsize=-1):
+    from transformers import LlamaTokenizer
+
+    if checkpoint is None:
+        model = load_llama_unquantized(llm_config)
+    else:
+        model = load_llama_quantized(llm_config, checkpoint, groupsize)
     model.seqlen = 2048
 
     tokenizer = LlamaTokenizer.from_pretrained(llm_config.hf_tokenizer_config)
