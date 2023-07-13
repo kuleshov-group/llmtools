@@ -1,8 +1,7 @@
 from llmtune.engine.inference.modules import QuantLinear
 
 def make_quant(
-    module, names, bits, name='', groupsize=-1, 
-    is_cuda=True, kernel_switch_threshold=128,
+    module, names, bits, name='', groupsize=-1, is_cuda=True
 ):
     if isinstance(module, QuantLinear):
         return
@@ -17,7 +16,6 @@ def make_quant(
                     in_features=tmp.in_features, 
                     out_features=tmp.out_features, 
                     bias=tmp.bias, 
-                    kernel_switch_threshold=kernel_switch_threshold,
                     is_cuda=is_cuda,
                 )
             )
