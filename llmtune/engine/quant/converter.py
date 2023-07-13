@@ -1,7 +1,7 @@
 from llmtune.engine.inference.modules import QuantLinear
 
 def make_quant(
-    module, names, bits, name='', groupsize=-1, is_cuda=True
+    module, names, bits, groupsize=-1, name='', is_cuda=True
 ):
     if isinstance(module, QuantLinear):
         return
@@ -26,4 +26,5 @@ def make_quant(
             bits=bits,
             name=name + '.' + name1 if name != '' else name1, 
             groupsize=groupsize,
+            is_cuda=is_cuda
         )
