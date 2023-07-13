@@ -3,6 +3,7 @@ import torch.nn as nn
 from llmtune.engine.quant.gptq.algorithm import GPTQ
 from llmtune.engine.quant.gptq.quantizer import Quantizer
 from llmtune.engine.quant.converter import make_quant
+from llmtune.engine.inference.modules import QuantLinear
 from llmtune.utils import find_layers
 
 @torch.no_grad()
