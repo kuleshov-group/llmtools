@@ -1,4 +1,4 @@
-from llmtune.engine.quant.modules import QuantLinear
+from llmtune.engine.inference.modules import QuantLinear
 
 def make_quant(
     module, names, bits, name='', groupsize=-1, 

@@ -8,7 +8,7 @@ from llmtune.llms.opt.model import load_opt
 from llmtune.engine.data import TrainTxt, TrainSAD, TrainGPT4All
 from llmtune.engine.data.calibration import get_calibration_loaders
 from llmtune.engine.lora.peft import quant_peft
-from llmtune.engine.quant.algorithm import executor as quant_executor
+from llmtune.engine.quant.gptq import executor as gptq
 from llmtune.utils import to_half_precision
 
 def load_llm(model, weights, groupsize=-1):
@@ -148,9 +148,9 @@ def quantize(
     )
 
     tick = time.time()
-    quantizers = quant_executor.quantize_llama(model, dataloader, DEV)
+    quantizers = gptq.quantize_llama(model, dataloader, DEV)
     print(f'Quantization time (s): {time.time() - tick}')
 
-    quant_executor.pack_llama(model, quantizers, wbits)
+    gptq.pack_llama(model, quantizers, wbits)
     torch.save(model.state_dict(), weights) 
     print(f'Model weights saved to: {weights}')
