@@ -1,6 +1,6 @@
 import os
+import time
 import torch
-import torch.nn as nn
 
 from llmtune.config import DEV, LLAMA_MODELS, OPT_MODELS, get_llm_config
 from llmtune.llms.llama.model import load_llama
@@ -135,22 +135,33 @@ def finetune(llm, tokenizer, tune_config):
     model.save_pretrained(tune_config.lora_out_dir)
 
 def quantize(
-    llm_config, dataset, nsamples, wbits, groupsize, percdamp, seed, weights
+    llm_config, dataset, bits, nsamples, groupsize, act_order,
+    percdamp, seed, nearest, weights
 ):
-    model = load_llama_unquantized(llm_config)
+    model, _ = load_llama(llm_config, checkpoint=None)
     model.eval()
     dataloader, _ = get_calibration_loaders(
         dataset, 
         nsamples=nsamples, 
         seed=seed, 
-        model=model, 
+        model=llm_config.hf_config_name, 
         seqlen=model.seqlen
     )
 
     tick = time.time()
-    quantizers = gptq.quantize_llama(model, dataloader, DEV)
+    quantizers = gptq.quantize_llama(
+        model, 
+        dataloader, 
+        bits, 
+        groupsize, 
+        act_order, 
+        nsamples, 
+        percdamp, 
+        nearest=nearest, 
+        dev=DEV
+    )
     print(f'Quantization time (s): {time.time() - tick}')
 
-    gptq.pack_llama(model, quantizers, wbits)
+    gptq.pack_llama(model, quantizers, bits, groupsize)
     torch.save(model.state_dict(), weights) 
     print(f'Model weights saved to: {weights}')
