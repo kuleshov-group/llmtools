@@ -27,7 +27,9 @@ def load_adapter(llm, adapter_path=None, lora_config=None):
         model = quant_peft.get_peft_model(llm, lora_config)
     elif adapter_path is not None and lora_config is None:
         model = quant_peft.PeftModel.from_pretrained(
-            llm, adapter_path, device_map={'': 0}, torch_dtype=torch.float32
+            llm, adapter_path, 
+            device_map='auto',
+            torch_dtype=torch.float32
         )
         print(adapter_path, 'loaded')
     else:
