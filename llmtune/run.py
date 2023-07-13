@@ -61,16 +61,6 @@ def make_parser():
     quant_parser.add_argument('--save', type=str, default='',
         help='Save quantized checkpoint under this name.')
 
-    # download
-
-    dl_parser = subparsers.add_parser('download')
-    dl_parser.set_defaults(func=download)
-
-    dl_parser.add_argument('--model', choices=LLM_MODELS, required=True,
-        help='Type of model to load')
-    dl_parser.add_argument('--weights', type=str, default='./weights.pt',
-        help='File where weights will be stored')
-
     # finetune
 
     tune_parser = subparsers.add_parser('finetune')
@@ -156,14 +146,6 @@ def generate(args):
         output = make_output(output)
 
     print(output)
-
-def download(args):
-    from llmtune.config import get_llm_config
-    from llmtune.utils import download_file
-    llm_config = get_llm_config(args.model)
-    if not llm_config.weights_url:
-        raise Exception(f"Downloading {args.model} is not supported")
-    download_file(llm_config.weights_url, args.weights)
 
 def finetune(args):
     from llmtune.executor import load_llm
