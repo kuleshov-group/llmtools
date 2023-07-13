@@ -43,9 +43,11 @@ def make_parser():
 
     quant_parser.add_argument('--model', choices=LLM_MODELS, required=True,
         help='Type of model to load')
-    quant_parser.add_argument('--weights', type=str, required=True,
+    quant_parser.add_argument('--save', type=str, required=True,
         help='Path to the saved model weights.')
-    quant_parser.add_argument('dataset', type=str, 
+    quant_parser.add_argument('--bits', type=int, # required=True,
+        choices=[2, 3, 4, 8], help='#bits to use for quantization.')
+    quant_parser.add_argument('--dataset', type=str, default='c4',
         choices=['wikitext2', 'ptb', 'c4'],
         help='Where to extract calibration data from.')
     quant_parser.add_argument('--seed', type=int, default=0, 
@@ -54,12 +56,12 @@ def make_parser():
         help='Number of calibration data samples.')
     quant_parser.add_argument('--percdamp', type=float, default=.01,
         help='Percent of the average Hessian diagonal to use for dampening.')
-    quant_parser.add_argument('--wbits', type=int, default=4, 
-        choices=[2, 3, 4, 8], help='#bits to use for quantization.')
-    quant_parser.add_argument('--groupsize', type=int,
+    quant_parser.add_argument('--groupsize', type=int, default=-1,
         help='Groupsize to use for quantization; -1 uses full row.')
-    quant_parser.add_argument('--save', type=str, default='',
-        help='Save quantized checkpoint under this name.')
+    quant_parser.add_argument('--act-order', action='store_true',
+        help='Whether to apply the activation order GPTQ heuristic.')
+    quant_parser.add_argument('--nearest', action='store_true',
+        help='Use basic round-to-nearest quantization.')
 
     # finetune
 
@@ -162,12 +164,14 @@ def quantize(args):
     output = llmtune.quantize(
         llm_config, 
         args.dataset, 
+        args.bits,         
         args.nsamples, 
-        args.wbits, 
         args.groupsize, 
+        args.act_order, 
         args.percdamp, 
         args.seed,  
-        args.weights     
+        args.nearest,
+        args.save     
     )
 
 if __name__ == '__main__':
