@@ -1,7 +1,7 @@
 import os
 
 class FinetuneConfig:
-    """Config holder for 4bit finetuning"""
+    """Config holder for finetuning"""
     def __init__(
         self, dataset: str, ds_type: str, 
         lora_out_dir: str,
