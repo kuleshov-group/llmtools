@@ -1,69 +1,20 @@
 import torch
-from llmtune.llms.opt.config import (
-    OPT7B4BitConfig,
-    OPT13B4BitConfig,
-    OPT7B3BitConfig,    
-    OPT13B3BitConfig    
-)
-from llmtune.llms.llama.config import (
-    LLama7B4BitConfig, 
-    LLama13B4BitConfig, 
-    LLama30B4BitConfig, 
-    LLama65B4BitConfig,
-    LLama7B3BitConfig,
-    LLama13B3BitConfig,
-    LLama30B3BitConfig,
-    LLama65B3BitConfig,
-    LLama7B2BitConfig, 
-    LLama65B2BitConfig,
-)
+from llmtune.llms.opt.config import get_opt_config, OPT_MODELS
+from llmtune.llms.llama.config import get_llama_config, LLAMA_MODELS
 from llmtune.engine.lora.config import FinetuneConfig
 
 # ----------------------------------------------------------------------------
 
 # define some constants
 DEV = torch.device('cuda')
-LLAMA_MODELS = [
-    "llama-7b-4bit", "llama-13b-4bit", "llama-30b-4bit", "llama-65b-4bit",
-    "llama-7b-3bit", "llama-13b-3bit", "llama-30b-3bit", "llama-65b-3bit",
-    "llama-7b-2bit", "llama-65b-2bit", 
-]
-OPT_MODELS  = [
-    "opt-6.7b-4bit", "opt-13b-4bit",
-    "opt-6.7b-3bit", "opt-13b-3bit",
-]
 LLM_MODELS = LLAMA_MODELS + OPT_MODELS
 
 # define some helpers
 def get_llm_config(model):
-    if model == "llama-7b-4bit":
-        return LLama7B4BitConfig
-    elif model == "llama-13b-4bit":
-        return LLama13B4BitConfig
-    elif model == "llama-30b-4bit":
-        return LLama30B4BitConfig
-    elif model == "llama-65b-4bit":
-        return LLama65B4BitConfig
-    elif model == "llama-7b-3bit":
-        return LLama7B3BitConfig 
-    elif model == "llama-13b-3bit":
-        return LLama13B3BitConfig 
-    elif model == "llama-30b-3bit":
-        return LLama30B3BitConfig 
-    elif model == "llama-65b-3bit":
-        return LLama65B3BitConfig             
-    elif model == "llama-7b-2bit":
-        return LLama7B2BitConfig 
-    elif model == "llama-65b-2bit":
-        return LLama65B2BitConfig            
-    elif model == "opt-6.7b-4bit":
-        return OPT7B4BitConfig      
-    elif model == "opt-13b-4bit":
-        return OPT13B4BitConfig
-    elif model == "opt-6.7b-3bit":
-        return OPT7B3BitConfig      
-    elif model == "opt-13b-3bit":
-        return OPT13B3BitConfig
+    if model in LLAMA_MODELS:
+        return get_llama_config(model)
+    elif model in OPT_MODELS:
+        return get_opt_config(model)
     else:
         raise ValueError(f"Invalid model name: {model}")
 

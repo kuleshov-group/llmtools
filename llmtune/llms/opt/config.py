@@ -1,20 +1,28 @@
-# NOTE: this configuration is experimental and will be modified to properly make use of HF Transformers
-class OPT7B4BitConfig:
-    hf_config_name = "facebook/opt-6.7b"
-    weights_url = None
-    bits = 4
+from llmtune.llms.config import LLMConfig, ModelType
 
-class OPT13B4BitConfig:
-    hf_config_name = "facebook/opt-13b"
-    weights_url = None
-    bits = 4
+OPT_MODELS  = [
+    "opt-6.7b-4bit", "opt-13b-4bit",
+    "opt-6.7b-3bit", "opt-13b-3bit",
+]
 
-class OPT7B3BitConfig:
-    hf_config_name = "facebook/opt-6.7b"
-    weights_url = None
-    bits = 3
+def get_opt_config(model):
+    if '4bit' in model:
+        bits = 4
+    elif '3bit' in model:
+        bits = 3
+    elif '2bit' in model:
+        bits = 2
 
-class OPT13B3BitConfig:
-    hf_config_name = "facebook/opt-13b"
-    weights_url = None
-    bits = 3
+    if '6.7b' in model:
+        hf_config_name = "facebook/opt-6.7b"
+    elif '13b' in model:
+        hf_config_name = "facebook/opt-13b"
+
+    llm_config = LLMConfig(
+        name=model,
+        model_type=ModelType.OPT,
+        hf_config_name=hf_config_name,
+        hf_tokenizer_config="",
+        bits=bits
+    )
+    return llm_config

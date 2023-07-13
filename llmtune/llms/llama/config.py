@@ -1,60 +1,33 @@
-# NOTE: this configuration is experimental and will be modified to properly make use of HF Transformers
-class LLama7B4BitConfig:
-    hf_config_name = "decapoda-research/llama-7b-hf"
-    hf_tokenizer_config = "huggyllama/llama-13b"
-    weights_url = "https://huggingface.co/decapoda-research/llama-7b-hf-int4/resolve/main/llama-7b-4bit.pt"
-    bits = 4
+from llmtune.llms.config import LLMConfig, ModelType
 
-class LLama13B4BitConfig:
-    hf_config_name = "decapoda-research/llama-13b-hf"
-    hf_tokenizer_config = "huggyllama/llama-13b"
-    weights_url = "https://huggingface.co/decapoda-research/llama-13b-hf-int4/resolve/main/llama-13b-4bit.pt"
-    bits = 4
+LLAMA_MODELS = [
+    "llama-7b-4bit", "llama-13b-4bit", "llama-30b-4bit", "llama-65b-4bit",
+    "llama-7b-3bit", "llama-13b-3bit", "llama-30b-3bit", "llama-65b-3bit",
+    "llama-7b-2bit", "llama-65b-2bit", 
+]
 
-class LLama30B4BitConfig:
-    hf_config_name = "decapoda-research/llama-30b-hf"
-    hf_tokenizer_config = "huggyllama/llama-13b"
-    weights_url = "https://huggingface.co/kuleshov/llama-30b-4bit/resolve/main/llama-30b-4bit.pt"
-    bits = 4
+def get_llama_config(model):
+    if '4bit' in model:
+        bits = 4
+    elif '3bit' in model:
+        bits = 3
+    elif '2bit' in model:
+        bits = 2
 
-class LLama65B4BitConfig:
-    hf_config_name = "decapoda-research/llama-65b-hf"
-    hf_tokenizer_config = "huggyllama/llama-13b"
-    weights_url = "https://huggingface.co/kuleshov/llama-65b-4bit/resolve/main/llama-65b-4bit.pt"
-    bits = 4
+    if '7b' in model:
+        hf_config_name = "decapoda-research/llama-7b-hf"
+    elif '13b' in model:
+        hf_config_name = "decapoda-research/llama-13b-hf"
+    elif '30b' in model:
+        hf_config_name = "decapoda-research/llama-30b-hf"
+    elif '65b' in model:
+        hf_config_name = "decapoda-research/llama-65b-hf"
 
-class LLama7B3BitConfig:
-    hf_config_name = "decapoda-research/llama-7b-hf"
-    hf_tokenizer_config = "huggyllama/llama-13b"
-    weights_url = None
-    bits = 3
-
-class LLama13B3BitConfig:
-    hf_config_name = "decapoda-research/llama-13b-hf"
-    hf_tokenizer_config = "huggyllama/llama-13b"
-    weights_url = None
-    bits = 3
-
-class LLama30B3BitConfig:
-    hf_config_name = "decapoda-research/llama-30b-hf"
-    hf_tokenizer_config = "huggyllama/llama-13b"
-    weights_url = None
-    bits = 3
-
-class LLama65B3BitConfig:
-    hf_config_name = "decapoda-research/llama-65b-hf"
-    hf_tokenizer_config = "huggyllama/llama-13b"
-    weights_url = None
-    bits = 3
-
-class LLama7B2BitConfig:
-    hf_config_name = "decapoda-research/llama-7b-hf"
-    hf_tokenizer_config = "huggyllama/llama-13b"
-    weights_url = None
-    bits = 2
-
-class LLama65B2BitConfig:
-    hf_config_name = "decapoda-research/llama-65b-hf"
-    hf_tokenizer_config = "huggyllama/llama-13b"
-    weights_url = None
-    bits = 2
+    llm_config = LLMConfig(
+        name=model,
+        model_type=ModelType.LLAMA,
+        hf_config_name=hf_config_name,
+        hf_tokenizer_config="huggyllama/llama-13b",
+        bits=bits
+    )
+    return llm_config
