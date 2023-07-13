@@ -150,8 +150,6 @@ class QuantLoraModel(torch.nn.Module):
             new_module.bits = old_module.bits
             new_module.wf = old_module.wf
             new_module.is_cuda = old_module.is_cuda
-            new_module.kernel_switch_threshold \
-                = old_module.kernel_switch_threshold
             if getattr(old_module, "state", None) is not None:
                 new_module.state = old_module.state
                 new_module.to(old_module.qweight.device)
