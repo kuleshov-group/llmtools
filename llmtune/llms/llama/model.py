@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 from llmtune.utils import find_layers
-from llmtune.engine.inference.converter import make_quant
+from llmtune.engine.quant.converter import make_quant
 
 def load_llama_unquantized(llm_config):
     import torch
