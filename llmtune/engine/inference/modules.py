@@ -13,7 +13,9 @@ except:
 
 # Assumes layer is perfectly divisible into 256 * 256 blocks
 class QuantLinear(nn.Module): 
-    def __init__(self, bits, groupsize, in_features, out_features, bias, kernel_switch_threshold=128, is_cuda=True):
+    def __init__(
+        self, bits, groupsize, in_features, out_features, bias, is_cuda=True
+    ):
         super().__init__()
         if bits not in [2,3,4,8]:
             raise NotImplementedError("Only 2,3,4,8 bits are supported.")
@@ -40,7 +42,6 @@ class QuantLinear(nn.Module):
                                                      [0, 1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31],
                                                      [0, 2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 0],], dtype=torch.int32).reshape(1,3,12), persistent=False)
             
-        self.kernel_switch_threshold = kernel_switch_threshold
         self.is_cuda = is_cuda
 
     def pack(self, linear, scales, zeros, g_idx = None):
