@@ -1,7 +1,7 @@
 import torch
 from typing import Dict, Any
 from datasets import load_dataset
-from llmtune.engine.data.abstract import AbstractTrainData
+from llmtune.data.abstract import AbstractTrainData
 
 # GPT4All-like Data
 class TrainGPT4All(AbstractTrainData):

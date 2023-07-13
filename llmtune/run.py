@@ -127,7 +127,7 @@ def generate(args):
     if args.prompt and args.instruction:
         raise Exception('Cannot specify both prompt and instruction')
     if args.instruction:
-        from llmtune.engine.data.alpaca import make_prompt
+        from llmtune.data.alpaca import make_prompt
         prompt = make_prompt(args.instruction, input_="")
     else:
         prompt = args.prompt
@@ -144,7 +144,7 @@ def generate(args):
     )
 
     if args.instruction:
-        from llmtune.engine.data.alpaca import make_output
+        from llmtune.data.alpaca import make_output
         output = make_output(output)
 
     print(output)

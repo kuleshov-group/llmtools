@@ -5,8 +5,8 @@ import torch
 from llmtune.config import DEV, LLAMA_MODELS, OPT_MODELS, get_llm_config
 from llmtune.llms.llama.model import load_llama
 from llmtune.llms.opt.model import load_opt
-from llmtune.engine.data import TrainTxt, TrainSAD, TrainGPT4All
-from llmtune.engine.data.calibration import get_calibration_loaders
+from llmtune.data import TrainTxt, TrainSAD, TrainGPT4All
+from llmtune.data.calibration import get_calibration_loaders
 from llmtune.engine.lora.peft import quant_peft
 from llmtune.engine.quant.gptq import executor as gptq
 from llmtune.utils import to_half_precision
