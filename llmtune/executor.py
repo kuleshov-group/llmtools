@@ -31,26 +31,7 @@ def load_adapter(llm, adapter_path=None, lora_config=None):
         print(adapter_path, 'loaded')
     else:
         ValueError('Need to specify adapter_path or lora_config')
-    return model  
-
-def load_data(config, tokenizer):
-    from llmtune.data import TrainTxt, TrainSAD, TrainGPT4All
-    if config.ds_type == "alpaca":
-        data = TrainSAD(
-            config.dataset, config.val_set_size, tokenizer, config.cutoff_len
-        )
-    elif config.ds_type == "gpt4all":
-        raise NotImplementedError('GPT4All dataset currently not supported')
-        data = TrainGPT4All(
-            config.dataset, config.val_set_size, tokenizer, config.cutoff_len
-        )
-    else:
-        raise ValueError(f"Invalid data name: {config.ds_type}")
-    # data.prepare_data(
-    #     thd=config.txt_row_thd, use_eos_token=config.use_eos_token
-    # )
-    data.prepare_data()
-    return data
+    return model
 
 def generate(
     llm, tokenizer, prompt, min_length, max_length, temperature, top_k, top_p
@@ -73,6 +54,7 @@ def generate(
 
 def finetune(llm, tokenizer, tune_config):
     import transformers
+    from llmtune.data import load_finetuning_data
     from llmtune.engine.lora.peft import quant_peft
     transformers.logging.set_verbosity_info()
     tokenizer.pad_token_id = 0
@@ -88,7 +70,7 @@ def finetune(llm, tokenizer, tune_config):
     model = load_adapter(llm, lora_config=lora_config)
     model.print_trainable_parameters()
 
-    data = load_data(tune_config, tokenizer)
+    data = load_finetuning_data(tune_config, tokenizer)
 
     training_arguments = transformers.TrainingArguments(
         per_device_train_batch_size=tune_config.mbatch_size,
