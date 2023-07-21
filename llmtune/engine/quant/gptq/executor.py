@@ -1,10 +1,44 @@
+import time
 import torch
 import torch.nn as nn
+from llmtune.llms.config import LLMType
+from llmtune.engine.quant.algorithm import QuantizationAlgorithm
 from llmtune.engine.quant.gptq.algorithm import GPTQ
 from llmtune.engine.quant.gptq.quantizer import Quantizer
 from llmtune.engine.quant.converter import make_quant
 from llmtune.engine.inference.modules import QuantLinear
 from llmtune.utils import find_layers
+
+class GPTQAlgorithm(QuantizationAlgorithm):
+    def __init__(self, config):
+        super().__init__(config)
+
+    def quantize(self, model, dataloader):
+        tick = time.time()
+        if model.config.model_type == LLMType.LLAMA.value:
+            quantizers = quantize_llama(
+                model.base_model,
+                dataloader,
+                bits=self.config.bits,
+                groupsize=self.config.groupsize,
+                act_order=self.config.act_order,
+                nsamples=self.config.nsamples,
+                percdamp=self.config.percdamp,
+                nearest=self.config.nearest,
+            )
+        else:
+            raise NotImplementedError(
+                f'{model.config.model_type} not supported'
+            )
+        print(f'Quantization time (s): {time.time() - tick}')
+
+        # pack the weights according to the quantizers
+        pack_llama(model.base_model, quantizers, self.config.bits, self.config.groupsize)
+
+        # save quantization config
+        model.quant_config = self.config
+
+        return model
 
 @torch.no_grad()
 def quantize_llama(
