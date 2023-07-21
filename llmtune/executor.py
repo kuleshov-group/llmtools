@@ -2,27 +2,24 @@ import os
 import time
 import torch
 
-from llmtune.config import DEV, LLAMA_MODELS, OPT_MODELS, get_llm_config
-from llmtune.llms.llama.model import load_llama
-from llmtune.llms.opt.model import load_opt
-from llmtune.data import TrainTxt, TrainSAD, TrainGPT4All
-from llmtune.data.calibration import get_calibration_loaders
-from llmtune.engine.lora.peft import quant_peft
-from llmtune.engine.quant.gptq import executor as gptq
+from llmtune.config import DEV
 from llmtune.utils import to_half_precision
 
-def load_llm(model, weights, groupsize=-1):
-    llm_config = get_llm_config(model)
-    if model in LLAMA_MODELS:
-        llm, tokenizer = load_llama(llm_config, weights, groupsize)
-    elif model in OPT_MODELS:
-        llm, tokenizer = load_opt(llm_config, weights)
+def load_llm(model_name_or_path):
+    from llmtune.llms.autollm import AutoLLMForCausalLM
+    llm = AutoLLMForCausalLM.from_pretrained(model_name_or_path)
+    return llm
+
+def load_tokenizer(model_name_or_path, llm_config=None):
+    from llmtune.llms.autollm import get_default_tokenizer
+    if llm_config is not None:
+        model_type = llm_config.model_type
     else:
-        raise ValueError(f"Invalid model name: {model}")
-    llm.eval()
-    return llm, tokenizer
+        model_type = None
+    return get_default_tokenizer(model_name_or_path, model_type)
 
 def load_adapter(llm, adapter_path=None, lora_config=None):
+    from llmtune.engine.lora.peft import quant_peft
     if adapter_path is None and lora_config is not None:
         model = quant_peft.get_peft_model(llm, lora_config)
     elif adapter_path is not None and lora_config is None:
@@ -37,6 +34,7 @@ def load_adapter(llm, adapter_path=None, lora_config=None):
     return model  
 
 def load_data(config, tokenizer):
+    from llmtune.data import TrainTxt, TrainSAD, TrainGPT4All
     if config.ds_type == "alpaca":
         data = TrainSAD(
             config.dataset, config.val_set_size, tokenizer, config.cutoff_len
@@ -75,6 +73,7 @@ def generate(
 
 def finetune(llm, tokenizer, tune_config):
     import transformers
+    from llmtune.engine.lora.peft import quant_peft
     transformers.logging.set_verbosity_info()
     tokenizer.pad_token_id = 0
     
@@ -134,34 +133,23 @@ def finetune(llm, tokenizer, tune_config):
     # Save Model
     model.save_pretrained(tune_config.lora_out_dir)
 
-def quantize(
-    llm_config, dataset, bits, nsamples, groupsize, act_order,
-    percdamp, seed, nearest, weights
-):
-    model, _ = load_llama(llm_config, checkpoint=None)
-    model.eval()
+def quantize(llm, config):
+    from llmtune.data.calibration import get_calibration_loaders
+    from llmtune.engine.quant.gptq.executor import GPTQAlgorithm
+
+    llm.eval()
     dataloader, _ = get_calibration_loaders(
-        dataset, 
-        nsamples=nsamples, 
-        seed=seed, 
-        model=llm_config.hf_config_name, 
-        seqlen=model.seqlen
+        config.dataset, 
+        nsamples=config.nsamples, 
+        seed=config.seed, 
+        model=llm.base_model.name_or_path, 
+        seqlen=llm.base_model.seqlen
     )
 
-    tick = time.time()
-    quantizers = gptq.quantize_llama(
-        model, 
-        dataloader, 
-        bits, 
-        groupsize, 
-        act_order, 
-        nsamples, 
-        percdamp, 
-        nearest=nearest, 
-        dev=DEV
-    )
-    print(f'Quantization time (s): {time.time() - tick}')
+    gptq = GPTQAlgorithm(config)
+    llm = gptq.quantize(llm, dataloader)
 
-    gptq.pack_llama(model, quantizers, bits, groupsize)
-    torch.save(model.state_dict(), weights) 
-    print(f'Model weights saved to: {weights}')
+    llm.save_pretrained(config.save)
+    print(f'Model weights saved to: {config.save}')
+
+    
