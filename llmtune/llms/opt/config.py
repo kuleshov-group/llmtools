@@ -1,4 +1,4 @@
-from llmtune.llms.config import LLMConfig, ModelType
+# from llmtune.llms.config import AutoQuantConfig, LLMType
 
 OPT_MODELS  = [
     "opt-6.7b-4bit", "opt-13b-4bit",
@@ -18,9 +18,11 @@ def get_opt_config(model):
     elif '13b' in model:
         hf_config_name = "facebook/opt-13b"
 
-    llm_config = LLMConfig(
+    raise NotImplementedError()
+
+    llm_config = AutoQuantConfig(
         name=model,
-        model_type=ModelType.OPT,
+        model_type=LLMType.OPT,
         hf_config_name=hf_config_name,
         hf_tokenizer_config="",
         bits=bits
