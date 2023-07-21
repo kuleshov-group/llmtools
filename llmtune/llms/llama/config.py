@@ -1,4 +1,4 @@
-from llmtune.llms.config import LLMConfig, ModelType
+# from llmtune.llms.config import AutoQuantConfig, LLMType
 
 LLAMA_MODELS = [
     "llama-7b-4bit", "llama-13b-4bit", "llama-30b-4bit", "llama-65b-4bit",
@@ -23,9 +23,11 @@ def get_llama_config(model):
     elif '65b' in model:
         hf_config_name = "decapoda-research/llama-65b-hf"
 
-    llm_config = LLMConfig(
+    raise NotImplementedError()
+
+    llm_config = AutoQuantConfig(
         name=model,
-        model_type=ModelType.LLAMA,
+        model_type=LLMType.LLAMA,
         hf_config_name=hf_config_name,
         hf_tokenizer_config="huggyllama/llama-13b",
         bits=bits
