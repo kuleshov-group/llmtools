@@ -13,10 +13,10 @@ def make_parser():
     gen_parser = subparsers.add_parser('generate')
     gen_parser.set_defaults(func=generate)
 
-    gen_parser.add_argument('--model', choices=LLM_MODELS, required=True,
-        help='Type of model to load')
-    gen_parser.add_argument('--weights', type=str, required=True,
-        help='Path to the base model weights.')
+    gen_parser.add_argument('--model', required=True,
+        help='Path or HF hub name of model to load')
+    gen_parser.add_argument('--tokenizer', required=False,
+        help='Path or HF hub name of tokenizer to load (default is model)')
     gen_parser.add_argument('--adapter', type=str, required=False,
         help='Path to the folder with the Lora adapter.')
     gen_parser.add_argument('--groupsize', type=int, default=-1,
@@ -41,8 +41,8 @@ def make_parser():
     quant_parser = subparsers.add_parser('quantize')
     quant_parser.set_defaults(func=quantize)
 
-    quant_parser.add_argument('--model', choices=LLM_MODELS, required=True,
-        help='Type of model to load')
+    quant_parser.add_argument('--model', required=True,
+        help='Path or HF hub name of model to load')
     quant_parser.add_argument('--save', type=str, required=True,
         help='Path to the saved model weights.')
     quant_parser.add_argument('--bits', type=int, # required=True,
@@ -68,11 +68,11 @@ def make_parser():
     tune_parser = subparsers.add_parser('finetune')
     tune_parser.set_defaults(func=finetune)
 
-    # Config args group
-    tune_parser.add_argument('--model', choices=LLM_MODELS, required=True,
-        help='Type of model to load')
-    tune_parser.add_argument('--weights', type=str, required=True,
-        help='Path to the model weights.')
+    # finetune model config
+    tune_parser.add_argument('--model', required=True,
+        help='Path or HF hub name of model to load')
+    tune_parser.add_argument('--tokenizer', required=False,
+        help='Path or HF hub name of tokenizer to load (default is model)')
     tune_parser.add_argument("--data-type", choices=["alpaca", "gpt4all"],
         help="Dataset format", default="alpaca")
     tune_parser.add_argument("--dataset", required=False,
@@ -82,7 +82,7 @@ def make_parser():
     tune_parser.add_argument('--groupsize', type=int,
         help='Groupsize used for quantization; -1 uses full row.')
 
-    # Training args group
+    # finetune training config
     tune_parser.add_argument("--mbatch_size", default=1, type=int, 
         help="Micro-batch size. ")
     tune_parser.add_argument("--batch_size", default=2, type=int, 
@@ -121,7 +121,9 @@ def main():
 
 def generate(args):
     import llmtune.executor as llmtune
-    llm, tokenizer = llmtune.load_llm(args.model, args.weights, args.groupsize)
+    llm = llmtune.load_llm(args.model)
+    tk_name = args.tokenizer if args.tokenizer is not None else args.model
+    tokenizer = llmtune.load_tokenizer(tk_name, llm.llm_config)
     if args.adapter is not None:
         llm = llmtune.load_adapter(llm, adapter_path=args.adapter)
     if args.prompt and args.instruction:
@@ -150,28 +152,23 @@ def generate(args):
     print(output)
 
 def finetune(args):
-    from llmtune.executor import load_llm
-    llm, tokenizer = load_llm(args.model, args.weights, args.groupsize)
+    import llmtune.executor as llmtune
+    llm = llmtune.load_llm(args.model)
+    tk_name = args.tokenizer if args.tokenizer is not None else args.model
+    tokenizer = llmtune.load_tokenizer(tk_name, llm.llm_config)
     from llmtune.config import get_finetune_config
     finetune_config = get_finetune_config(args)
     from llmtune.executor import finetune
     finetune(llm, tokenizer, finetune_config)
 
 def quantize(args):
-    from llmtune.config import get_llm_config
+    from llmtune.config import get_quant_config
+    quant_config = get_quant_config(args)
     import llmtune.executor as llmtune
-    llm_config = get_llm_config(args.model)
+    llm = llmtune.load_llm(args.model)
     output = llmtune.quantize(
-        llm_config, 
-        args.dataset, 
-        args.bits,         
-        args.nsamples, 
-        args.groupsize, 
-        args.act_order, 
-        args.percdamp, 
-        args.seed,  
-        args.nearest,
-        args.save     
+        llm, 
+        quant_config 
     )
 
 if __name__ == '__main__':
