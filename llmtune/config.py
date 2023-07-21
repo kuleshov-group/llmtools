@@ -1,7 +1,9 @@
 import torch
-from llmtune.llms.opt.config import get_opt_config, OPT_MODELS
-from llmtune.llms.llama.config import get_llama_config, LLAMA_MODELS
+from llmtune.llms.config import AutoConfig
+from llmtune.llms.opt.config import OPT_MODELS
+from llmtune.llms.llama.config import LLAMA_MODELS
 from llmtune.engine.lora.config import FinetuneConfig
+from llmtune.engine.quant.config import QuantConfig
 
 # ----------------------------------------------------------------------------
 
@@ -9,18 +11,9 @@ from llmtune.engine.lora.config import FinetuneConfig
 DEV = torch.device('cuda')
 LLM_MODELS = LLAMA_MODELS + OPT_MODELS
 
-# define some helpers
-def get_llm_config(model):
-    if model in LLAMA_MODELS:
-        return get_llama_config(model)
-    elif model in OPT_MODELS:
-        return get_opt_config(model)
-    else:
-        raise ValueError(f"Invalid model name: {model}")
-
 # ----------------------------------------------------------------------------
 
-# helpers for loading finetuning configs
+# helpers for loading configs
 def get_finetune_config(args):
     return FinetuneConfig(
         dataset=args.dataset, 
@@ -40,3 +33,19 @@ def get_finetune_config(args):
         save_total_limit=args.save_total_limit,
         logging_steps=args.logging_steps,
     )
+
+def get_quant_config(args):
+    return QuantConfig(
+        dataset=args.dataset,
+        bits=args.bits,
+        nsamples=args.nsamples,
+        groupsize=args.groupsize,
+        act_order=args.act_order,
+        percdamp=args.percdamp,
+        seed=args.seed,
+        nearest=args.nearest,
+        save=args.save,
+    )
+
+def get_llm_config(model_name_or_path):
+    return AutoConfig(model_name_or_path)
