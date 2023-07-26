@@ -1,16 +1,14 @@
-# LLMTune: 4-Bit Finetuning of LLMs on a Consumer GPU
+# LLMTune: Finetuning LLMs on Consumer GPUs
 
-LLMTune allows finetuning LLMs (e.g., the largest 65B LLAMA models) on as little as one consumer-grade GPU.
+The LLMTune library allows finetuning LLMs (e.g., the largest 70B LLAMA models) on as little as one consumer-grade GPU.
+
+Underneath the hood, LLMTune implements the LP-LoRA algorithm over an LLM quantized using a black-box quantization algorithm.
 
 Its features include:
 
 * Modular support for multiple LLMs (currently LLAMA, OPT)
 * Support for a wide range of consumer-grade NVidia GPUs; 65B LLAMAs finetune on one A6000
 * Tiny and easy-to-use codebase
-
-One benefit of being able to finetune larger LLMs (e.g., 65B params) on one GPU is the ability to easily leverage data parallelism for large models.
-
-Underneath the hood, LLMTune implements the LoRA algorithm over an LLM compressed using the GPTQ algorithm, which requires implementing a backward pass for the quantized LLM. See the hardware requirements for more information on which LLMs are supported by various GPUs.
 
 ### Goals
 
@@ -20,7 +18,7 @@ LLMTune is a research project at Cornell Tech and Cornell University. Its goals 
 
 ## Demo
 
-This is LLMTune running an instruction finetuned LLAMA-65B model on an NVidia A6000:
+This is LLMTune running an instruction finetuned LLAMA-65B model on one NVidia A6000:
 
 ```
 $ llmtune generate --model llama-65b-4bit --weights llama65b-4bit.pt --adapter alpaca-lora-65b-4bit --prompt "Write a well-thought out abstract for a machine learning paper that proves that 42 is the optimal seed for training neural networks."
