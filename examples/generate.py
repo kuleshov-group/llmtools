@@ -4,16 +4,16 @@ from llmtune.utils import to_half_precision
 
 # model config
 model_name = './llama-7b-quantized' # can generate this via quantize.py
+tokenizer_name = 'huggyllama/llama-13b'
 DEV = 'cuda'
 
 # load model
-llm = AutoLLMForCausalLM.from_pretrained(model_name)
+llm = AutoLLMForCausalLM.from_pretrained(model_name).to(DEV)
 llm.eval()
-llm.to(DEV)
 llm = to_half_precision(llm)
 
 # load tokenizer
-tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
+tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
 
 # encode prompt
 prompt = 'The pyramids were built by'
