@@ -21,6 +21,7 @@ LLMTune is a research project at Cornell Tech and Cornell University. Its goals 
 LLMTune provides an interface similar to the HuggingFace library for loading, generating, and finetuning quantized LLMs.
 
 ```
+import torch
 from transformers import AutoTokenizer
 from llmtune.llms.autollm import AutoLLMForCausalLM
 
@@ -32,13 +33,6 @@ tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
 # encode prompt
 prompt = 'The pyramids were built by'
 input_ids = tokenizer.encode(prompt, return_tensors="pt").to('cuda')
-
-# generation config
-min_length=10
-max_length=200
-top_p=.95
-top_k=25
-temperature=1.0
 
 # generate text
 with torch.no_grad():
@@ -175,67 +169,203 @@ Note that this process compiles and installs a custom CUDA kernel that is necess
 
 ## Running LLMTune
 
-The above process installs a `llmtune` command in your environment.
+The above process installs the `llmtune` library in your environment. It also installs an `llmtune` command-line tool.
 
 ### Download and Quantize Models
 
-First, start by downloading the weights of a base LLM model:
+First, start by downloading the weights of a base LLM model. Currently the LLAMA and OPT models are supported.
 ```
-wget https://huggingface.co/kuleshov/llama-65b-4bit/resolve/main/llama-65b-4bit.pt
+from llmtune.llms.autollm import AutoLLMForCausalLM
+
+model_name = 'decapoda-research/llama-7b-hf'
+llm = AutoLLMForCausalLM.from_pretrained(model_name)
+llm.eval()
 ```
-The pre-quantized models are available for download. We will add the quantization code to `llmtune` if there is demand.
+You can quantize this models within `llmtune`.
 ```
-wget https://huggingface.co/kuleshov/llama-13b-4bit/resolve/main/llama-13b-4bit.pt
-wget https://huggingface.co/kuleshov/llama-30b-4bit/resolve/main/llama-30b-4bit.pt
-wget https://huggingface.co/kuleshov/llama-65b-4bit/resolve/main/llama-65b-4bit.pt
+from llmtune.engine.quant.config import QuantConfig
+from llmtune.engine.quant.gptq.executor import GPTQAlgorithm
+from llmtune.data.calibration import get_calibration_loaders
+
+# set up quantization config
+config = QuantConfig(
+  bits=4,
+  dataset='c4',
+  seed=0,
+  nsamples=128,
+  percdamp=.01,
+  groupsize=64,
+  act_order=True,
+  nearest=False,
+  save='./llama-7b-quantized'
+)
+
+# load gptq calibration data
+dataloader, _ = get_calibration_loaders(
+    config.dataset, 
+    nsamples=config.nsamples, 
+    seed=config.seed, 
+    model=llm.base_model.name_or_path, 
+    seqlen=llm.base_model.seqlen
+)
+
+# create quantization algorithm
+gptq = GPTQAlgorithm(config)
+llm = gptq.quantize(llm, dataloader)
 ```
-You can finetune these models yourself, or you can optionally download LoRA adapter weights that have already been finetuned for you using `llmtune`.
+You can save the quantized model to disk or to the HF hub.
 ```
-mkdir alpaca-adapter-65b-4bit && cd alpaca-adapter-65b-4bit
-wget https://huggingface.co/kuleshov/alpaca-adapter-65b-4bit/resolve/main/adapter_config.json
-wget https://huggingface.co/kuleshov/alpaca-adapter-65b-4bit/resolve/main/adapter_model.bin
+llm.save_pretrained(config.save)
+print(f'Model weights saved to: {config.save}')
 ```
 
-### Generate Text
+### Generation
 
-You can generate text directly from the command line. This generates text from the base model:
-```
-llmtune generate --model llama-65b-4bit --weights llama-65b-4bit.pt --prompt "the pyramids were built by"
-```
-More interestingly, we can generate output from an instruction-finetuned model by also providing a path to LoRA adapter weights. 
-```
-llmtune generate --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-65b-4bit --instruction "Write a well-thought out recipe for a blueberry lasagna dish." --max-length 500
-```
-In the above example, `--instruct` applies the Alpaca-style prompt template, although you can also use `--prompt` to feed the model initial text without any pre-processing:
+You can generate text fron a quantized model. We first load the model
 
-The LLMTune interface also provides additional command-line options.
 ```
-usage: llmtune generate [-h] --model {llama-7b-4bit,llama-13b-4bit,llama-30b-4bit,llama-65b-4bit,opt-6.7b-4bit} --weights WEIGHTS
-                        [--adapter ADAPTER] [--prompt PROMPT] [--instruction INSTRUCTION] [--min-length MIN_LENGTH]
-                        [--max-length MAX_LENGTH] [--top_p TOP_P] [--top_k TOP_K] [--temperature TEMPERATURE]
+import torch
+from transformers import AutoTokenizer
+from llmtune.llms.autollm import AutoLLMForCausalLM
 
-options:
-  -h, --help            show this help message and exit
-  --model {llama-7b-4bit,llama-13b-4bit,llama-30b-4bit,llama-65b-4bit,opt-6.7b-4bit}
-                        Type of model to load
-  --weights WEIGHTS     Path to the base model weights.
-  --adapter ADAPTER     Path to the folder with the Lora adapter.
-  --prompt PROMPT       Text used to initialize generation
-  --instruction INSTRUCTION
-                        Instruction for an alpaca-style model
-  --min-length MIN_LENGTH
-                        Minimum length of the sequence to be generated.
-  --max-length MAX_LENGTH
-                        Maximum length of the sequence to be generated.
-  --top_p TOP_P         Top p sampling parameter.
-  --top_k TOP_K         Top p sampling parameter.
-  --temperature TEMPERATURE
-                        Sampling temperature.
+# load model and tokenizer
+model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
+llm = AutoLLMForCausalLM.from_pretrained(model_name).to('cuda')
+tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
+```
+
+We encode the prompt and generate
+```
+# encode prompt
+prompt = 'The pyramids were built by'
+input_ids = tokenizer.encode(prompt, return_tensors="pt").to('cuda')
+
+# generate text
+with torch.no_grad():
+    generated_ids = llm.generate(
+        inputs=input_ids,
+        do_sample=True,
+    )
+
+# decode and print
+output = tokenizer.decode([el.item() for el in generated_ids[0]])
+print(output)
 ```
 
 ### Finetune A Base Model
 
-You may also finetune a base model yourself. First, you need to dowload a dataset. We currently support the Alpaca dataset, which we download from the HF hub:
+We can also finetune a quantized model. We again start by loading the model.
+
+```
+from transformers import AutoTokenizer
+from llmtune.llms.autollm import AutoLLMForCausalLM
+
+# load model and tokenizer
+model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
+llm = AutoLLMForCausalLM.from_pretrained(model_name).to('cuda')
+tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
+```
+
+We can set parameters via the finetune config boject.
+```
+# set up finetuning config
+from llmtune.engine.lora.config import FinetuneConfig
+tune_config = FinetuneConfig(
+    dataset=None, 
+    data_type = 'alpaca',
+    lora_out_dir='./llama-13b-quantized-lora', 
+    mbatch_size=1,
+    batch_size=2,
+    epochs=3,
+    lr=2e-4,
+    cutoff_len=256,
+    lora_r=8,
+    lora_alpha=16,
+    lora_dropout=0.05,
+    val_set_size=0.2,
+    warmup_steps=50,
+    save_steps=50,
+    save_total_limit=3,
+    logging_steps=10,
+)
+```
+
+We instatiate a PEFT model using our custom patched version of PEFT.
+```
+
+# set up lora    
+from llmtune.engine.lora.peft import quant_peft
+lora_config = quant_peft.LoraConfig(
+    r=tune_config.lora_r,
+    lora_alpha=tune_config.lora_alpha,
+    target_modules=["q_proj", "v_proj"],
+    lora_dropout=tune_config.lora_dropout,
+    bias="none",
+    task_type="CAUSAL_LM",
+)
+model = quant_peft.get_peft_model(llm, lora_config)
+```
+
+Next, we load the finetuning data. The library has helpers to pre-load common datasets like Alpaca.
+```    
+# load stanford alpaca data
+from llmtune.data import TrainSAD
+data = TrainSAD(
+    tune_config.dataset, 
+    tune_config.val_set_size, 
+    tokenizer, 
+    tune_config.cutoff_len
+)
+data.prepare_data() # this tokenizes the dataset
+```
+
+The training process is identical to that of standard LoRA and PEFT.
+```
+# training args
+import transformers
+training_arguments = transformers.TrainingArguments(
+    per_device_train_batch_size=tune_config.mbatch_size,
+    gradient_accumulation_steps=tune_config.gradient_accumulation_steps,
+    warmup_steps=tune_config.warmup_steps,
+    num_train_epochs=tune_config.epochs,
+    learning_rate=tune_config.lr,
+    fp16=True,
+    logging_steps=tune_config.logging_steps,
+    evaluation_strategy="no",
+    save_strategy="steps",
+    eval_steps=None,
+    save_steps=tune_config.save_steps,
+    output_dir=tune_config.lora_out_dir,
+    save_total_limit=tune_config.save_total_limit,
+    load_best_model_at_end=False,
+    ddp_find_unused_parameters=False if tune_config.ddp else None,
+)
+
+# start trainer
+trainer = transformers.Trainer(
+    model=model,
+    train_dataset=data.train_data,
+    eval_dataset=data.val_data,
+    args=training_arguments,
+    data_collator=transformers.DataCollatorForLanguageModeling(
+        tokenizer, mlm=False
+    ),
+)
+
+# start training
+trainer.train()
+```
+
+Finally, we can save and load LoRA adapters in the usual way.
+```
+# Save Model
+model.save_pretrained(tune_config.lora_out_dir)
+
+```
+
+### Command-Line Usage
+
+You can also use `llmtune` from the command line. First, you need to dowload a dataset. We currently support the Alpaca dataset, which we download from the HF hub:
 ```
 wget https://huggingface.co/datasets/kuleshov/alpaca-data/resolve/main/dataset.json
 ```
@@ -284,25 +414,6 @@ options:
   --save_total_limit SAVE_TOTAL_LIMIT
   --logging_steps LOGGING_STEPS
   --resume_checkpoint   Resume from checkpoint.
-```
-
-### Programmatic Usage
-
-LLMTune can also be used as a Python library:
-```
-import llmtune.executor as llmtune
-
-llm, llm_config = llmtune.load_llm('llama-7b-4bit', '/path/to/llama-7b-4bit.pt')
-output = llmtune.generate(
-    llm, 
-    llm_config, 
-    prompt="the pyramids were built by", 
-    min_length=10, 
-    max_length=50, 
-    top_p=0.95, 
-    temperature=0.8,
-)
-print(output)
 ```
 
 ## Hardware Requirements
