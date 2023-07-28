@@ -6,15 +6,16 @@ Underneath the hood, LLMTune implements the LP-LoRA algorithm over an LLM quanti
 
 Its features include:
 
-* Modular support for multiple LLMs (currently LLAMA, OPT)
-* Support for a wide range of consumer-grade NVidia GPUs; 65B LLAMAs finetune on one A6000
-* Tiny and easy-to-use codebase
+* Implements LLM quantization as well as quantized inference and finetuning
+* Modular support for multiple LLMs (currently LLAMA, OPT) and quantization algorithms (currently GPTQ, RTN)
+* Support for consumer-grade NVidia GPUs; 70B LLAMAs finetune on one A6000
 
 ### Goals
 
 LLMTune is a research project at Cornell Tech and Cornell University. Its goals are to:
 * Provide an easy-to-use platform for creative experimentation with large language models
 * Faciliate research on LLM alignment, bias mitigation, efficient inference, and other topics
+
 
 ## Installation
 
