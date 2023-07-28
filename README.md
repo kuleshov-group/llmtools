@@ -16,6 +16,138 @@ LLMTune is a research project at Cornell Tech and Cornell University. Its goals 
 * Provide an easy-to-use platform for creative experimentation with large language models
 * Faciliate research on LLM alignment, bias mitigation, efficient inference, and other topics
 
+## Overview
+
+LLMTune provides an interface similar to the HuggingFace library for loading, generating, and finetuning quantized LLMs.
+
+```
+from transformers import AutoTokenizer
+from llmtune.llms.autollm import AutoLLMForCausalLM
+
+# load model and tokenizer
+model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
+llm = AutoLLMForCausalLM.from_pretrained(model_name).to('cuda')
+tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
+
+# encode prompt
+prompt = 'The pyramids were built by'
+input_ids = tokenizer.encode(prompt, return_tensors="pt").to('cuda')
+
+# generation config
+min_length=10
+max_length=200
+top_p=.95
+top_k=25
+temperature=1.0
+
+# generate text
+with torch.no_grad():
+    generated_ids = llm.generate(
+        inputs=input_ids,
+        do_sample=True,
+    )
+
+# decode and print
+output = tokenizer.decode([el.item() for el in generated_ids[0]])
+print(output)
+```
+
+LLMTune comes with a patched version of the PEFT library that can be used to finetune the quantized models using the LP-LoRA method.
+
+```
+import os
+import transformers
+from transformers import AutoTokenizer
+from llmtune.llms.autollm import AutoLLMForCausalLM
+from llmtune.engine.lora.config import FinetuneConfig
+from llmtune.data import TrainSAD
+from llmtune.engine.lora.peft import quant_peft
+
+# load model and tokenizer
+model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
+llm = AutoLLMForCausalLM.from_pretrained(model_name).to('cuda')
+tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
+
+# set up finetuning config
+tune_config = FinetuneConfig(
+    dataset=None, 
+    data_type = 'alpaca',
+    lora_out_dir='./llama-13b-quantized-lora', 
+    mbatch_size=1,
+    batch_size=2,
+    epochs=3,
+    lr=2e-4,
+    cutoff_len=256,
+    lora_r=8,
+    lora_alpha=16,
+    lora_dropout=0.05,
+    val_set_size=0.2,
+    warmup_steps=50,
+    save_steps=50,
+    save_total_limit=3,
+    logging_steps=10,
+)
+
+# set up lora    
+lora_config = quant_peft.LoraConfig(
+    r=tune_config.lora_r,
+    lora_alpha=tune_config.lora_alpha,
+    target_modules=["q_proj", "v_proj"],
+    lora_dropout=tune_config.lora_dropout,
+    bias="none",
+    task_type="CAUSAL_LM",
+)
+model = quant_peft.get_peft_model(llm, lora_config)
+    
+
+# load stanford alpaca data
+data = TrainSAD(
+    tune_config.dataset, 
+    tune_config.val_set_size, 
+    tokenizer, 
+    tune_config.cutoff_len
+)
+data.prepare_data() # this tokenizes the dataset
+
+# training args
+training_arguments = transformers.TrainingArguments(
+    per_device_train_batch_size=tune_config.mbatch_size,
+    gradient_accumulation_steps=tune_config.gradient_accumulation_steps,
+    warmup_steps=tune_config.warmup_steps,
+    num_train_epochs=tune_config.epochs,
+    learning_rate=tune_config.lr,
+    fp16=True,
+    logging_steps=tune_config.logging_steps,
+    evaluation_strategy="no",
+    save_strategy="steps",
+    eval_steps=None,
+    save_steps=tune_config.save_steps,
+    output_dir=tune_config.lora_out_dir,
+    save_total_limit=tune_config.save_total_limit,
+    load_best_model_at_end=False,
+    ddp_find_unused_parameters=False if tune_config.ddp else None,
+)
+
+# start trainer
+trainer = transformers.Trainer(
+    model=model,
+    train_dataset=data.train_data,
+    eval_dataset=data.val_data,
+    args=training_arguments,
+    data_collator=transformers.DataCollatorForLanguageModeling(
+        tokenizer, mlm=False
+    ),
+)
+
+# start training
+trainer.train()
+
+# Save Model
+model.save_pretrained(tune_config.lora_out_dir)
+
+```
+
+For more examples of how to perform model quantization, inference, and finetuning take a look at the `examples` folder.
 
 ## Installation
 
@@ -45,7 +177,7 @@ Note that this process compiles and installs a custom CUDA kernel that is necess
 
 The above process installs a `llmtune` command in your environment.
 
-### Download Models
+### Download and Quantize Models
 
 First, start by downloading the weights of a base LLM model:
 ```
@@ -262,10 +394,8 @@ So, Roger has 5 + 2 x 3 = 11 balls now!
 ## Todos
 
 This is experimental work in progress. Work that stills needs to be done:
-* Make it easy to load models directly from the HF hub
 * Out-of-the-box support for additional LLMs
-* Improve the interface with things like automatic termination
-* Automated quantization scripts
+* Integration with additional quantizers
 
 ## Acknowledgements
 
