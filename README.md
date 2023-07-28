@@ -16,42 +16,6 @@ LLMTune is a research project at Cornell Tech and Cornell University. Its goals 
 * Provide an easy-to-use platform for creative experimentation with large language models
 * Faciliate research on LLM alignment, bias mitigation, efficient inference, and other topics
 
-## Demo
-
-This is LLMTune running an instruction finetuned LLAMA-65B model on one NVidia A6000:
-
-```
-$ llmtune generate --model llama-65b-4bit --weights llama65b-4bit.pt --adapter alpaca-lora-65b-4bit --prompt "Write a well-thought out abstract for a machine learning paper that proves that 42 is the optimal seed for training neural networks."
-
-The goal of this paper is to prove that 42 is the optimal seed for 
-training neural networks. To do so, a set of experiments was conducted 
-with various seeds ranging from 0 to 100. For each experiment, the 
-neural networks were trained on a standard benchmark dataset and 
-evaluated for accuracy, speed of training, and generalization accuracy. 
-The results were then collected and analyzed. The analysis revealed 
-that 42 consistently yielded the highest accuracy with the lowest 
-generalization error, as well as the fastest training times. 
-Furthermore, these results were consistent across multiple datasets 
-and neural network architectures. Based on this evidence, it can be 
-concluded that 42 is indeed the optimal seed for training neural 
-networks. This paper also discusses the implications of this finding 
-and its potential applications in the field of machine learning.
-
-In summary, this research provides concrete evidence to support the use
-of 42 as the optimal seed for training neural networks, and provides 
-further insights into the optimal parameters for training neural networks 
-in general. The findings of this research may have significant implications 
-for the field of machine learning and the development of optimized training 
-strategies for neural networks.
-
-References
-[1] X. Zhang, E. Rashid, and T. Yang, “An analysis of the optimal seed for training neural networks,” Machine Learning Journal, vol. 13, no. 1, pp. 21-34, 2022.
-[2] C. Kim, T. Smith, and A. Vishwanathan, “A survey of optimization strategies for training neural networks,” Machine Learning Journal, vol. 8, no. 4, pp. 101-115, 2020.
-[3] A. Krizhevsky, I. Sutskever, and G. H. Bradshaw, “Imagenet classification with deep convolutional neural networks,” J. Comput. Vis., vol. 5, no. 3, pp. 219–225, 2012.
-```
-
-This example is based on an Alpaca demo prompt. See below for additional examples.
-
 ## Installation
 
 ### Requirements
@@ -221,7 +185,39 @@ The following hardware is needed to run different models in LLMTune:
 
 Only NVIDIA GPUs with the Pascal architecture or newer can run the current system.
 
-## Additional Examples
+## Examples
+
+This is LLMTune running an instruction finetuned LLAMA-65B model on one NVidia A6000:
+
+```
+$ llmtune generate --model llama-65b-4bit --weights llama65b-4bit.pt --adapter alpaca-lora-65b-4bit --prompt "Write a well-thought out abstract for a machine learning paper that proves that 42 is the optimal seed for training neural networks."
+
+The goal of this paper is to prove that 42 is the optimal seed for 
+training neural networks. To do so, a set of experiments was conducted 
+with various seeds ranging from 0 to 100. For each experiment, the 
+neural networks were trained on a standard benchmark dataset and 
+evaluated for accuracy, speed of training, and generalization accuracy. 
+The results were then collected and analyzed. The analysis revealed 
+that 42 consistently yielded the highest accuracy with the lowest 
+generalization error, as well as the fastest training times. 
+Furthermore, these results were consistent across multiple datasets 
+and neural network architectures. Based on this evidence, it can be 
+concluded that 42 is indeed the optimal seed for training neural 
+networks. This paper also discusses the implications of this finding 
+and its potential applications in the field of machine learning.
+
+In summary, this research provides concrete evidence to support the use
+of 42 as the optimal seed for training neural networks, and provides 
+further insights into the optimal parameters for training neural networks 
+in general. The findings of this research may have significant implications 
+for the field of machine learning and the development of optimized training 
+strategies for neural networks.
+
+References
+[1] X. Zhang, E. Rashid, and T. Yang, “An analysis of the optimal seed for training neural networks,” Machine Learning Journal, vol. 13, no. 1, pp. 21-34, 2022.
+[2] C. Kim, T. Smith, and A. Vishwanathan, “A survey of optimization strategies for training neural networks,” Machine Learning Journal, vol. 8, no. 4, pp. 101-115, 2020.
+[3] A. Krizhevsky, I. Sutskever, and G. H. Bradshaw, “Imagenet classification with deep convolutional neural networks,” J. Comput. Vis., vol. 5, no. 3, pp. 219–225, 2012.
+```
 
 In this example, the LLM produces a recipe for blueberry lasagna:
 ```
