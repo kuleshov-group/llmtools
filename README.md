@@ -49,12 +49,8 @@ print(output)
 LLMTune comes with a patched version of the PEFT library that can be used to finetune the quantized models using the LP-LoRA method.
 
 ```
-import os
-import transformers
 from transformers import AutoTokenizer
 from llmtune.llms.autollm import AutoLLMForCausalLM
-from llmtune.engine.lora.config import FinetuneConfig
-from llmtune.data import TrainSAD
 from llmtune.engine.lora.peft import quant_peft
 
 # load model and tokenizer
@@ -63,63 +59,25 @@ llm = AutoLLMForCausalLM.from_pretrained(model_name).to('cuda')
 tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
 
 # set up finetuning config
+from llmtune.engine.lora.config import FinetuneConfig
 tune_config = FinetuneConfig(
-    dataset=None, 
-    data_type = 'alpaca',
-    lora_out_dir='./llama-13b-quantized-lora', 
-    mbatch_size=1,
-    batch_size=2,
-    epochs=3,
-    lr=2e-4,
-    cutoff_len=256,
-    lora_r=8,
-    lora_alpha=16,
-    lora_dropout=0.05,
-    val_set_size=0.2,
-    warmup_steps=50,
-    save_steps=50,
-    save_total_limit=3,
-    logging_steps=10,
+    # ... set up finetuning config
 )
 
 # set up lora    
 lora_config = quant_peft.LoraConfig(
-    r=tune_config.lora_r,
-    lora_alpha=tune_config.lora_alpha,
-    target_modules=["q_proj", "v_proj"],
-    lora_dropout=tune_config.lora_dropout,
-    bias="none",
-    task_type="CAUSAL_LM",
+    # ... create a lora config object
 )
 model = quant_peft.get_peft_model(llm, lora_config)
     
 
 # load stanford alpaca data
-data = TrainSAD(
-    tune_config.dataset, 
-    tune_config.val_set_size, 
-    tokenizer, 
-    tune_config.cutoff_len
-)
-data.prepare_data() # this tokenizes the dataset
+data = # ... load the data
 
 # training args
+import transformers
 training_arguments = transformers.TrainingArguments(
-    per_device_train_batch_size=tune_config.mbatch_size,
-    gradient_accumulation_steps=tune_config.gradient_accumulation_steps,
-    warmup_steps=tune_config.warmup_steps,
-    num_train_epochs=tune_config.epochs,
-    learning_rate=tune_config.lr,
-    fp16=True,
-    logging_steps=tune_config.logging_steps,
-    evaluation_strategy="no",
-    save_strategy="steps",
-    eval_steps=None,
-    save_steps=tune_config.save_steps,
-    output_dir=tune_config.lora_out_dir,
-    save_total_limit=tune_config.save_total_limit,
-    load_best_model_at_end=False,
-    ddp_find_unused_parameters=False if tune_config.ddp else None,
+    # ... set up batch size, etc., in the usual way
 )
 
 # start trainer
