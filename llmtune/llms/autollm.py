@@ -53,7 +53,8 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
         return self.base_model._keys_to_ignore_on_save
     
     def to(self, device: Union[str, torch.device]):
-        return self.base_model.to(device)
+        self.base_model = self.base_model.to(device)
+        return self
 
     def forward(self, *args, **kwargs):
         return self.base_model(*args, **kwargs)
@@ -109,12 +110,14 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
 
     def save_pretrained(self, save_dir: str):
         os.makedirs(save_dir, exist_ok=True)
+        print('test')
 
         # save config
         self.llm_config.save_pretrained(save_dir)
 
         # save base model
         self.base_model.to('cpu')
+        print(self.llm_config.quant_config)
         if self.llm_config.quant_config is None:
             self.base_model.save_pretrained(save_dir)
         else:
