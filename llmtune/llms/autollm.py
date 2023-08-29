@@ -3,7 +3,10 @@ import torch
 from torch import nn
 from typing import Dict, List, Optional, Union
 from transformers import AutoTokenizer
-from transformers.utils.hub import PushToHubMixin, cached_file
+from transformers.utils.hub import (
+    PushToHubMixin, cached_file, create_repo, 
+    create_commit, CommitOperationAdd
+)
 from llmtune.llms.config import AutoLLMConfig, LLMType
 from llmtune.llms.llama.model import load_llama, load_llama_tokenizer
 from llmtune.llms.opt.model import load_opt, load_opt_tokenizer
@@ -142,8 +145,9 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
         create_pr: Optional[bool] = False,
     ) -> str:
         
-        print(f"Saving model to {save_dir}")
-        self.save_pretrained(save_dir)
+        if not os.path.exists(save_dir):
+            print(f"Saving model to {save_dir}")
+            self.save_pretrained(save_dir)
 
         repo_url = create_repo(
             repo_id=repo_id, token=token, private=private, 
@@ -160,7 +164,8 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
         ]
         print(
             f"Uploading the following files to {repo_id}: "
-            "{','.join(os.listdir(save_dir))}")
+            f"{','.join(os.listdir(save_dir))}"
+        )
         return create_commit(
             repo_id=repo_id,
             operations=operations,
