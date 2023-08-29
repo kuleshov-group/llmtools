@@ -1,7 +1,7 @@
 import os
 import json
 from dataclasses import dataclass
-from transformers.utils.hub import PushToHubMixin
+from transformers.utils.hub import PushToHubMixin, cached_file
 
 @dataclass
 class QuantConfig(PushToHubMixin):
