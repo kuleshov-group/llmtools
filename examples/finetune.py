@@ -9,8 +9,7 @@ from llmtune.engine.lora.peft import quant_peft
 from llmtune.utils import to_half_precision
 
 # model config
-# model_name = './llama-7b-quantized' # can generate this via quantize.py
-model_name = '/share/kuleshov/vk379/llamas/llama-7b-4bit' # can generate this via quantize.py
+model_name = './llama-7b-quantized' # can generate this via quantize.py
 tokenizer_name = 'huggyllama/llama-13b'
 DEV = 'cuda'
 
@@ -76,8 +75,6 @@ lora_config = quant_peft.LoraConfig(
 
 # create a new lora from config
 model = quant_peft.get_peft_model(llm, lora_config)
-
-model.save_pretrained('./test')
 
 # load stanford alpaca data
 data = TrainSAD(

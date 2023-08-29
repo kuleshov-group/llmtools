@@ -18,7 +18,7 @@ llm = to_half_precision(llm)
 tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
 
 # load lora from existing checkpoint
-adapter_path = './test' # can generate this via finetune.py
+adapter_path = './llama-7b-quantized-lora' # can generate this via finetune.py
 model = quant_peft.PeftModel.from_pretrained(
     llm, adapter_path, 
     device_map='auto'
