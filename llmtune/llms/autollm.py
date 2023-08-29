@@ -51,6 +51,10 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
     @property
     def _keys_to_ignore_on_save(self):
         return self.base_model._keys_to_ignore_on_save
+
+    @property
+    def _no_split_modules(self):
+        return self.base_model._no_split_modules
     
     def to(self, device: Union[str, torch.device]):
         self.base_model = self.base_model.to(device)
