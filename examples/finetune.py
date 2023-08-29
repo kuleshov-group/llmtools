@@ -9,7 +9,8 @@ from llmtune.engine.lora.peft import quant_peft
 from llmtune.utils import to_half_precision
 
 # model config
-model_name = './llama-7b-quantized' # can generate this via quantize.py
+model_name = 'kuleshov/llama-7b-4bit'
+# model_name = './llama-7b-quantized' # can generate local dir via quantize.py
 tokenizer_name = 'huggyllama/llama-13b'
 DEV = 'cuda'
 
