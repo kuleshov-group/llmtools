@@ -1,3 +1,4 @@
+import torch
 from transformers import AutoTokenizer
 from llmtune.llms.autollm import AutoLLMForCausalLM
 from llmtune.utils import to_half_precision
