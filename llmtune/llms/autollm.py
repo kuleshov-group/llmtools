@@ -33,6 +33,13 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
         self.llm_config = llm_config
 
     @property
+    def is_quantized(self):
+        return self.llm_config.is_quantized
+
+    def set_quant_config(self, quant_config):
+        self.llm_config.set_quant_config(quant_config)
+
+    @property
     def device(self):
         if not self.hf_device_map:
             return self.base_model.device
@@ -125,7 +132,7 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
         # save base model
         self.base_model.to('cpu')
         print(self.llm_config.quant_config)
-        if self.llm_config.quant_config is None:
+        if not self.is_quantized:
             self.base_model.save_pretrained(save_dir)
         else:
             torch.save(
