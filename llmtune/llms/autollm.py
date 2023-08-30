@@ -10,6 +10,7 @@ from transformers.utils.hub import (
 from llmtune.llms.config import AutoLLMConfig, LLMType
 from llmtune.llms.llama.model import load_llama, load_llama_tokenizer
 from llmtune.llms.opt.model import load_opt, load_opt_tokenizer
+from llmtune.llms.bloom.model import load_bloom, load_bloom_tokenizer
 
 def get_default_tokenizer(name_or_path, model_type=None):
     if model_type is not None:
@@ -17,6 +18,8 @@ def get_default_tokenizer(name_or_path, model_type=None):
             return load_llama_tokenizer(name_or_path)
         elif model_type == 'opt':
             return load_opt_tokenizer(name_or_path)
+        elif model_type == 'bloom':
+            return load_bloom_tokenizer(name_or_path)
         else:
             raise ValueError()
     else:
@@ -115,6 +118,8 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
             model = load_llama(llm_config, checkpoint)
         elif llm_config.model_type == LLMType.OPT.value:
             model = load_opt(llm_config, checkpoint)
+        elif llm_config.model_type == LLMType.BLOOM.value:
+            model = load_bloom(llm_config, checkpoint)
         else:
             raise NotImplementedError(
                f'{llm_config.model_type} not supported'
