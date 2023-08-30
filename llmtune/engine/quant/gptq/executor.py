@@ -36,7 +36,7 @@ class GPTQAlgorithm(QuantizationAlgorithm):
         pack_llama(model.base_model, quantizers, self.config.bits, self.config.groupsize)
 
         # save quantization config
-        model.quant_config = self.config
+        model.set_quant_config(self.config)
 
         return model
 

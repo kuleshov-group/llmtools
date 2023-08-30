@@ -8,6 +8,7 @@ from llmtune.engine.quant.config import QuantConfig
 class LLMType(Enum):
     LLAMA = 'llama'
     OPT = 'opt'
+    BLOOM = 'bloom'
 
 class AutoLLMConfig(PretrainedConfig,PushToHubMixin):
     def __init__(
@@ -17,8 +18,15 @@ class AutoLLMConfig(PretrainedConfig,PushToHubMixin):
     ):
         self.base_config = base_config
         self.quant_config = None
-        if quant_config is not None:
-            self.quant_config = quant_config
+
+    @property
+    def is_quantized(self):
+        return self.quant_config is not None
+
+    def set_quant_config(self, quant_config):
+        if self.quant_config is not None:
+            raise RuntimeError('quant_config already set')
+        self.quant_config = quant_config
 
     @property
     def model_type(self):
@@ -26,7 +34,7 @@ class AutoLLMConfig(PretrainedConfig,PushToHubMixin):
 
     def save_pretrained(self, save_dir: str, **kwargs):
         self.base_config.save_pretrained(save_dir, **kwargs)
-        if self.quant_config is not None:
+        if self.is_quantized:
             self.quant_config.save_pretrained(save_dir, **kwargs)
 
     @classmethod
