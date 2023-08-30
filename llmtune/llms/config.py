@@ -18,6 +18,8 @@ class AutoLLMConfig(PretrainedConfig,PushToHubMixin):
     ):
         self.base_config = base_config
         self.quant_config = None
+        if quant_config is not None:
+            self.quant_config = quant_config
 
     @property
     def is_quantized(self):
