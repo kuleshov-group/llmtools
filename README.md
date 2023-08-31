@@ -1,29 +1,26 @@
-# LLMTune: Finetuning LLMs on Consumer GPUs
+# LLMTools: Run & Finetune LLMs on Consumer GPUs
 
-The LLMTune library allows finetuning LLMs (e.g., the largest 70B LLAMA models) on as little as one consumer-grade GPU.
+LLMTools is a user-friendly library for running and finetuning LLMs in low-resource settings. Notable features include:
+* 🔨 LLM finetuning in 2-bit, 3-bit, 4-bit precision using the LP-LoRA algorithm
+* 🐍 Easy-to-use Python API for quantization, inference, and finetuning
+* 🤖 Modular support for multiple LLMs, quantizers, and optimization algorithms
+* 🤗 Share all your LLMs on the HuggingFace Hub
 
-Underneath the hood, LLMTune implements the LP-LoRA algorithm over an LLM quantized using a black-box quantization algorithm.
-
-Its features include:
-
-* Implements LLM quantization as well as quantized inference and finetuning
-* Modular support for multiple LLMs (currently LLAMA, OPT) and quantization algorithms (currently GPTQ, RTN)
-* Support for consumer-grade NVidia GPUs; 70B LLAMAs finetune on one A6000
-
-### Goals
-
-LLMTune is a research project at Cornell Tech and Cornell University. Its goals are to:
-* Provide an easy-to-use platform for creative experimentation with large language models
-* Faciliate research on LLM alignment, bias mitigation, efficient inference, and other topics
+LLMTools is a research project at Cornell University, and is based on the following publications.
+```
+Jerry Chee, Yaohui Cai, Volodymyr Kuleshov, Christopher De Sa.  QuIP: 2-Bit Quantization of Large Language Models with Guarantees., ArXiv, https://arxiv.org/abs/2307.13304
+Volodymyr Kuleshov, Oscar Yinn, Jiahao Don, Yingheng Wang, Christopher De Sa.  Low-Precision LoRA: Finetuning Large Language Models on Consumer GPUs via Modular Quantizers., ArXiv
+```
+LLMTools implements low precision LoRA, a new memory-efficient finetuning algorithm that integrates with an *arbitrary* quantization module. When using the state-of-the-art OPTQ quantizer, LP-LoRA can finetune 3-bit LLMs for the first time (see results below).
 
 ## Overview
 
-LLMTune provides an interface similar to the HuggingFace library for loading, generating, and finetuning quantized LLMs.
+LLMTools provides an interface similar to the HuggingFace library for loading, generating, and finetuning quantized LLMs.
 
-```
+```python
 import torch
 from transformers import AutoTokenizer
-from llmtune.llms.autollm import AutoLLMForCausalLM
+from LLMTools.llms.autollm import AutoLLMForCausalLM
 
 # load model and tokenizer
 model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
@@ -46,12 +43,12 @@ output = tokenizer.decode([el.item() for el in generated_ids[0]])
 print(output)
 ```
 
-LLMTune comes with a patched version of the PEFT library that can be used to finetune the quantized models using the LP-LoRA method.
+LLMTools comes with a patched version of the PEFT library that can be used to finetune the quantized models using the LP-LoRA method.
 
-```
+```python
 from transformers import AutoTokenizer
-from llmtune.llms.autollm import AutoLLMForCausalLM
-from llmtune.engine.lora.peft import quant_peft
+from LLMTools.llms.autollm import AutoLLMForCausalLM
+from LLMTools.engine.lora.peft import quant_peft
 
 # load model and tokenizer
 model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
@@ -59,7 +56,7 @@ llm = AutoLLMForCausalLM.from_pretrained(model_name).to('cuda')
 tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
 
 # set up finetuning config
-from llmtune.engine.lora.config import FinetuneConfig
+from LLMTools.engine.lora.config import FinetuneConfig
 tune_config = FinetuneConfig(
     # ... set up finetuning config
 )
@@ -96,7 +93,6 @@ trainer.train()
 
 # Save Model
 model.save_pretrained(tune_config.lora_out_dir)
-
 ```
 
 For more examples of how to perform model quantization, inference, and finetuning take a look at the `examples` folder.
@@ -105,45 +101,43 @@ For more examples of how to perform model quantization, inference, and finetunin
 
 ### Requirements
 
-LLMTune requires a UNIX environment supporting Python (3.8 or greater) and PyTorch (we tested with 1.13.1+cu116). See `requirements.txt` for details.
+LLMTools requires a UNIX environment supporting Python (3.8 or greater) and PyTorch (we tested with 1.13.1+cu116). See `requirements.txt` for details.
 
 To ensure maximum reproducibility, consider creating a new conda environment:
-```
-conda create -n llmtune
-conda activate llmtune
+```python
+conda create -n LLMTools
+conda activate LLMTools
 conda install git pip virtualenv
 ```
-LLMTune also requries an NVIDIA GPU (Pascal architecture or newer); other platforms are currently unsupported.
+LLMTools also requries an NVIDIA GPU (Pascal architecture or newer); other platforms are currently unsupported.
 
 ### Setup
 
-We use `distutils` to package LLMTune. If you are not running conda, you can also create a `virtualenv`.
+We use `distutils` to package LLMTools. If you are not running conda, you can also create a `virtualenv`.
 ```
 pip install -r requirements.txt   # installs torch and two other packages
-python setup.py install           # installs llmtune in your environment
+python setup.py install           # installs LLMTools in your environment
 ```
 
 Note that this process compiles and installs a custom CUDA kernel that is necessary to run quantized models.
 
-## Running LLMTune
-
-The above process installs the `llmtune` library in your environment. It also installs an `llmtune` command-line tool.
+## Running LLMTools
 
 ### Download and Quantize Models
 
-First, start by downloading the weights of a base LLM model. Currently the LLAMA and OPT models are supported.
-```
-from llmtune.llms.autollm import AutoLLMForCausalLM
+First, start by downloading the weights of a base LLM model. Currently the LLAMA, OPT, and BLOOM are supported.
+```python
+from LLMTools.llms.autollm import AutoLLMForCausalLM
 
 model_name = 'decapoda-research/llama-7b-hf'
 llm = AutoLLMForCausalLM.from_pretrained(model_name)
 llm.eval()
 ```
-You can quantize this models within `llmtune`.
-```
-from llmtune.engine.quant.config import QuantConfig
-from llmtune.engine.quant.gptq.executor import GPTQAlgorithm
-from llmtune.data.calibration import get_calibration_loaders
+You can quantize these models within `LLMTools`.
+```python
+from LLMTools.engine.quant.config import QuantConfig
+from LLMTools.engine.quant.gptq.executor import GPTQAlgorithm
+from LLMTools.data.calibration import get_calibration_loaders
 
 # set up quantization config
 config = QuantConfig(
@@ -172,19 +166,19 @@ gptq = GPTQAlgorithm(config)
 llm = gptq.quantize(llm, dataloader)
 ```
 You can save the quantized model to disk or to the HF hub.
-```
+```python
 llm.save_pretrained(config.save)
 print(f'Model weights saved to: {config.save}')
 ```
 
 ### Generation
 
-You can generate text fron a quantized model. We first load the model
+Next, we generate text fron a quantized model. We first load the model.
 
-```
+```python
 import torch
 from transformers import AutoTokenizer
-from llmtune.llms.autollm import AutoLLMForCausalLM
+from LLMTools.llms.autollm import AutoLLMForCausalLM
 
 # load model and tokenizer
 model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
@@ -192,8 +186,8 @@ llm = AutoLLMForCausalLM.from_pretrained(model_name).to('cuda')
 tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
 ```
 
-We encode the prompt and generate
-```
+We encode the prompt and generate.
+```python
 # encode prompt
 prompt = 'The pyramids were built by'
 input_ids = tokenizer.encode(prompt, return_tensors="pt").to('cuda')
@@ -212,11 +206,11 @@ print(output)
 
 ### Finetune A Base Model
 
-We can also finetune a quantized model. We again start by loading the model.
+Lastly, we can finetune quantized models. We again start by loading a model.
 
-```
+```python
 from transformers import AutoTokenizer
-from llmtune.llms.autollm import AutoLLMForCausalLM
+from LLMTools.llms.autollm import AutoLLMForCausalLM
 
 # load model and tokenizer
 model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
@@ -224,10 +218,10 @@ llm = AutoLLMForCausalLM.from_pretrained(model_name).to('cuda')
 tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
 ```
 
-We can set parameters via the finetune config boject.
-```
+We can set parameters via the finetune config object.
+```python
 # set up finetuning config
-from llmtune.engine.lora.config import FinetuneConfig
+from LLMTools.engine.lora.config import FinetuneConfig
 tune_config = FinetuneConfig(
     dataset=None, 
     data_type = 'alpaca',
@@ -249,10 +243,9 @@ tune_config = FinetuneConfig(
 ```
 
 We instatiate a PEFT model using our custom patched version of PEFT.
-```
-
+```python
 # set up lora    
-from llmtune.engine.lora.peft import quant_peft
+from LLMTools.engine.lora.peft import quant_peft
 lora_config = quant_peft.LoraConfig(
     r=tune_config.lora_r,
     lora_alpha=tune_config.lora_alpha,
@@ -265,9 +258,9 @@ model = quant_peft.get_peft_model(llm, lora_config)
 ```
 
 Next, we load the finetuning data. The library has helpers to pre-load common datasets like Alpaca.
-```    
+```python
 # load stanford alpaca data
-from llmtune.data import TrainSAD
+from LLMTools.data import TrainSAD
 data = TrainSAD(
     tune_config.dataset, 
     tune_config.val_set_size, 
@@ -278,7 +271,7 @@ data.prepare_data() # this tokenizes the dataset
 ```
 
 The training process is identical to that of standard LoRA and PEFT.
-```
+```python
 # training args
 import transformers
 training_arguments = transformers.TrainingArguments(
@@ -315,7 +308,7 @@ trainer.train()
 ```
 
 Finally, we can save and load LoRA adapters in the usual way.
-```
+```python
 # Save Model
 model.save_pretrained(tune_config.lora_out_dir)
 
@@ -323,23 +316,23 @@ model.save_pretrained(tune_config.lora_out_dir)
 
 ### Command-Line Usage
 
-You can also use `llmtune` from the command line. First, you need to dowload a dataset. We currently support the Alpaca dataset, which we download from the HF hub:
+You can also use `LLMTools` from the command line. First, you need to dowload a dataset. We currently support the Alpaca dataset, which we download from the HF hub:
 ```
 wget https://huggingface.co/datasets/kuleshov/alpaca-data/resolve/main/dataset.json
 ```
 You may now finetune the base `llama-65b-4bit` model on this dataset.
 ```
 mkdir alpaca-adapter-folder-65b-4bit
-llmtune finetune --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-folder-65b-4bit --dataset dataset.json
+LLMTools finetune --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-folder-65b-4bit --dataset dataset.json
 ```
 The above command will use LoRA to finetune the quantized 65-bit model. The final adapters and the checkpoints will be saved in `alpaca-adapter-folder-65b-4bit` and available for generation as follows:
 ```
-llmtune generate --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-folder-65b-4bit --instruction "Write an irrefutable proof that the meaning of life is 42."
+LLMTools generate --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-folder-65b-4bit --instruction "Write an irrefutable proof that the meaning of life is 42."
 ```
 
-The LLMTune interface provides many additional command-line options for finetuning.
+The LLMTools interface provides many additional command-line options for finetuning.
 ```
-usage: llmtune finetune [-h] --model {llama-7b-4bit,llama-13b-4bit,llama-30b-4bit,llama-65b-4bit,opt-6.7b-4bit} --weights WEIGHTS
+usage: LLMTools finetune [-h] --model {llama-7b-4bit,llama-13b-4bit,llama-30b-4bit,llama-65b-4bit,opt-6.7b-4bit} --weights WEIGHTS
                         [--data-type {alpaca,gpt4all}] [--dataset DATASET] [--adapter ADAPTER] [--mbatch_size MBATCH_SIZE]
                         [--batch_size BATCH_SIZE] [--epochs EPOCHS] [--lr LR] [--cutoff_len CUTOFF_LEN] [--lora_r LORA_R]
                         [--lora_alpha LORA_ALPHA] [--lora_dropout LORA_DROPOUT] [--val_set_size VAL_SET_SIZE]
@@ -376,7 +369,7 @@ options:
 
 ## Hardware Requirements
 
-The following hardware is needed to run different models in LLMTune:
+The following hardware is needed to run different models in LLMTools:
 
 | Model Size | GPU Memory Requirements | Compatible GPUs |
 | ----- | -------------------- | --------------- |
@@ -389,10 +382,10 @@ Only NVIDIA GPUs with the Pascal architecture or newer can run the current syste
 
 ## Examples
 
-This is LLMTune running an instruction finetuned LLAMA-65B model on one NVidia A6000:
+This is LLMTools running an instruction finetuned LLAMA-65B model on one NVidia A6000:
 
 ```
-$ llmtune generate --model llama-65b-4bit --weights llama65b-4bit.pt --adapter alpaca-lora-65b-4bit --prompt "Write a well-thought out abstract for a machine learning paper that proves that 42 is the optimal seed for training neural networks."
+$ LLMTools generate --model llama-65b-4bit --weights llama65b-4bit.pt --adapter alpaca-lora-65b-4bit --prompt "Write a well-thought out abstract for a machine learning paper that proves that 42 is the optimal seed for training neural networks."
 
 The goal of this paper is to prove that 42 is the optimal seed for 
 training neural networks. To do so, a set of experiments was conducted 
@@ -423,7 +416,7 @@ References
 
 In this example, the LLM produces a recipe for blueberry lasagna:
 ```
-$ llmtune generate --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-lora-65b-4bit-e3 --instruction "Write a well-thought out recipe for a new blueberry lasagna dish." --max-length 500
+$ LLMTools generate --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-lora-65b-4bit-e3 --instruction "Write a well-thought out recipe for a new blueberry lasagna dish." --max-length 500
 Ingredients:
 * 1 lb lasagna noodles
 * 1/2 cup ricotta cheese
@@ -449,7 +442,7 @@ Enjoy!
 
 The 30B and 65B parameter models can do zero-shot chain-of-thought reasoning (i.e., "let's think step-by-step"):
 ```
-$ llmtune generate --model llama-65b-4bit --weights /share/kuleshov/vk379/llama-65b-4bit.pt --prompt "Q: Roger has 5 tennis balls. He buys 2 more cans of tennis balls. Each can has 3 tennis balls. How many tennis balls does he have now? A: Let's think step-by-step."
+$ LLMTools generate --model llama-65b-4bit --weights /share/kuleshov/vk379/llama-65b-4bit.pt --prompt "Q: Roger has 5 tennis balls. He buys 2 more cans of tennis balls. Each can has 3 tennis balls. How many tennis balls does he have now? A: Let's think step-by-step."
 Loading LLAMA model
 Done
 Q: Roger has 5 tennis balls. He buys 2 more cans of tennis balls. Each can has 3 tennis balls. 
@@ -468,7 +461,7 @@ This is experimental work in progress. Work that stills needs to be done:
 
 ## Acknowledgements
 
-LLMTune is based on the following projects:
+LLMTools is based on the following projects:
 * The GPTQ algorithm and codebase by the [IST-DASLAB](https://github.com/IST-DASLab/gptq) with modifications by [@qwopqwop200](https://github.com/qwopqwop200/)
 * The `alpaca_lora_4bit` repo by [johnsmith0031](https://github.com/johnsmith0031)
 * The PEFT repo and its implementation of LoRA
@@ -479,13 +472,13 @@ LLMTune is based on the following projects:
 Please cite this repository if you use our code.
 
 ```
-@misc{llmtune,
+@misc{LLMTools,
   author = {Volodymyr Kuleshov},
-  title = {LLMTune: Fine-Tuning Large Language Models on One Consumer GPU},
+  title = {LLMTools: Fine-Tuning Large Language Models on One Consumer GPU},
   year = {2023},
   publisher = {GitHub},
   journal = {GitHub repository},
-  howpublished = {\url{https://github.com/kuleshov-group/llmtune}},
+  howpublished = {\url{https://github.com/kuleshov-group/LLMTools}},
 }
 ```
 
