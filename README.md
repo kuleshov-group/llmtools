@@ -1,6 +1,6 @@
 # LLMTools: Run & Finetune LLMs on Consumer GPUs
 
-LLMTools is a user-friendly library for running and finetuning LLMs in low-resource settings. Notable features include:
+LLMTools is a user-friendly library for running and finetuning LLMs in low-resource settings. Features include:
 * 🔨 LLM finetuning in 2-bit, 3-bit, 4-bit precision using the LP-LoRA algorithm
 * 🐍 Easy-to-use Python API for quantization, inference, and finetuning
 * 🤖 Modular support for multiple LLMs, quantizers, and optimization algorithms
