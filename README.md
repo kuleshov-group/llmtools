@@ -20,7 +20,7 @@ LLMTools provides an interface similar to the HuggingFace library for loading, g
 ```python
 import torch
 from transformers import AutoTokenizer
-from LLMTools.llms.autollm import AutoLLMForCausalLM
+from llmtools.llms.autollm import AutoLLMForCausalLM
 
 # load model and tokenizer
 model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
@@ -47,8 +47,8 @@ LLMTools comes with a patched version of the PEFT library that can be used to fi
 
 ```python
 from transformers import AutoTokenizer
-from LLMTools.llms.autollm import AutoLLMForCausalLM
-from LLMTools.engine.lora.peft import quant_peft
+from llmtools.llms.autollm import AutoLLMForCausalLM
+from llmtools.engine.lora.peft import quant_peft
 
 # load model and tokenizer
 model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
@@ -56,7 +56,7 @@ llm = AutoLLMForCausalLM.from_pretrained(model_name).to('cuda')
 tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
 
 # set up finetuning config
-from LLMTools.engine.lora.config import FinetuneConfig
+from llmtools.engine.lora.config import FinetuneConfig
 tune_config = FinetuneConfig(
     # ... set up finetuning config
 )
@@ -105,18 +105,18 @@ LLMTools requires a UNIX environment supporting Python (3.8 or greater) and PyTo
 
 To ensure maximum reproducibility, consider creating a new conda environment:
 ```python
-conda create -n LLMTools
-conda activate LLMTools
+conda create -n llmtools
+conda activate llmtools
 conda install git pip virtualenv
 ```
 LLMTools also requries an NVIDIA GPU (Pascal architecture or newer); other platforms are currently unsupported.
 
 ### Setup
 
-We use `distutils` to package LLMTools. If you are not running conda, you can also create a `virtualenv`.
+We use `distutils` to package llmtools. If you are not running conda, you can also create a `virtualenv`.
 ```
 pip install -r requirements.txt   # installs torch and two other packages
-python setup.py install           # installs LLMTools in your environment
+python setup.py install           # installs llmtools in your environment
 ```
 
 Note that this process compiles and installs a custom CUDA kernel that is necessary to run quantized models.
@@ -127,17 +127,17 @@ Note that this process compiles and installs a custom CUDA kernel that is necess
 
 First, start by downloading the weights of a base LLM model. Currently the LLAMA, OPT, and BLOOM are supported.
 ```python
-from LLMTools.llms.autollm import AutoLLMForCausalLM
+from llmtools.llms.autollm import AutoLLMForCausalLM
 
 model_name = 'decapoda-research/llama-7b-hf'
 llm = AutoLLMForCausalLM.from_pretrained(model_name)
 llm.eval()
 ```
-You can quantize these models within `LLMTools`.
+You can quantize these models within `llmtools`.
 ```python
-from LLMTools.engine.quant.config import QuantConfig
-from LLMTools.engine.quant.gptq.executor import GPTQAlgorithm
-from LLMTools.data.calibration import get_calibration_loaders
+from llmtools.engine.quant.config import QuantConfig
+from llmtools.engine.quant.gptq.executor import GPTQAlgorithm
+from llmtools.data.calibration import get_calibration_loaders
 
 # set up quantization config
 config = QuantConfig(
@@ -178,7 +178,7 @@ Next, we generate text fron a quantized model. We first load the model.
 ```python
 import torch
 from transformers import AutoTokenizer
-from LLMTools.llms.autollm import AutoLLMForCausalLM
+from llmtools.llms.autollm import AutoLLMForCausalLM
 
 # load model and tokenizer
 model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
@@ -210,7 +210,7 @@ Lastly, we can finetune quantized models. We again start by loading a model.
 
 ```python
 from transformers import AutoTokenizer
-from LLMTools.llms.autollm import AutoLLMForCausalLM
+from llmtools.llms.autollm import AutoLLMForCausalLM
 
 # load model and tokenizer
 model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
@@ -221,7 +221,7 @@ tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
 We can set parameters via the finetune config object.
 ```python
 # set up finetuning config
-from LLMTools.engine.lora.config import FinetuneConfig
+from llmtools.engine.lora.config import FinetuneConfig
 tune_config = FinetuneConfig(
     dataset=None, 
     data_type = 'alpaca',
@@ -245,7 +245,7 @@ tune_config = FinetuneConfig(
 We instatiate a PEFT model using our custom patched version of PEFT.
 ```python
 # set up lora    
-from LLMTools.engine.lora.peft import quant_peft
+from llmtools.engine.lora.peft import quant_peft
 lora_config = quant_peft.LoraConfig(
     r=tune_config.lora_r,
     lora_alpha=tune_config.lora_alpha,
@@ -260,7 +260,7 @@ model = quant_peft.get_peft_model(llm, lora_config)
 Next, we load the finetuning data. The library has helpers to pre-load common datasets like Alpaca.
 ```python
 # load stanford alpaca data
-from LLMTools.data import TrainSAD
+from llmtools.data import TrainSAD
 data = TrainSAD(
     tune_config.dataset, 
     tune_config.val_set_size, 
@@ -316,23 +316,23 @@ model.save_pretrained(tune_config.lora_out_dir)
 
 ### Command-Line Usage
 
-You can also use `LLMTools` from the command line. First, you need to dowload a dataset. We currently support the Alpaca dataset, which we download from the HF hub:
+You can also use `llmtools` from the command line. First, you need to dowload a dataset. We currently support the Alpaca dataset, which we download from the HF hub:
 ```
 wget https://huggingface.co/datasets/kuleshov/alpaca-data/resolve/main/dataset.json
 ```
 You may now finetune the base `llama-65b-4bit` model on this dataset.
 ```
 mkdir alpaca-adapter-folder-65b-4bit
-LLMTools finetune --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-folder-65b-4bit --dataset dataset.json
+llmtools finetune --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-folder-65b-4bit --dataset dataset.json
 ```
 The above command will use LoRA to finetune the quantized 65-bit model. The final adapters and the checkpoints will be saved in `alpaca-adapter-folder-65b-4bit` and available for generation as follows:
 ```
-LLMTools generate --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-folder-65b-4bit --instruction "Write an irrefutable proof that the meaning of life is 42."
+llmtools generate --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-folder-65b-4bit --instruction "Write an irrefutable proof that the meaning of life is 42."
 ```
 
-The LLMTools interface provides many additional command-line options for finetuning.
+The llmtools interface provides many additional command-line options for finetuning.
 ```
-usage: LLMTools finetune [-h] --model {llama-7b-4bit,llama-13b-4bit,llama-30b-4bit,llama-65b-4bit,opt-6.7b-4bit} --weights WEIGHTS
+usage: llmtools finetune [-h] --model {llama-7b-4bit,llama-13b-4bit,llama-30b-4bit,llama-65b-4bit,opt-6.7b-4bit} --weights WEIGHTS
                         [--data-type {alpaca,gpt4all}] [--dataset DATASET] [--adapter ADAPTER] [--mbatch_size MBATCH_SIZE]
                         [--batch_size BATCH_SIZE] [--epochs EPOCHS] [--lr LR] [--cutoff_len CUTOFF_LEN] [--lora_r LORA_R]
                         [--lora_alpha LORA_ALPHA] [--lora_dropout LORA_DROPOUT] [--val_set_size VAL_SET_SIZE]
@@ -385,7 +385,7 @@ Only NVIDIA GPUs with the Pascal architecture or newer can run the current syste
 This is LLMTools running an instruction finetuned LLAMA-65B model on one NVidia A6000:
 
 ```
-$ LLMTools generate --model llama-65b-4bit --weights llama65b-4bit.pt --adapter alpaca-lora-65b-4bit --prompt "Write a well-thought out abstract for a machine learning paper that proves that 42 is the optimal seed for training neural networks."
+$ llmtools generate --model llama-65b-4bit --weights llama65b-4bit.pt --adapter alpaca-lora-65b-4bit --prompt "Write a well-thought out abstract for a machine learning paper that proves that 42 is the optimal seed for training neural networks."
 
 The goal of this paper is to prove that 42 is the optimal seed for 
 training neural networks. To do so, a set of experiments was conducted 
@@ -416,7 +416,7 @@ References
 
 In this example, the LLM produces a recipe for blueberry lasagna:
 ```
-$ LLMTools generate --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-lora-65b-4bit-e3 --instruction "Write a well-thought out recipe for a new blueberry lasagna dish." --max-length 500
+$ llmtools generate --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-lora-65b-4bit-e3 --instruction "Write a well-thought out recipe for a new blueberry lasagna dish." --max-length 500
 Ingredients:
 * 1 lb lasagna noodles
 * 1/2 cup ricotta cheese
@@ -442,7 +442,7 @@ Enjoy!
 
 The 30B and 65B parameter models can do zero-shot chain-of-thought reasoning (i.e., "let's think step-by-step"):
 ```
-$ LLMTools generate --model llama-65b-4bit --weights /share/kuleshov/vk379/llama-65b-4bit.pt --prompt "Q: Roger has 5 tennis balls. He buys 2 more cans of tennis balls. Each can has 3 tennis balls. How many tennis balls does he have now? A: Let's think step-by-step."
+$ llmtools generate --model llama-65b-4bit --weights /share/kuleshov/vk379/llama-65b-4bit.pt --prompt "Q: Roger has 5 tennis balls. He buys 2 more cans of tennis balls. Each can has 3 tennis balls. How many tennis balls does he have now? A: Let's think step-by-step."
 Loading LLAMA model
 Done
 Q: Roger has 5 tennis balls. He buys 2 more cans of tennis balls. Each can has 3 tennis balls. 
