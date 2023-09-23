@@ -9,6 +9,7 @@ from transformers.utils.hub import (
 )
 from llmtune.llms.config import AutoLLMConfig, LLMType
 from llmtune.llms.llama.model import load_llama, load_llama_tokenizer
+from llmtune.llms.llama2.model import load_llama2, load_llama2_tokenizer
 from llmtune.llms.opt.model import load_opt, load_opt_tokenizer
 from llmtune.llms.bloom.model import load_bloom, load_bloom_tokenizer
 
@@ -116,6 +117,8 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
         # load base model
         if llm_config.model_type == LLMType.LLAMA.value:
             model = load_llama(llm_config, checkpoint)
+        elif llm_config.model_type == LLMType.LLAMA2.value:
+            model = load2_llama(llm_config, checkpoint)
         elif llm_config.model_type == LLMType.OPT.value:
             model = load_opt(llm_config, checkpoint)
         elif llm_config.model_type == LLMType.BLOOM.value:

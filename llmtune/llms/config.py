@@ -7,6 +7,7 @@ from llmtune.engine.quant.config import QuantConfig
 
 class LLMType(Enum):
     LLAMA = 'llama'
+    LLAMA2 = 'llama2'
     OPT = 'opt'
     BLOOM = 'bloom'
 
