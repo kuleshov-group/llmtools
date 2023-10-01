@@ -1,7 +1,7 @@
-from llmtune.llms.autollm import AutoLLMForCausalLM
-from llmtune.engine.quant.config import QuantConfig
-from llmtune.engine.quant.gptq.executor import GPTQAlgorithm
-from llmtune.data.calibration import get_calibration_loaders
+from llmtools.llms.autollm import AutoLLMForCausalLM
+from llmtools.engine.quant.config import QuantConfig
+from llmtools.engine.quant.gptq.executor import GPTQAlgorithm
+from llmtools.data.calibration import get_calibration_loaders
 
 # load model
 model_name = 'decapoda-research/llama-7b-hf'

@@ -17,8 +17,8 @@ import math
 import torch
 import torch.nn as nn
 
-from llmtune.engine.inference.modules import QuantLinear
-from llmtune.engine.lora.peft import quant_peft
+from llmtools.engine.inference.modules import QuantLinear
+from llmtools.engine.lora.peft import quant_peft
 
 # hacky way to do imports for now
 LoraLayer = quant_peft.tuners.lora.LoraLayer

@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
-from llmtune.engine.quant.gptq.algorithm import GPTQ
-from llmtune.engine.quant.gptq.quantizer import Quantizer
-from llmtune.engine.quant.converter import make_quant
-from llmtune.engine.inference.modules import QuantLinear
-from llmtune.utils import find_layers
+from llmtools.engine.quant.gptq.algorithm import GPTQ
+from llmtools.engine.quant.gptq.quantizer import Quantizer
+from llmtools.engine.quant.converter import make_quant
+from llmtools.engine.inference.modules import QuantLinear
+from llmtools.utils import find_layers
 
 @torch.no_grad()
 def quantize_opt(

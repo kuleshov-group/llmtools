@@ -1,4 +1,4 @@
-# from llmtune.llms.config import AutoQuantConfig, LLMType
+# from llmtools.llms.config import AutoQuantConfig, LLMType
 
 OPT_MODELS  = [
     "opt-6.7b-4bit", "opt-13b-4bit",

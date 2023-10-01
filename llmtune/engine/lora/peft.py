@@ -1,7 +1,7 @@
 """Wraps around PEFT to use QuantLoraModel instead of regular LoraModel."""
 
 import peft as quant_peft
-from llmtune.engine.lora.lora import QuantLoraModel
+from llmtools.engine.lora.lora import QuantLoraModel
 
 # monkey patch peft to use QuantLoraModel
 quant_peft.tuners.lora.LoraModel = QuantLoraModel

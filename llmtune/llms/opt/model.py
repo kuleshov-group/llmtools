@@ -1,8 +1,8 @@
 
 import torch
 
-from llmtune.utils import find_layers
-from llmtune.engine.quant.converter import make_quant
+from llmtools.utils import find_layers
+from llmtools.engine.quant.converter import make_quant
 
 def load_opt_unquantized(llm_config):
     from transformers import OPTForCausalLM

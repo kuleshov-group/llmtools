@@ -1,9 +1,9 @@
 import torch
-from llmtune.llms.config import AutoConfig
-from llmtune.llms.opt.config import OPT_MODELS
-from llmtune.llms.llama.config import LLAMA_MODELS
-from llmtune.engine.lora.config import FinetuneConfig
-from llmtune.engine.quant.config import QuantConfig
+from llmtools.llms.config import AutoConfig
+from llmtools.llms.opt.config import OPT_MODELS
+from llmtools.llms.llama.config import LLAMA_MODELS
+from llmtools.engine.lora.config import FinetuneConfig
+from llmtools.engine.quant.config import QuantConfig
 
 # ----------------------------------------------------------------------------
 

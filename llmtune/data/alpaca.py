@@ -1,6 +1,6 @@
 from typing import Dict, Any
 from datasets import load_dataset
-from llmtune.data.abstract import AbstractTrainData
+from llmtools.data.abstract import AbstractTrainData
 
 DEFAULT_HF_PATH = "kuleshov/alpaca-data"
 

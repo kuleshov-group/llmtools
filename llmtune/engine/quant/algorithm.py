@@ -1,4 +1,4 @@
-from llmtune.engine.quant.config import QuantConfig
+from llmtools.engine.quant.config import QuantConfig
 
 class QuantizationAlgorithm():
 	"""Quantization algorthim abstract class"""

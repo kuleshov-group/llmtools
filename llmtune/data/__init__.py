@@ -1,6 +1,6 @@
-from llmtune.data.text import TrainTxt
-from llmtune.data.alpaca import TrainSAD
-from llmtune.data.gpt4all import TrainGPT4All
+from llmtools.data.text import TrainTxt
+from llmtools.data.alpaca import TrainSAD
+from llmtools.data.gpt4all import TrainGPT4All
 
 def load_finetuning_data(tune_config, tokenizer):
     if tune_config.ds_type == "alpaca":

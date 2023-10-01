@@ -7,11 +7,11 @@ from transformers.utils.hub import (
     PushToHubMixin, cached_file, create_repo, 
     create_commit, CommitOperationAdd
 )
-from llmtune.llms.config import AutoLLMConfig, LLMType
-from llmtune.llms.llama.model import load_llama, load_llama_tokenizer
-from llmtune.llms.llama2.model import load_llama2, load_llama2_tokenizer
-from llmtune.llms.opt.model import load_opt, load_opt_tokenizer
-from llmtune.llms.bloom.model import load_bloom, load_bloom_tokenizer
+from llmtools.llms.config import AutoLLMConfig, LLMType
+from llmtools.llms.llama.model import load_llama, load_llama_tokenizer
+from llmtools.llms.llama2.model import load_llama2, load_llama2_tokenizer
+from llmtools.llms.opt.model import load_opt, load_opt_tokenizer
+from llmtools.llms.bloom.model import load_bloom, load_bloom_tokenizer
 
 def get_default_tokenizer(name_or_path, model_type=None):
     if model_type is not None:

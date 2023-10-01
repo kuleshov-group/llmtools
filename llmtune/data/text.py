@@ -2,7 +2,7 @@ import os
 from typing import Dict, Any
 from datasets import Dataset
 from torch.utils.data import DataLoader
-from llmtune.data.abstract import AbstractTrainData
+from llmtools.data.abstract import AbstractTrainData
 
 # LLaMA txt train data loader
 class TrainTxt(AbstractTrainData):

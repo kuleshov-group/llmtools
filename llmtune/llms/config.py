@@ -3,7 +3,7 @@ import json
 from enum import Enum
 from transformers import PretrainedConfig, AutoConfig
 from transformers.utils.hub import PushToHubMixin, cached_file
-from llmtune.engine.quant.config import QuantConfig
+from llmtools.engine.quant.config import QuantConfig
 
 class LLMType(Enum):
     LLAMA = 'llama'

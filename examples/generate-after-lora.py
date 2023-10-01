@@ -1,8 +1,8 @@
 import torch
 from transformers import AutoTokenizer, GenerationConfig
-from llmtune.llms.autollm import AutoLLMForCausalLM
-from llmtune.utils import to_half_precision
-from llmtune.engine.lora.peft import quant_peft
+from llmtools.llms.autollm import AutoLLMForCausalLM
+from llmtools.utils import to_half_precision
+from llmtools.engine.lora.peft import quant_peft
 
 # model config
 model_name = 'kuleshov/llama-7b-4bit'

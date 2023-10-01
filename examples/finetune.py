@@ -2,11 +2,11 @@ import os
 import torch
 import transformers
 from transformers import AutoTokenizer
-from llmtune.llms.autollm import AutoLLMForCausalLM
-from llmtune.engine.lora.config import FinetuneConfig
-from llmtune.data import TrainSAD
-from llmtune.engine.lora.peft import quant_peft
-from llmtune.utils import to_half_precision
+from llmtools.llms.autollm import AutoLLMForCausalLM
+from llmtools.engine.lora.config import FinetuneConfig
+from llmtools.data import TrainSAD
+from llmtools.engine.lora.peft import quant_peft
+from llmtools.utils import to_half_precision
 
 # model config
 model_name = 'kuleshov/llama-7b-4bit'

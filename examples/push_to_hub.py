@@ -1,4 +1,4 @@
-from llmtune.llms.autollm import AutoLLMForCausalLM
+from llmtools.llms.autollm import AutoLLMForCausalLM
 
 # load model
 model_dir = './llama-7b-quantized' # can generate this via quantize.py

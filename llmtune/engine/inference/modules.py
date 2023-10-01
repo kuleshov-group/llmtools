@@ -2,7 +2,7 @@ import math
 import numpy as np
 import torch
 import torch.nn as nn
-from llmtune.engine.inference.autograd import (
+from llmtools.engine.inference.autograd import (
     Autograd2bit, Autograd4bit, Autograd3bit
 )
 

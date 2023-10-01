@@ -1,4 +1,4 @@
-# from llmtune.llms.config import AutoQuantConfig, LLMType
+# from llmtools.llms.config import AutoQuantConfig, LLMType
 
 LLAMA_MODELS = [
     "llama-7b-4bit", "llama-13b-4bit", "llama-30b-4bit", "llama-65b-4bit",

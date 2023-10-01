@@ -1,5 +1,5 @@
 import argparse
-from llmtune.config import LLM_MODELS
+from llmtools.config import LLM_MODELS
 
 # ----------------------------------------------------------------------------
 
@@ -120,21 +120,21 @@ def main():
     args.func(args)
 
 def generate(args):
-    import llmtune.executor as llmtune
-    llm = llmtune.load_llm(args.model)
+    import llmtools.executor as llmtools
+    llm = llmtools.load_llm(args.model)
     tk_name = args.tokenizer if args.tokenizer is not None else args.model
-    tokenizer = llmtune.load_tokenizer(tk_name, llm.llm_config)
+    tokenizer = llmtools.load_tokenizer(tk_name, llm.llm_config)
     if args.adapter is not None:
-        llm = llmtune.load_adapter(llm, adapter_path=args.adapter)
+        llm = llmtools.load_adapter(llm, adapter_path=args.adapter)
     if args.prompt and args.instruction:
         raise Exception('Cannot specify both prompt and instruction')
     if args.instruction:
-        from llmtune.data.alpaca import make_prompt
+        from llmtools.data.alpaca import make_prompt
         prompt = make_prompt(args.instruction, input_="")
     else:
         prompt = args.prompt
 
-    output = llmtune.generate(
+    output = llmtools.generate(
         llm, 
         tokenizer, 
         prompt, 
@@ -146,27 +146,27 @@ def generate(args):
     )
 
     if args.instruction:
-        from llmtune.data.alpaca import make_output
+        from llmtools.data.alpaca import make_output
         output = make_output(output)
 
     print(output)
 
 def finetune(args):
-    import llmtune.executor as llmtune
-    llm = llmtune.load_llm(args.model)
+    import llmtools.executor as llmtools
+    llm = llmtools.load_llm(args.model)
     tk_name = args.tokenizer if args.tokenizer is not None else args.model
-    tokenizer = llmtune.load_tokenizer(tk_name, llm.llm_config)
-    from llmtune.config import get_finetune_config
+    tokenizer = llmtools.load_tokenizer(tk_name, llm.llm_config)
+    from llmtools.config import get_finetune_config
     finetune_config = get_finetune_config(args)
-    from llmtune.executor import finetune
+    from llmtools.executor import finetune
     finetune(llm, tokenizer, finetune_config)
 
 def quantize(args):
-    from llmtune.config import get_quant_config
+    from llmtools.config import get_quant_config
     quant_config = get_quant_config(args)
-    import llmtune.executor as llmtune
-    llm = llmtune.load_llm(args.model)
-    output = llmtune.quantize(
+    import llmtools.executor as llmtools
+    llm = llmtools.load_llm(args.model)
+    output = llmtools.quantize(
         llm, 
         quant_config 
     )
