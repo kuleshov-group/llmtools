@@ -1,6 +1,7 @@
-from llmtune.engine.quant.algorithm.gpq import GPTQ
+from llmtune.engine.quant.algorithm.gptq import GPTQ
 from llmtune.engine.quant.algorithm.quantizer import Quantizer
 
+import torch
 @torch.no_grad()
 def quantize_llama(model, dataloader, dev):
     print('Starting ...')
