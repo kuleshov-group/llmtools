@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 
 try:
-    import quant_cuda
+    from llmtune.engine.quant import quant_cuda
 except:
     print('CUDA extension not installed. Inference will not work.')
 

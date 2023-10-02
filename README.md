@@ -149,7 +149,7 @@ You may now finetune the base `llama-65b-4bit` model on this dataset.
 mkdir alpaca-adapter-folder-65b-4bit
 llmtune finetune --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-folder-65b-4bit --dataset dataset.json
 ```
-The above command will use LoRA to finetune the quantized 65-bit model. The final adapters and the checkpoints will be saved in `alpaca-adapter-folder-65b-4bit` and available for generation as follows:
+The above command will use LoRA to finetune the quantized 65B 4-bit model. The final adapters and the checkpoints will be saved in `alpaca-adapter-folder-65b-4bit` and available for generation as follows:
 ```
 llmtune generate --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-folder-65b-4bit --instruction "Write an irrefutable proof that the meaning of life is 42."
 ```

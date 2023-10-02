@@ -9,6 +9,4 @@ quant_peft.peft_model.LoraModel = QuantLoraModel
 
 # the above works for PEFT at the time of writing this code;
 # when upgrading to a newer PEFT, use this insted:
-# quant_peft.peft_model.PEFT_TYPE_TO_MODEL_MAPPING[
-# 	quant_peft.utils.PeftType.LORA
-# ] = QuantLoraModel
+#quant_peft.peft_model.PEFT_TYPE_TO_MODEL_MAPPING[quant_peft.utils.PeftType.LORA] = QuantLoraModel
