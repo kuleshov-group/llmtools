@@ -371,13 +371,20 @@ options:
 
 We release our quantized weights for LLAMA model set on HF hub for easy access. 
 
-| ModuLoRA LLAMA Weights     | 4-bit              | 3-bit             | 2-bit               | 
-|----------------------------------|-----------------|-----------------|-----------------|
-|    7B         | [Link]() | [Link]() |- |
-| 13B         | [Link]() |   [Link]() | -|
-| 30B | [Link]() | [Link]() | - | 
-|  65B| [Link]()| [Link]() | - |
+| ModuLoRA LLAMA Weights     | 4-bit              | 3-bit             |
+|----------------------------------|-----------------|-----------------|
+|    7B         | [🤗 Link](https://huggingface.co/kuleshov/llama-7b-4bit) | [🤗 Link](https://huggingface.co/kuleshov/llama-7b-3bit)  |
+| 13B         | [🤗 Link](https://huggingface.co/kuleshov/llama-13b-4bit) |   [🤗 Link](https://huggingface.co/kuleshov/llama-13b-3bit) |
+| 30B | [🤗 Link](https://huggingface.co/kuleshov/llama-30b-4bit) | [🤗 Link](https://huggingface.co/kuleshov/llama-30b-3bit) | 
+|  65B| [🤗 Link](https://huggingface.co/kuleshov/llama-65b-4bit)| [🤗 Link](https://huggingface.co/kuleshov/llama-65b-3bit) |
 
+
+
+| ModuLoRA OPT Weights     | 4-bit              | 3-bit             |
+|----------------------------------|-----------------|-----------------|
+|    7B         | [🤗 Link](https://huggingface.co/kuleshov/opt-6.7b-4bit) | [🤗 Link](https://huggingface.co/kuleshov/llama-6.7b-3bit)  |
+| 13B         | [🤗 Link](https://huggingface.co/kuleshov/opt-13b-4bit) |   [🤗 Link](https://huggingface.co/kuleshov/opt-13b-3bit) |
+| 30B | [🤗 Link](https://huggingface.co/kuleshov/opt-30b-4bit) | [🤗 Link](https://huggingface.co/kuleshov/opt-30b-3bit) | 
 
 
 
