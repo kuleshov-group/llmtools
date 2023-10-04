@@ -7,11 +7,11 @@ LLMTools is a user-friendly library for running and finetuning LLMs in low-resou
 * 🤗 Share all your LLMs on the HuggingFace Hub
 
 LLMTools is a research project at Cornell University, and is based on the following publications.
-```
-Jerry Chee, Yaohui Cai, Volodymyr Kuleshov, Christopher De Sa.  QuIP: 2-Bit Quantization of Large Language Models with Guarantees., ArXiv, https://arxiv.org/abs/2307.13304
-Volodymyr Kuleshov, Oscar Yinn, Jiahao Don, Yingheng Wang, Christopher De Sa.  Low-Precision LoRA: Finetuning Large Language Models on Consumer GPUs via Modular Quantizers., ArXiv
-```
-LLMTools implements low precision LoRA, a new memory-efficient finetuning algorithm that integrates with an *arbitrary* quantization module. When using the state-of-the-art OPTQ quantizer, LP-LoRA can finetune 3-bit LLMs for the first time (see results below).
+
+> - Jerry Chee, Yaohui Cai, Volodymyr Kuleshov, Christopher De Sa. QuIP: 2-Bit Quantization of Large Language Models with Guarantees. [NeurIPS 2023](https://arxiv.org/abs/2307.13304)
+> - Junjie Yin, Jiahao Dong, Yingheng Wang, Christopher De Sa, Volodymyr Kuleshov ModuLoRA: Finetuning 3-Bit LLMs on Consumer GPUs by Integrating with Modular Quantizers. [ArXiv](https://arxiv.org/abs/2309.16119)
+
+LLMTools implements low precision LoRA, a new memory-efficient finetuning algorithm that integrates with an *arbitrary* quantization module. When using the state-of-the-art OPTQ quantizer, LP-LoRA can finetune 3-bit LLMs for the first time (see [results](#benchmark) below).
 
 ## Overview
 
@@ -125,7 +125,7 @@ Note that this process compiles and installs a custom CUDA kernel that is necess
 
 ### Download and Quantize Models
 
-First, start by downloading the weights of a base LLM model. Currently the LLAMA, OPT, and BLOOM are supported.
+First, start by downloading the weights of a base LLM model. Currently the LLAMA, OPT, and BLOOM are supported. (Pre-quantized weights can be found [here](#quantized-model-weights))
 ```python
 from llmtools.llms.autollm import AutoLLMForCausalLM
 
@@ -366,6 +366,50 @@ options:
   --logging_steps LOGGING_STEPS
   --resume_checkpoint   Resume from checkpoint.
 ```
+
+## Quantized Model Weights
+
+We release our quantized weights for LLAMA model set on HF hub for easy access. 
+
+| ModuLoRA LLAMA Weights     | 4-bit              | 3-bit             |
+|----------------------------------|-----------------|-----------------|
+|    7B         | [🤗 Link](https://huggingface.co/kuleshov/llama-7b-4bit) | [🤗 Link](https://huggingface.co/kuleshov/llama-7b-3bit)  |
+| 13B         | [🤗 Link](https://huggingface.co/kuleshov/llama-13b-4bit) |   [🤗 Link](https://huggingface.co/kuleshov/llama-13b-3bit) |
+| 30B | [🤗 Link](https://huggingface.co/kuleshov/llama-30b-4bit) | [🤗 Link](https://huggingface.co/kuleshov/llama-30b-3bit) | 
+|  65B| [🤗 Link](https://huggingface.co/kuleshov/llama-65b-4bit)| [🤗 Link](https://huggingface.co/kuleshov/llama-65b-3bit) |
+
+
+
+| ModuLoRA OPT Weights     | 4-bit              | 3-bit             |
+|----------------------------------|-----------------|-----------------|
+|    7B         | [🤗 Link](https://huggingface.co/kuleshov/opt-6.7b-4bit) | [🤗 Link](https://huggingface.co/kuleshov/llama-6.7b-3bit)  |
+| 13B         | [🤗 Link](https://huggingface.co/kuleshov/opt-13b-4bit) |   [🤗 Link](https://huggingface.co/kuleshov/opt-13b-3bit) |
+| 30B | [🤗 Link](https://huggingface.co/kuleshov/opt-30b-4bit) | [🤗 Link](https://huggingface.co/kuleshov/opt-30b-3bit) | 
+
+
+
+
+## Benchmark
+
+
+Our method shows competitive performance comparable or superior to baselines and 4bit / 8bit Bits&Bytes finetuning by [Dettmers et al., 2023](https://arxiv.org/pdf/2305.14314) on SAMSum benchmark with the [Llama (Touvron et al., 2023)](https://arxiv.org/pdf/2302.13971) model set. 4-bit 65B LLAMA models finetuned with ModuLoRA outperform the GPT-3 [LoRA baseline (Hu et al., 2021)](https://arxiv.org/abs/2106.09685) and even reach new state-of-the-art performance on this dataset.
+
+| Models  | Finetuning Adaptation | # Trainable Parameters | SAMSum (Rouge 1/2/L)       |
+|---------|-----------------------|------------------------|----------------------------|
+| **GPT-3**   | Full Finetuning       | 175,255.8M             | 52.0 / 28.0 / 44.5         |
+| **GPT-3**   | Adapter               | 40.1M                  | 53.2 / 29.0 / 45.1         |
+| **GPT-3**   | LoRA                  | 4.7M                   | 53.8 / 29.8 / 45.9         |
+| **Pegasus**| SliC                  | 2B                     | **54.4 / 29.9 / 45.9**     |
+
+
+| LLAMA Finetuning (*Rouge 1/2/L*)         | 7B              | 13B             | 30B               | 65B             |
+|----------------------------------|-----------------|-----------------|-----------------|-----------------|
+| **llmtune (3-bit)**              | 51.2 / 28.2 / 44.0 | 52.4 / 29.6 / 45.1 | 53.6 / 30.8 / 46.3 | 54.1 / 30.9 / 46.5 |
+| **llmtune (4-bit)**              | 51.7 / 28.3 / 44.4 | 53.2 / 30.2 / 46.1 | 53.9 / 31.2 / 46.9 | **55.9 / 32.7 / 49.0** |
+| **Bits&Bytes 4-bit (QLoRA)**     | 51.6 / 28.3 / 44.5 | 51.3 / 28.1 / 44.1 | 53.0 / 30.2 / 45.7 | 53.8 / 30.5 / 45.9 |
+| **Bits&Bytes 8-bit (LLM.int8())**| 51.9 / 28.1 / 44.5 | 51.3 / 28.2 / 43.6 | 50.8 / 28.4 / 44.1 | 53.9 / 30.4 / 46.3 |
+
+
 
 ## Hardware Requirements
 
