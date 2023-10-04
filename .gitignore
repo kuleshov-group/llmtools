@@ -3,4 +3,4 @@ __pycache__
 .ipynb_checkpoints
 sftp-config.json
 tidbits
-llmtune/llms/alpaca
+llmtools/llms/alpaca
