@@ -394,7 +394,7 @@ We release our quantized weights for LLAMA model set on HF hub for easy access.
 
 Our method shows competitive performance comparable or superior to baselines and 4bit / 8bit Bits&Bytes finetuning by [Dettmers et al., 2023](https://arxiv.org/pdf/2305.14314) on SAMSum benchmark with the [Llama (Touvron et al., 2023)](https://arxiv.org/pdf/2302.13971) model set. 4-bit 65B LLAMA models finetuned with ModuLoRA outperform the GPT-3 [LoRA baseline (Hu et al., 2021)](https://arxiv.org/abs/2106.09685) and even reach new state-of-the-art performance on this dataset.
 
-We release complementary codebase [ModuLoRA-Experiment](https://github.com/kuleshov-group/MODULoRA-Experiment) to reproduce our experiments results. 
+We release complementary codebase [ModuLoRA-Experiment](https://github.com/kuleshov-group/MODULoRA-Experiment) to reproduce our results. 
 
 | Models  | Finetuning Adaptation | # Trainable Parameters | SAMSum (Rouge 1/2/L)       |
 |---------|-----------------------|------------------------|----------------------------|
