@@ -19,8 +19,5 @@ setup(
         	'llmtools/engine/inference/cuda/quant_cuda_kernel.cu'
         ]
     )],
-    cmdclass={'build_ext': cpp_extension.BuildExtension},
-    entry_points={
-        'console_scripts': ['llmtune=llmtune.run:main']
-    }
+    cmdclass={'build_ext': cpp_extension.BuildExtension}
 )
