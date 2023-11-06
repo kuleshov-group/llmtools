@@ -18,6 +18,7 @@ import torch
 import torch.nn as nn
 
 from llmtools.engine.inference.modules import QuantLinear
+from llmtools.engine.inference.modules import QuantLinearQuip
 from llmtools.engine.lora.peft import quant_peft
 
 # hacky way to do imports for now
@@ -101,6 +102,17 @@ class QuantLoraModel(torch.nn.Module):
                     new_module = Linear(target.in_features, target.out_features, bias=bias, **kwargs)
                 elif isinstance(target, QuantLinear) and self.peft_config.enable_lora is None:
                     new_module = LinearQuantLt(
+                        target.bits,
+                        target.in_features, 
+                        target.out_features, 
+                        target.groupsize,
+                        bias=bias, 
+                        is_cuda=target.is_cuda,
+                        **kwargs
+                    )
+                ## TODO QUIP Implementation
+                elif isinstance(target, QuantLinearQuip) and self.peft_config.enable_lora is None:
+                    new_module = LinearQuantLtQuip(
                         target.bits,
                         target.in_features, 
                         target.out_features, 
@@ -216,6 +228,96 @@ class LinearQuantLt(QuantLinear, LoraLayer):
             **kwargs,
     ):
         QuantLinear.__init__(
+            self,
+            bits=bits,
+            in_features=in_features,
+            out_features=out_features,
+            groupsize=groupsize,
+            bias=bias,
+            is_cuda=is_cuda,
+        )
+        LoraLayer.__init__(
+            self, 
+            r=r, 
+            lora_alpha=lora_alpha, 
+            lora_dropout=lora_dropout, 
+            merge_weights=False
+        )
+        # Actual trainable parameters
+        if r > 0:
+            self.lora_A = nn.Linear(in_features, r, bias=False)
+            self.lora_B = nn.Linear(r, out_features, bias=False)
+            self.scaling = self.lora_alpha / self.r
+            # Freezing the pre-trained weight matrix
+            self.qweight.requires_grad = False
+            self.scales.requires_grad = False
+            self.qzeros.requires_grad = False
+            self.g_idx.requires_grad = False
+            if self.bias is not None:
+                self.bias.requires_grad = False
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        if hasattr(self, "lora_A"):
+            # initialize A the same way as the default for nn.Linear and B to zero
+            nn.init.kaiming_uniform_(self.lora_A.weight, a=math.sqrt(5))
+            nn.init.zeros_(self.lora_B.weight)
+
+    def forward(self, x: torch.Tensor):
+        result = super().forward(x)
+
+        if self.disable_adapters:
+            return result
+        elif self.r > 0:
+            if not torch.is_autocast_enabled():
+                expected_dtype = result.dtype
+
+                if x.dtype != torch.float32:
+                    x = x.float()
+                output = self.lora_B(self.lora_A(self.lora_dropout(x))).to(expected_dtype) * self.scaling
+                result += output
+            else:
+                output = self.lora_B(self.lora_A(self.lora_dropout(x))) * self.scaling
+                result += output
+        return result
+
+def mark_only_lora_as_trainable(model: nn.Module, bias: str = "none") -> None:
+    for n, p in model.named_parameters():
+        if "lora_" not in n:
+            p.requires_grad = False
+    if bias == "none":
+        return
+    elif bias == "all":
+        for n, p in model.named_parameters():
+            if "bias" in n:
+                p.requires_grad = True
+    elif bias == "lora_only":
+        for m in model.modules():
+            if isinstance(m, LoraLayer) and hasattr(m, "bias") and m.bias is not None:
+                m.bias.requires_grad = True
+    else:
+        raise NotImplementedError
+
+
+
+## Quip Implementatin
+class LinearQuantLt(QuantLinearQuip, LoraLayer):
+    # Lora implemented in a dense layer
+    def __init__(
+            self,
+            bits,
+            in_features,
+            out_features,
+            groupsize,
+            bias=False,
+            r: int = 0,
+            lora_alpha: int = 1,
+            lora_dropout: float = 0.0,
+            is_cuda=True,
+            **kwargs,
+    ):
+        ## TODO Initialize QuantLinear
+        QuantLinearQuip.__init__(
             self,
             bits=bits,
             in_features=in_features,

@@ -4,6 +4,14 @@ import torch.nn as nn
 from llmtools.utils import find_layers
 from llmtools.engine.quant.converter import make_quant
 
+## QUIP Implementation
+
+def load_llama_quip():
+    """
+    """
+
+    return model
+
 def load_llama_unquantized(llm_config):
     import torch
     from transformers import LlamaForCausalLM

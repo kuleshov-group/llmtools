@@ -10,6 +10,7 @@ class LLMType(Enum):
     LLAMA2 = 'llama2'
     OPT = 'opt'
     BLOOM = 'bloom'
+    LLAMA_QUIP = 'llama_quip'
 
 class AutoLLMConfig(PretrainedConfig,PushToHubMixin):
     def __init__(

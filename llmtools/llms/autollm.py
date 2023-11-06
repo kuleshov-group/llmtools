@@ -123,6 +123,9 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
             model = load_opt(llm_config, checkpoint)
         elif llm_config.model_type == LLMType.BLOOM.value:
             model = load_bloom(llm_config, checkpoint)
+        ## TODO QUIP-2bit
+        elif llm_config.model_type == LLMType.LLAMA_QUIP.value:
+            model = load_llama_quip(llm_config, checkpoint)
         else:
             raise NotImplementedError(
                f'{llm_config.model_type} not supported'

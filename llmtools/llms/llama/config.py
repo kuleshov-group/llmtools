@@ -15,13 +15,13 @@ def get_llama_config(model):
         bits = 2
 
     if '7b' in model:
-        hf_config_name = "decapoda-research/llama-7b-hf"
+        hf_config_name = "huggyllama/llama-7b"
     elif '13b' in model:
-        hf_config_name = "decapoda-research/llama-13b-hf"
+        hf_config_name = "huggyllama/llama-13b"
     elif '30b' in model:
-        hf_config_name = "decapoda-research/llama-30b-hf"
+        hf_config_name = "huggyllama/llama-30b"
     elif '65b' in model:
-        hf_config_name = "decapoda-research/llama-65b-hf"
+        hf_config_name = "huggyllama/llama-65b"
 
     raise NotImplementedError()
 
