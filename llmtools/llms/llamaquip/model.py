@@ -15,4 +15,4 @@ def load_llama_quip(hf_path):
     glog.info('loaded model!')
     tokenizer.pad_token = tokenizer.eos_token
 
-    return model, tokenizer
+    return model, tokenizer, _config

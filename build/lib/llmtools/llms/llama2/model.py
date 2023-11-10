@@ -4,9 +4,7 @@ import torch.nn as nn
 from llmtools.utils import find_layers
 from llmtools.engine.quant.converter import make_quant
 
-
-
-def load_llama_unquantized(llm_config):
+def load_llama2_unquantized(llm_config):
     import torch
     from transformers import LlamaForCausalLM
     def skip(*args, **kwargs):
@@ -19,7 +17,7 @@ def load_llama_unquantized(llm_config):
     )
     return model
 
-def load_llama_quantized(llm_config, quantized_weights_path):
+def load_llama2_quantized(llm_config, quantized_weights_path):
     import transformers, accelerate
     from transformers import LlamaConfig, LlamaForCausalLM
     
@@ -50,20 +48,20 @@ def load_llama_quantized(llm_config, quantized_weights_path):
     )
     return model
 
-def load_llama(llm_config, quantized_weights_path):
+def load_llama2(llm_config, quantized_weights_path):
     if quantized_weights_path is None:
-        model = load_llama_unquantized(llm_config)
+        model = load_llama2_unquantized(llm_config)
     else:
-        model = load_llama_quantized(
+        model = load_llama2_quantized(
             llm_config, quantized_weights_path
         )
     model.seqlen = 2048
     return model
 
-def load_llama_tokenizer(name_or_path):
-    from transformers import LlamaTokenizer
+def load_llama2_tokenizer(name_or_path):
+    from transformers import AutoTokenizer
     
-    tokenizer = LlamaTokenizer.from_pretrained(
+    tokenizer = AutoTokenizer.from_pretrained(
         name_or_path
     )
     tokenizer.truncation_side = 'left'

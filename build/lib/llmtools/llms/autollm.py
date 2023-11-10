@@ -13,7 +13,7 @@ from llmtools.llms.llama2.model import load_llama2, load_llama2_tokenizer
 from llmtools.llms.opt.model import load_opt, load_opt_tokenizer
 from llmtools.llms.bloom.model import load_bloom, load_bloom_tokenizer
 
-from llmtools.llms.llamaquip.model import load_llama_quip ## QUIP Integration
+from llmtools.llms.llamaquip.model import load_llama_quip
 
 def get_default_tokenizer(name_or_path, model_type=None):
     if model_type is not None:

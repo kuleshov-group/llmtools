@@ -4,33 +4,31 @@ import torch.nn as nn
 from llmtools.utils import find_layers
 from llmtools.engine.quant.converter import make_quant
 
-
-
-def load_llama_unquantized(llm_config):
+def load_bloom_unquantized(llm_config):
     import torch
-    from transformers import LlamaForCausalLM
+    from transformers import BloomForCausalLM
     def skip(*args, **kwargs):
         pass
     torch.nn.init.kaiming_uniform_ = skip
     torch.nn.init.uniform_ = skip
     torch.nn.init.normal_ = skip
-    model = LlamaForCausalLM.from_pretrained(
+    model = BloomForCausalLM.from_pretrained(
         llm_config.base_config.name_or_path, torch_dtype='auto'
     )
     return model
 
-def load_llama_quantized(llm_config, quantized_weights_path):
+def load_bloom_quantized(llm_config, quantized_weights_path):
     import transformers, accelerate
-    from transformers import LlamaConfig, LlamaForCausalLM
+    from transformers import BloomConfig, BloomForCausalLM
     
     with accelerate.init_empty_weights():
-        config = LlamaConfig.from_pretrained(
+        config = BloomConfig.from_pretrained(
             llm_config.base_config.name_or_path
         )
         torch.set_default_dtype(torch.half)
         transformers.modeling_utils._init_weights = False
         torch.set_default_dtype(torch.half)
-        model = LlamaForCausalLM(config)
+        model = BloomForCausalLM(config)
         torch.set_default_dtype(torch.float)
         model = model.eval()
         layers = find_layers(model)
@@ -50,20 +48,20 @@ def load_llama_quantized(llm_config, quantized_weights_path):
     )
     return model
 
-def load_llama(llm_config, quantized_weights_path):
+def load_bloom(llm_config, quantized_weights_path):
     if quantized_weights_path is None:
-        model = load_llama_unquantized(llm_config)
+        model = load_bloom_unquantized(llm_config)
     else:
-        model = load_llama_quantized(
+        model = load_bloom_quantized(
             llm_config, quantized_weights_path
         )
     model.seqlen = 2048
     return model
 
-def load_llama_tokenizer(name_or_path):
-    from transformers import LlamaTokenizer
+def load_bloom_tokenizer(name_or_path):
+    from transformers import BloomTokenizer
     
-    tokenizer = LlamaTokenizer.from_pretrained(
+    tokenizer = BloomTokenizer.from_pretrained(
         name_or_path
     )
     tokenizer.truncation_side = 'left'
