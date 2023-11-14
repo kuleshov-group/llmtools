@@ -16,7 +16,7 @@ class AutogradQuip(torch.autograd.Function):
     @staticmethod
     @custom_fwd(cast_inputs=torch.float16)
     def forward(ctx, input, D4_CB, Qidxs):
-        breakpoint()
+        # breakpoint()
 
         ctx.save_for_backward(Qidxs, D4_CB) # Saves given tensors for a future call to backward().
 
@@ -40,7 +40,7 @@ class AutogradQuip(torch.autograd.Function):
         Unsure if the scaling of the input in the forward pass has an effect that needs to be reversed or accounted for in the backward pass, 
         then it would need to require applying some form of rescaling to grad_output.
         """
-        breakpoint()
+        # breakpoint()
         Qidxs, D4_CB = ctx.saved_tensors # saved tensors can be accessed through the saved_tensors attribute.
 
         if ctx.needs_input_grad[0]:
@@ -50,7 +50,6 @@ class AutogradQuip(torch.autograd.Function):
             W_decompressed = torch.zeros(m, n * _D4_CODESZ, dtype=torch.float16, device=grad_output.device)
             quiptools_cuda.decompress(Qidxs, D4_CB, W_decompressed) # Unpack the quantized weights
             grad = grad_output.float() @ W_decompressed.float()
-
 
 
         return grad, None, None, None, None, None, None

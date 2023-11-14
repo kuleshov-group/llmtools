@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 from transformers import AutoTokenizer
 from llmtools.llms.autollm import AutoLLMForCausalLM
 from llmtools.utils import to_half_precision
@@ -19,7 +20,6 @@ model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama2-
 DEV = 'cuda'
 
 # load model
-breakpoint()
 if "quip" in model_name:
     llm, tokenizer, quip_config = AutoLLMForCausalLM.from_pretrained(model_name)
     llm.eval()
@@ -47,17 +47,17 @@ sample_question_results_tokens = lm_eval_model._model_generate(sample_question_t
 sample_question_results = lm_eval_model.tok_decode(sample_question_results_tokens.squeeze())
 print(sample_question_results)
 
-##TODO test backward
-question_tokens.requires_grad_(True)
 
-# Forward pass (for example, through a neural network layer)
-output = lm_eval_model(question_tokens)
+##TODO test backward: model's output logits
+print(sample_question_results_tokens.shape)
+# Shift input_ids to the right to create labels
+labels = torch.cat((sample_question_results_tokens[:, 1:], sample_question_results_tokens[:, :1]), dim=1)  # The
 
-# Loss computation (for example, mean of the output for simplicity)
-loss = output.mean()
+loss_function = nn.CrossEntropyLoss(ignore_index=-100)  # Typically -100 is used to ignore padding tokens in language models
+
+# Compute the loss
+# format expected by CrossEntropyLoss
+loss = loss_function(sample_question_results_tokens.transpose(1, 2), labels) 
 
 # Backward pass
 loss.backward()
-
-# Now, question_tokens.grad will contain the gradients
-print(question_tokens.grad)
