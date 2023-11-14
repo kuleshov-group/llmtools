@@ -3,10 +3,9 @@ import hadamard_cuda
 
 import os
 import sys
-parent_directory = os.path.abspath(f"{__file__}/../../../")
-print(parent_directory)
-sys.path.append(parent_directory)
-from lib import utils
+# parent_directory = os.path.abspath(f"{__file__}/../../../")
+# sys.path.append(parent_directory)
+from quip.lib import utils
 
 def matmul_hadU(X, transpose=False):
     n = X.shape[-1]

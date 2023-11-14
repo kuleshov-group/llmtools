@@ -1,5 +1,5 @@
 import torch
-from .matmul_had import matmul_hadU
+from quip.lib.utils.matmul_had import matmul_hadU
 import glog
 
 def flat_to_sym(V, N):

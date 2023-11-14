@@ -33,7 +33,7 @@ else:
 
 
 ### QUIP Specific Packages ###
-lm_eval_model = LMEvalAdaptor(quip_config["_name_or_path"], model, tokenizer, 1)
+lm_eval_model = LMEvalAdaptor(quip_config["_name_or_path"], llm, tokenizer, 1)
 sample_question = "Write a well-thought out recipe for a new blueberry lasagna dish: "
 
 
@@ -46,3 +46,18 @@ sample_question_results_tokens = lm_eval_model._model_generate(sample_question_t
 # the model not stopping does not mean that it is not adding the eos_token but rather not predicting it.
 sample_question_results = lm_eval_model.tok_decode(sample_question_results_tokens.squeeze())
 print(sample_question_results)
+
+##TODO test backward
+question_tokens.requires_grad_(True)
+
+# Forward pass (for example, through a neural network layer)
+output = lm_eval_model(question_tokens)
+
+# Loss computation (for example, mean of the output for simplicity)
+loss = output.mean()
+
+# Backward pass
+loss.backward()
+
+# Now, question_tokens.grad will contain the gradients
+print(question_tokens.grad)

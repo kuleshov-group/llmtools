@@ -15,7 +15,7 @@ from datasets import load_dataset
 import torch.multiprocessing as mp
 
 # import data_utils
-from lib import utils
+from quip.lib import utils
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--seed', default=0, type=int)

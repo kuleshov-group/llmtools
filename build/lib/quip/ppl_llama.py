@@ -4,7 +4,7 @@ import argparse
 import torch
 import datasets
 from transformers import LlamaTokenizer  #, LlamaForCausalLM
-from model.llama import LlamaForCausalLM
+from quip.model.llama import LlamaForCausalLM
 import random
 import glog
 

@@ -15,8 +15,8 @@ from torch import nn, optim
 from transformers import LlamaTokenizer, LlamaForCausalLM
 from datasets import load_dataset
 
-from lib import codebook, utils
-from lib.algo import quip, preprocess, outlier_channel_split as ocs
+from quip.lib import codebook, utils
+from quip.lib.algo import quip, preprocess, outlier_channel_split as ocs
 
 import glog
 

@@ -13,7 +13,7 @@ from llmtools.llms.llama2.model import load_llama2, load_llama2_tokenizer
 from llmtools.llms.opt.model import load_opt, load_opt_tokenizer
 from llmtools.llms.bloom.model import load_bloom, load_bloom_tokenizer
 
-from llmtools.llms.llamaquip.model import load_llama_quip
+from llmtools.llms.llamaquip.model import load_llama_quip ## QUIP Integration
 
 def get_default_tokenizer(name_or_path, model_type=None):
     if model_type is not None:
@@ -99,10 +99,12 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
         # load config
         llm_config = AutoLLMConfig.from_pretrained(model_name_or_path)
         
-        if llm_config == "QUIP":
-            quip_model, quip_tokenizer, quip_config = load_llama_quip(llm_config, checkpoint)
+        if llm_config == "QUIP" or llm_config == "quip":
+            print("LOADING QUIP MODEL...")
+            quip_model, quip_tokenizer, quip_config = load_llama_quip(model_name_or_path)
             return quip_model, quip_tokenizer, quip_config
         else:
+
             load_quantized = llm_config.quant_config is not None
 
             # resolve path to checkpoint (could be None)

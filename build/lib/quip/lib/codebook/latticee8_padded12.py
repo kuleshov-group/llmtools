@@ -12,7 +12,7 @@ import math
 from torch import nn
 from functools import cache
 import itertools
-from lib.utils.matmul_had import matmul_hadU_cuda, matmul_hadUt_cuda
+from quip.lib.utils.matmul_had import matmul_hadU_cuda, matmul_hadUt_cuda
 
 _E8P_CODESZ = 8
 _INT_MAP = 2**(torch.arange(_E8P_CODESZ).flip(0))

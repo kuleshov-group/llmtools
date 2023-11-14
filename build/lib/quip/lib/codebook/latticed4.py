@@ -18,9 +18,9 @@ import torch
 from torch import nn
 import quiptools_cuda
 
-from lib.utils.matmul_had import matmul_hadU_cuda, matmul_hadUt_cuda
+from quip.lib.utils.matmul_had import matmul_hadU_cuda, matmul_hadUt_cuda
 
-from lib.linear.autograd import AutogradQuip
+from quip.lib.linear.autograd import AutogradQuip
 
 _D4_CODESZ = 4
 
@@ -158,77 +158,46 @@ class QuantizedD4Linear(nn.Module):
                 rescale_WH=False,
                 scaleWH=None):
         
-        ## We want to wrap this in a autograd function
-        output = AutogradQuip.apply(input, 
-                                    self.D4_CB,
-                                     Qidxs, 
-                                     SU, 
-                                     SV, 
-                                     Wscale, 
-                                     rank, A, B, rescale_WH, scaleWH
-            )
-
-        return output 
     
-        # (m, n) = Qidxs.shape
+        (m, n) = Qidxs.shape
 
-        # x = input.view(-1, _D4_CODESZ * n).to(torch.float32)
-        # if rescale_WH:
-        #     x /= scaleWH
-        # x = x * SU
-        # x = matmul_hadUt_cuda(x)
+        x = input.view(-1, _D4_CODESZ * n).to(torch.float32)
+        if rescale_WH:
+            x /= scaleWH
+        x = x * SU
+        x = matmul_hadUt_cuda(x)
 
-        # if rank > 0:
-        #     Bx = x @ B.t().to(torch.float32)
-        #     ABx = Bx @ A.t().to(torch.float32)
+        if rank > 0:
+            Bx = x @ B.t().to(torch.float32)
+            ABx = Bx @ A.t().to(torch.float32)
 
-        # num_scale = 1024
-        # x = x / num_scale
-        # x = x.to(torch.float16)
+        num_scale = 1024
+        x = x / num_scale
+        x = x.to(torch.float16)
 
-        # if (x.shape[0] <= 8):
-        #     if (x.shape[0] == 8):
-        #         x_padded = x.contiguous()
-        #     else:
-        #         x_padded = torch.zeros(8, n * _D4_CODESZ, dtype=torch.float16, device=x.device)
-        #         x_padded[0:(x.shape[0]), :] = x
-        #     z = torch.zeros(8, m, dtype=x.dtype, device=x.device)
-        #     quiptools_cuda.lookupmatmul_k8(x_padded, Qidxs, self.D4_CB, z)
-        #     z = z[0:(x.shape[0]), :]
-        # elif (x.shape[0] <= 16):
-        #     if (x.shape[0] == 16):
-        #         x_padded = x.contiguous()
-        #     else:
-        #         x_padded = torch.zeros(16, n * _D4_CODESZ, dtype=torch.float16, device=x.device)
-        #         x_padded[0:(x.shape[0]), :] = x
-        #     z = torch.zeros(16, m, dtype=x.dtype, device=x.device)
-        #     quiptools_cuda.lookupmatmul_k16(x_padded, Qidxs, self.D4_CB, z)
-        #     z = z[0:(x.shape[0]), :]
-        # elif (x.shape[0] <= 32):
-        #     if (x.shape[0] == 32):
-        #         x_padded = x.contiguous()
-        #     else:
-        #         x_padded = torch.zeros(32, n * _D4_CODESZ, dtype=torch.float16, device=x.device)
-        #         x_padded[0:(x.shape[0]), :] = x
-        #     z = torch.zeros(32, m, dtype=x.dtype, device=x.device)
-        #     quiptools_cuda.lookupmatmul_k32(x_padded, Qidxs, self.D4_CB, z)
-        #     z = z[0:(x.shape[0]), :]
-        # else:
-        #     # manifest the matrix
-        #     W_decompressed = torch.zeros(m, n * _D4_CODESZ, dtype=torch.float16, device=x.device)
-        #     quiptools_cuda.decompress(Qidxs, self.D4_CB, W_decompressed)
-        #     z = x @ W_decompressed.t()
 
-        # x = z.to(torch.float32)
-        # x = x * (Wscale * num_scale)
 
-        # if rank > 0:
-        #     x = x + ABx.to(torch.float32)
+        ## We wrap the following in a autograd function
+        """
+        # manifest the matrix
+        W_decompressed = torch.zeros(m, n * _D4_CODESZ, dtype=torch.float16, device=x.device)
+        quiptools_cuda.decompress(Qidxs, self.D4_CB, W_decompressed)
+        z = x @ W_decompressed.t()
+        """
+        z = AutogradQuip.apply(input, self.D4_CB, Qidxs)
 
-        # x = matmul_hadU_cuda(x)
-        # x = x * SV
 
-        # output = x.view(*input.shape[:-1], m)
+
+        x = z.to(torch.float32)
+        x = x * (Wscale * num_scale)
+
+        if rank > 0:
+            x = x + ABx.to(torch.float32)
+
+        x = matmul_hadU_cuda(x)
+        x = x * SV
+
+        output = x.view(*input.shape[:-1], m)
 
 
 

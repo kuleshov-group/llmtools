@@ -6,7 +6,7 @@ import torch
 import math
 from torch import nn
 from functools import cache
-from lib.utils.matmul_had import matmul_hadU_cuda, matmul_hadUt_cuda
+from quip.lib.utils.matmul_had import matmul_hadU_cuda, matmul_hadUt_cuda
 
 _E81B_CODESZ = 8
 

@@ -5,7 +5,7 @@ Rounds to the grid [-1.5, -0.5, 0.5, 1.5]
 import torch
 from torch import nn
 
-from lib.utils.matmul_had import matmul_hadU_cuda, matmul_hadUt_cuda
+from quip.lib.utils.matmul_had import matmul_hadU_cuda, matmul_hadUt_cuda
 
 
 def get_grid():

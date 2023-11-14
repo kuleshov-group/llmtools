@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 import quiptools_cuda
-from lib.utils import matmul_hadU_cuda, matmul_hadUt_cuda, dtype_from_str
-from lib import codebook
+from quip.lib.utils import matmul_hadU_cuda, matmul_hadUt_cuda, dtype_from_str
+from quip.lib import codebook
 
 class QuantizedLinear(nn.Module):
 

@@ -50,7 +50,7 @@ class AutoLLMConfig(PretrainedConfig,PushToHubMixin):
 
     @classmethod
     def from_pretrained(cls, save_dir: str): #save_dir is the model_name_or_path
-        if (LLMType.LLAMA_QUIP.value in save_dir) or (LLMType.LLAMA_QUIP.value in save_dir):
+        if (LLMType.LLAMA_QUIP.value in save_dir) or (LLMType.LLAMA2_QUIP.value in save_dir):
             return "QUIP"
 
         # load config

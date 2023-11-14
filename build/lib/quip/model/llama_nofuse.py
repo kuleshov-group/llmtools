@@ -40,8 +40,8 @@ from transformers.utils import add_start_docstrings, add_start_docstrings_to_mod
 from transformers.models.llama.configuration_llama import LlamaConfig
 from transformers import PretrainedConfig
 
-from lib.linear.quantized_linear import QuantizedLinear  
-from lib import codebook
+from quip.lib.linear.quantized_linear import QuantizedLinear  
+from quip.lib import codebook
 
 logger = logging.get_logger(__name__)
 
