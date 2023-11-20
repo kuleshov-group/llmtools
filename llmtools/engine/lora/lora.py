@@ -18,8 +18,9 @@ import torch
 import torch.nn as nn
 
 from llmtools.engine.inference.modules import QuantLinear
-from llmtools.engine.inference.modules import QuantLinearQuip
 from llmtools.engine.lora.peft import quant_peft
+#* QUIP Quant Linear Latyer path *#
+from quip.lib.linear.quantized_linear import QuantizedLinear
 
 # hacky way to do imports for now
 LoraLayer = quant_peft.tuners.lora.LoraLayer
@@ -151,7 +152,10 @@ class QuantLoraModel(torch.nn.Module):
 
     def _replace_module(self, parent_module, child_name, new_module, old_module):
         setattr(parent_module, child_name, new_module)
-        if isinstance(old_module, QuantLinear) and isinstance(new_module, LinearQuantLt):
+        ##TODO: QUIP Implementation
+        if isinstance(old_module, QuantizedLinear) and isinstance(new_module, LinearQuantLtQuip):
+            
+        elif isinstance(old_module, QuantLinear) and isinstance(new_module, LinearQuantLt):
             new_module.qweight = old_module.qweight
             new_module.scales = old_module.scales
             new_module.qzeros = old_module.qzeros
@@ -301,31 +305,27 @@ def mark_only_lora_as_trainable(model: nn.Module, bias: str = "none") -> None:
 
 
 ## Quip Implementatin
-class LinearQuantLt(QuantLinearQuip, LoraLayer):
+class LinearQuantLtQuip(QuantizedLinear, LoraLayer):
     # Lora implemented in a dense layer
     def __init__(
             self,
-            bits,
+            config, #* QUIP Config *#
             in_features,
             out_features,
-            groupsize,
-            bias=False,
             r: int = 0,
             lora_alpha: int = 1,
             lora_dropout: float = 0.0,
             is_cuda=True,
             **kwargs,
     ):
+        breakpoint()
         ## TODO Initialize QuantLinear
-        QuantLinearQuip.__init__(
-            self,
-            bits=bits,
-            in_features=in_features,
-            out_features=out_features,
-            groupsize=groupsize,
-            bias=bias,
-            is_cuda=is_cuda,
-        )
+        QuantizedLinear.__init__(in_features,
+                                out_features,
+                                config.quip_params['codesz'],
+                                config.quip_params['idx_dtype'],
+                                rank=config.quip_params['lora_rank'],
+                                rescale_WH=config.quip_params['rescale_WH'])
         LoraLayer.__init__(
             self, 
             r=r, 
@@ -338,11 +338,24 @@ class LinearQuantLt(QuantLinearQuip, LoraLayer):
             self.lora_A = nn.Linear(in_features, r, bias=False)
             self.lora_B = nn.Linear(r, out_features, bias=False)
             self.scaling = self.lora_alpha / self.r
-            # Freezing the pre-trained weight matrix
-            self.qweight.requires_grad = False
-            self.scales.requires_grad = False
-            self.qzeros.requires_grad = False
-            self.g_idx.requires_grad = False
+            # Freezing the tensors except for LoRA parameters
+            ## TODO: Change the grad_requirement according to QUIP configuraion
+            ## ? The varaibles are simply defined in the forward function?
+            ## ? Refers to QuantizedLinear() module in QUIP.Lib.Linear.quantized_linear.py ? ##
+            if self.codebook_class is not None: self.codebook_class.requires_grad = False #TODO: Not sure about this. 
+            self.Qidxs.requires_grad = False
+            self.SU.requires_grad = False
+            self.SV.requires_grad = False
+            self.Wscale.requires_grad = False
+            self.rank.requires_grad = False 
+            if self.A is not None: self.A.requires_grad = False
+            if self.B is not None: self.B.requires_grad = False
+            if self.rescale_WH is not None: self.rescale_WH.requires_grad = False
+            if self.scaleWH.requires_grad is not None: self.scaleWH.requires_grad = False
+            # self.qweight.requires_grad = False
+            # self.scales.requires_grad = False
+            # self.qzeros.requires_grad = False
+            # self.g_idx.requires_grad = False
             if self.bias is not None:
                 self.bias.requires_grad = False
         self.reset_parameters()

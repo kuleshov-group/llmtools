@@ -184,8 +184,7 @@ class QuantizedD4Linear(nn.Module):
         quiptools_cuda.decompress(Qidxs, self.D4_CB, W_decompressed)
         z = x @ W_decompressed.t()
         """
-        z = AutogradQuip.apply(input, self.D4_CB, Qidxs)
-
+        z = AutogradQuip.apply(x, self.D4_CB, Qidxs)
 
 
         x = z.to(torch.float32)
@@ -198,8 +197,6 @@ class QuantizedD4Linear(nn.Module):
         x = x * SV
 
         output = x.view(*input.shape[:-1], m)
-
-
 
 
         return output

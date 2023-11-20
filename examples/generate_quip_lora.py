@@ -47,17 +47,3 @@ sample_question_results_tokens = lm_eval_model._model_generate(sample_question_t
 sample_question_results = lm_eval_model.tok_decode(sample_question_results_tokens.squeeze())
 print(sample_question_results)
 
-
-##TODO test backward: model's output logits
-# print(sample_question_results_tokens.shape)
-# # Shift input_ids to the right to create labels
-# labels = torch.cat((sample_question_results_tokens[:, 1:], sample_question_results_tokens[:, :1]), dim=1)  # The
-
-# loss_function = nn.CrossEntropyLoss(ignore_index=-100)  # Typically -100 is used to ignore padding tokens in language models
-
-# # Compute the loss
-# # format expected by CrossEntropyLoss
-# loss = loss_function(sample_question_results_tokens.transpose(1, 2), labels) 
-
-# # Backward pass
-# loss.backward()
