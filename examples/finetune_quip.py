@@ -5,12 +5,16 @@ from transformers import AutoTokenizer
 from llmtools.llms.autollm import AutoLLMForCausalLM
 from llmtools.engine.lora.config import FinetuneConfig
 from llmtools.data import TrainSAD
+#* Hacky way to suppress warnings from bitsandbytes *#
+import warnings
+warnings.simplefilter('ignore',lineno=11)
 from llmtools.engine.lora.peft import quant_peft
 from llmtools.utils import to_half_precision
 
+
+
 # model config
 model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama2-quip-7b'
-DEV = 'cuda'
 
 # load model
 if "quip" in model_name:
@@ -61,14 +65,17 @@ tune_config = FinetuneConfig(
 lora_config = quant_peft.LoraConfig(
     r=tune_config.lora_r,
     lora_alpha=tune_config.lora_alpha,
-    target_modules=["q_proj", "v_proj"],
+    target_modules=["q_proj", "v_proj"], #* QUIP LLAMA models has qkv_proj instead, but somehow replacement is working *#
+    #target_modules=["qkv_proj"],
     lora_dropout=tune_config.lora_dropout,
     bias="none",
     task_type="CAUSAL_LM",
 )
 
+# breakpoint()
 # create a new lora from config
 model = quant_peft.get_peft_model(llm, lora_config)
+# breakpoint()
 
 # load stanford alpaca data
 data = TrainSAD(
@@ -88,9 +95,9 @@ training_arguments = transformers.TrainingArguments(
     learning_rate=tune_config.lr,
     fp16=True,
     logging_steps=tune_config.logging_steps,
-    evaluation_strategy="no",
+    evaluation_strategy="steps",
     save_strategy="steps",
-    eval_steps=None,
+    eval_steps=20, #None
     save_steps=tune_config.save_steps,
     output_dir=tune_config.lora_out_dir,
     save_total_limit=tune_config.save_total_limit,

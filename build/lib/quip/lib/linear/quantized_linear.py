@@ -39,6 +39,10 @@ class QuantizedLinear(nn.Module):
 
         self.built_codebook_class = False
 
+        #* QUIP-LLMTools Integration *#
+        self.codesz = codesz
+        self.idx_dtype = idx_dtype
+
     def forward(self, input):
         if not self.built_codebook_class:
             self.codebook_class = codebook.get_quantized_class(

@@ -84,7 +84,8 @@ class QuantLoraModel(torch.nn.Module):
                 if not is_target_modules_in_base_model:
                     is_target_modules_in_base_model = True
                 parent, target, target_name = self._get_submodules(key)
-                bias = target.bias is not None
+                if hasattr(target, "bias"): #* QUIP *#
+                    bias = target.bias is not None
                 if loaded_in_8bit and isinstance(target, bnb.nn.Linear8bitLt):
                     kwargs.update(
                         {
@@ -112,14 +113,14 @@ class QuantLoraModel(torch.nn.Module):
                         **kwargs
                     )
                 ## TODO QUIP Implementation
-                elif isinstance(target, QuantLinearQuip) and self.peft_config.enable_lora is None:
+                elif isinstance(target, QuantizedLinear) and self.peft_config.enable_lora is None:
                     new_module = LinearQuantLtQuip(
-                        target.bits,
                         target.in_features, 
                         target.out_features, 
-                        target.groupsize,
-                        bias=bias, 
-                        is_cuda=target.is_cuda,
+                        target.codesz,
+                        target.idx_dtype,
+                        target.rank,
+                        target.rescale_WH,
                         **kwargs
                     )
                 elif self.peft_config.enable_lora is not None:
@@ -136,7 +137,7 @@ class QuantLoraModel(torch.nn.Module):
                                 "Setting fan_in_fan_out to False."
                             )
                             kwargs["fan_in_fan_out"] = self.peft_config.fan_in_fan_out = False
-                    new_module = MergedLinear(in_features, out_features, bias=bias, **kwargs)
+                    new_module = MergedLinear(in_features, out_features, bias=bias, **kwargs) 
                 self._replace_module(parent, target_name, new_module, target)
         if not is_target_modules_in_base_model:
             raise ValueError(
@@ -152,9 +153,34 @@ class QuantLoraModel(torch.nn.Module):
 
     def _replace_module(self, parent_module, child_name, new_module, old_module):
         setattr(parent_module, child_name, new_module)
+        #breakpoint()
         ##TODO: QUIP Implementation
         if isinstance(old_module, QuantizedLinear) and isinstance(new_module, LinearQuantLtQuip):
+            #new_module.D4_CB = old_module.D4_CB #? D4_CB is our quantzied weighgt
+            new_module.Qidxs = old_module.Qidxs
+            new_module.codebook_id = old_module.codebook_id
+            new_module.SU = old_module.SU
+            new_module.SV = old_module.SV
+            new_module.Wscale = old_module.Wscale
+
+            new_module.rank = old_module.rank
+            new_module.A = old_module.A
+            new_module.B = old_module.B
+            new_module.rescale_WH = old_module.rescale_WH
+            new_module.scaleWH = old_module.scaleWH
+
+            new_module.codesz = old_module.codesz
+            new_module.idx_dtype = old_module.idx_dtype
+
+            #? Understand this ?#
+            if getattr(old_module, "state", None) is not None:
+                new_module.state = old_module.state
+                new_module.to(old_module.Qidxs.device) 
             
+            # dispatch to correct device
+            for name, module in new_module.named_modules():
+                if "lora_" in name:
+                    module.to(old_module.Qidxs.device) ## TODO: Not sure about this. QUIP doesn't store Qweights equialent to LORA.
         elif isinstance(old_module, QuantLinear) and isinstance(new_module, LinearQuantLt):
             new_module.qweight = old_module.qweight
             new_module.scales = old_module.scales
@@ -304,28 +330,32 @@ def mark_only_lora_as_trainable(model: nn.Module, bias: str = "none") -> None:
 
 
 
-## Quip Implementatin
+##* Quip Implementation *##
 class LinearQuantLtQuip(QuantizedLinear, LoraLayer):
     # Lora implemented in a dense layer
     def __init__(
             self,
-            config, #* QUIP Config *#
             in_features,
             out_features,
+            codesz,
+            idx_dtype,
+            lora_rank,
+            rescale_WH,
             r: int = 0,
             lora_alpha: int = 1,
             lora_dropout: float = 0.0,
             is_cuda=True,
             **kwargs,
     ):
-        breakpoint()
         ## TODO Initialize QuantLinear
-        QuantizedLinear.__init__(in_features,
-                                out_features,
-                                config.quip_params['codesz'],
-                                config.quip_params['idx_dtype'],
-                                rank=config.quip_params['lora_rank'],
-                                rescale_WH=config.quip_params['rescale_WH'])
+        QuantizedLinear.__init__(self,
+                                in_features=in_features,
+                                out_features=out_features,
+                                codesz=codesz,
+                                idx_dtype=idx_dtype,
+                                outlier_channel_split=False,
+                                rank=lora_rank,
+                                rescale_WH=rescale_WH)
         LoraLayer.__init__(
             self, 
             r=r, 
@@ -335,29 +365,23 @@ class LinearQuantLtQuip(QuantizedLinear, LoraLayer):
         )
         # Actual trainable parameters
         if r > 0:
+            #breakpoint()
             self.lora_A = nn.Linear(in_features, r, bias=False)
             self.lora_B = nn.Linear(r, out_features, bias=False)
             self.scaling = self.lora_alpha / self.r
             # Freezing the tensors except for LoRA parameters
-            ## TODO: Change the grad_requirement according to QUIP configuraion
+            ## TODO: Change the grad_requirement according to QUIP configuraion ##
             ## ? The varaibles are simply defined in the forward function?
             ## ? Refers to QuantizedLinear() module in QUIP.Lib.Linear.quantized_linear.py ? ##
-            if self.codebook_class is not None: self.codebook_class.requires_grad = False #TODO: Not sure about this. 
+            if hasattr(self, "codebook_class"): self.codebook_class.requires_grad = False #* no codebook_class in init *#
+            # self.D4_CB.requires_grad = False #* no codebook_class in init *#
             self.Qidxs.requires_grad = False
             self.SU.requires_grad = False
             self.SV.requires_grad = False
             self.Wscale.requires_grad = False
-            self.rank.requires_grad = False 
             if self.A is not None: self.A.requires_grad = False
             if self.B is not None: self.B.requires_grad = False
-            if self.rescale_WH is not None: self.rescale_WH.requires_grad = False
-            if self.scaleWH.requires_grad is not None: self.scaleWH.requires_grad = False
-            # self.qweight.requires_grad = False
-            # self.scales.requires_grad = False
-            # self.qzeros.requires_grad = False
-            # self.g_idx.requires_grad = False
-            if self.bias is not None:
-                self.bias.requires_grad = False
+            if self.scaleWH is not None: self.scaleWH.requires_grad = False
         self.reset_parameters()
 
     def reset_parameters(self):

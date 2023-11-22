@@ -97,6 +97,7 @@ if not ddp and torch.cuda.device_count() > 1:
 
 
 # create a new lora from config
+breakpoint()
 model = quant_peft.get_peft_model(llm, lora_config)
 
 if not ddp and torch.cuda.device_count() > 1:

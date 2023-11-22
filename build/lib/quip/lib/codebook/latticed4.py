@@ -176,7 +176,6 @@ class QuantizedD4Linear(nn.Module):
         x = x.to(torch.float16)
 
 
-
         ## We wrap the following in a autograd function
         """
         # manifest the matrix

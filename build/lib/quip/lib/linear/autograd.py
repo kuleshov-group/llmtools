@@ -16,7 +16,6 @@ class AutogradQuip(torch.autograd.Function):
     @staticmethod
     @custom_fwd(cast_inputs=torch.float16)
     def forward(ctx, x, D4_CB, Qidxs):
-        breakpoint()
 
         ctx.save_for_backward(Qidxs, D4_CB) # Saves given tensors for a future call to backward().
 
@@ -27,7 +26,6 @@ class AutogradQuip(torch.autograd.Function):
         W_decompressed = torch.zeros(m, n * _D4_CODESZ, dtype=torch.float16, device=x.device)
         
         quiptools_cuda.decompress(Qidxs, D4_CB, W_decompressed) # Unpack the quantized weights
-        #z = x.float() @ W_decompressed.t().float() # * output 
         z = x @ W_decompressed.t() # * output 
 
 
