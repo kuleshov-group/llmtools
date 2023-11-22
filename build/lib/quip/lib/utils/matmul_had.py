@@ -119,12 +119,13 @@ def matmul_hadU_cuda(X, transpose=False):
         hadK = get_had12().T if transpose else get_had12()
     else:
         assert (is_pow2(n))
-        return hadamard_cuda.hadamard_transform(X) / torch.tensor(n).sqrt()
+        return hadamard_cuda.hadamard_transform(X) / torch.tensor(n, dtype=torch.float).sqrt()
     input = X.float().cuda().view(-1, K, n // K)
     input = hadamard_cuda.hadamard_transform(input)
-    input = hadK.to(input.device).to(input.dtype) @ input
-    return input.to(X.device).to(X.dtype).reshape(
-        X.shape) / torch.tensor(n).sqrt()
+    input = input.to(torch.float64) #* Convert to float64 for higher precision
+    input = hadK.to(input.device).to(input.dtype) @ input ##TODO: Here is whre numerical overflow happened with float16.
+    return input.to(X.device).to(X.dtype).reshape(X.shape) / torch.tensor(n, dtype=torch.float).sqrt()
+    #input = torch.matmul(hadK.to(input.device).to(input.dtype), input)
 
 
 def matmul_hadUt_cuda(X):

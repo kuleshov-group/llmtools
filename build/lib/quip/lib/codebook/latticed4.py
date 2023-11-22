@@ -18,7 +18,7 @@ import torch
 from torch import nn
 import quiptools_cuda
 
-from quip.lib.utils.matmul_had import matmul_hadU_cuda, matmul_hadUt_cuda
+from quip.lib.utils.matmul_had import matmul_hadU_cuda, matmul_hadUt_cuda, matmul_hadU, matmul_hadUt
 
 from quip.lib.linear.autograd import AutogradQuip
 
@@ -157,8 +157,7 @@ class QuantizedD4Linear(nn.Module):
                 B=None,
                 rescale_WH=False,
                 scaleWH=None):
-        
-    
+
         (m, n) = Qidxs.shape
 
         x = input.view(-1, _D4_CODESZ * n).to(torch.float32)
@@ -183,6 +182,7 @@ class QuantizedD4Linear(nn.Module):
         quiptools_cuda.decompress(Qidxs, self.D4_CB, W_decompressed)
         z = x @ W_decompressed.t()
         """
+        # manifest the matrix
         z = AutogradQuip.apply(x, self.D4_CB, Qidxs)
 
 
@@ -192,10 +192,17 @@ class QuantizedD4Linear(nn.Module):
         if rank > 0:
             x = x + ABx.to(torch.float32)
 
-        x = matmul_hadU_cuda(x)
+        #? For Debug ?#
+        # import pickle
+        # with open('debug/quip_overflow.pkl', 'wb') as f:
+        #     pickle.dump([x], f)
+
+
+        # torch.min(x): tensor(-255.6819, device='cuda:0'), no NaNs as well. torch.max(x): tensor(229.4429, device='cuda:0') #
+        #x_cpu = matmul_hadU(x.cpu()) #* matmul_hadU without cuda works.
+        x = matmul_hadU_cuda(x) ##TODO: Numerical Overflow. Produce -inf
         x = x * SV
 
         output = x.view(*input.shape[:-1], m)
-
 
         return output

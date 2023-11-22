@@ -5,12 +5,8 @@ from transformers import AutoTokenizer
 from llmtools.llms.autollm import AutoLLMForCausalLM
 from llmtools.engine.lora.config import FinetuneConfig
 from llmtools.data import TrainSAD
-#* Hacky way to suppress warnings from bitsandbytes *#
-import warnings
-warnings.simplefilter('ignore',lineno=11)
 from llmtools.engine.lora.peft import quant_peft
 from llmtools.utils import to_half_precision
-
 
 
 # model config
@@ -120,6 +116,9 @@ model.config.use_cache = False
 
 # use half precision
 model = to_half_precision(model)
+
+
+breakpoint()
 
 # start training
 checkpoint_dir = tune_config.lora_out_dir

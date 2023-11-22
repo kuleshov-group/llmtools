@@ -391,6 +391,7 @@ class LinearQuantLtQuip(QuantizedLinear, LoraLayer):
             nn.init.zeros_(self.lora_B.weight)
 
     def forward(self, x: torch.Tensor):
+        # breakpoint()
         result = super().forward(x)
 
         if self.disable_adapters:
