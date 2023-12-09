@@ -16,6 +16,8 @@
 import math
 import torch
 import torch.nn as nn
+from torch.nn import Conv1d
+import warnings
 
 from llmtools.engine.inference.modules import QuantLinear
 from llmtools.engine.lora.peft import quant_peft
@@ -125,7 +127,7 @@ class QuantLoraModel(torch.nn.Module):
                     )
                 elif self.peft_config.enable_lora is not None:
                     kwargs.update({"enable_lora": self.peft_config.enable_lora})
-                    if isinstance(target, Conv1D):
+                    if isinstance(target, Conv1d):
                         in_features, out_features = (
                             target.weight.ds_shape if hasattr(target.weight, "ds_shape") else target.weight.shape
                         )
@@ -309,6 +311,8 @@ class LinearQuantLt(QuantLinear, LoraLayer):
             else:
                 output = self.lora_B(self.lora_A(self.lora_dropout(x))) * self.scaling
                 result += output
+            # print("Lora A weights: ", self.lora_A.weight[0])
+            # print("Lora B weights: ", self.lora_B.weight[0])
         return result
 
 def mark_only_lora_as_trainable(model: nn.Module, bias: str = "none") -> None:
@@ -365,7 +369,6 @@ class LinearQuantLtQuip(QuantizedLinear, LoraLayer):
         )
         # Actual trainable parameters
         if r > 0:
-            #breakpoint()
             self.lora_A = nn.Linear(in_features, r, bias=False)
             self.lora_B = nn.Linear(r, out_features, bias=False)
             self.scaling = self.lora_alpha / self.r
@@ -407,6 +410,8 @@ class LinearQuantLtQuip(QuantizedLinear, LoraLayer):
             else:
                 output = self.lora_B(self.lora_A(self.lora_dropout(x))) * self.scaling
                 result += output
+            # print("Lora A weights: ", self.lora_A.weight[0])
+            # print("Lora B weights: ", self.lora_B.weight[0])
         return result
 
 def mark_only_lora_as_trainable(model: nn.Module, bias: str = "none") -> None:

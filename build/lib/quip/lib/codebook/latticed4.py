@@ -20,7 +20,7 @@ import quiptools_cuda
 
 from quip.lib.utils.matmul_had import matmul_hadU_cuda, matmul_hadUt_cuda, matmul_hadU, matmul_hadUt
 
-from quip.lib.linear.autograd import AutogradQuip
+from quip.lib.linear.autograd import AutogradQuip, AutogradOrthoMult
 
 _D4_CODESZ = 4
 
@@ -145,6 +145,7 @@ class QuantizedD4Linear(nn.Module):
     def __init__(self, device):
         super().__init__()
         self.D4_CB = build_D4_CB().to(device).to(torch.float16)
+        self.gd_check = True
 
     def forward(self,
                 input,
@@ -158,13 +159,38 @@ class QuantizedD4Linear(nn.Module):
                 rescale_WH=False,
                 scaleWH=None):
 
+        # quantizer_linear_output = {
+        # "input": input,
+        # "Qidxs": Qidxs,
+        # "SU": SU,
+        # "SV": SV,
+        # "Wscale": Wscale,
+        # "rank": rank,
+        # "A": A,
+        # "B": B,
+        # "rescale_WH": rescale_WH,
+        # "scaleWH": scaleWH
+        # }
+        # import pickle
+        # pickle.dump(quantizer_linear_output, open("/share/kuleshov/jy928/llmtools-2bit/debug/quantizer_linear_output.pkl", "wb"))
+        # pickle.dump(self.D4_CB, open("/share/kuleshov/jy928/llmtools-2bit/debug/D4_CB.pkl", "wb"))
+        
+        #breakpoint()
         (m, n) = Qidxs.shape
-
         x = input.view(-1, _D4_CODESZ * n).to(torch.float32)
+
         if rescale_WH:
             x /= scaleWH
         x = x * SU
-        x = matmul_hadUt_cuda(x)
+
+        # breakpoint()
+        # import pickle
+        # pickle.dump(x, open("/share/kuleshov/jy928/llmtools-2bit/debug/ortho_input.pkl", "wb"))
+
+        # x = matmul_hadUt(x) #? Non-Cuda
+
+        transpose = torch.ones(1).to(x.device)
+        x = AutogradOrthoMult.apply(x, transpose)
 
         if rank > 0:
             Bx = x @ B.t().to(torch.float32)
@@ -174,7 +200,6 @@ class QuantizedD4Linear(nn.Module):
         x = x / num_scale
         x = x.to(torch.float16)
 
-
         ## We wrap the following in a autograd function
         """
         # manifest the matrix
@@ -182,27 +207,24 @@ class QuantizedD4Linear(nn.Module):
         quiptools_cuda.decompress(Qidxs, self.D4_CB, W_decompressed)
         z = x @ W_decompressed.t()
         """
-        # manifest the matrix
+
         z = AutogradQuip.apply(x, self.D4_CB, Qidxs)
-
-
         x = z.to(torch.float32)
+
         x = x * (Wscale * num_scale)
 
         if rank > 0:
             x = x + ABx.to(torch.float32)
 
-        #? For Debug ?#
-        # import pickle
-        # with open('debug/quip_overflow.pkl', 'wb') as f:
-        #     pickle.dump([x], f)
-
-
         # torch.min(x): tensor(-255.6819, device='cuda:0'), no NaNs as well. torch.max(x): tensor(229.4429, device='cuda:0') #
-        #x_cpu = matmul_hadU(x.cpu()) #* matmul_hadU without cuda works.
-        x = matmul_hadU_cuda(x) ##TODO: Numerical Overflow. Produce -inf
-        x = x * SV
+        #x = matmul_hadU(x) ##TODO (solved): Numerical Overflow. Produce -inf.
 
+        #x = matmul_hadU(x) #? Non-CUDA
+
+        transpose = torch.zeros(1).to(x.device)
+        x = AutogradOrthoMult.apply(x, transpose)
+        
+        x = x * SV
         output = x.view(*input.shape[:-1], m)
 
         return output

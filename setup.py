@@ -20,7 +20,7 @@ setup(
 setup(
     name='quant_cuda',
     ext_modules=[cpp_extension.CUDAExtension(
-        'llmtune.engine.quant.quant_cuda',
+        'quant_cuda', 
         [
         	'llmtools/engine/inference/cuda/quant_cuda.cpp', 
         	'llmtools/engine/inference/cuda/quant_cuda_kernel.cu'
@@ -28,3 +28,4 @@ setup(
     )],
     cmdclass={'build_ext': cpp_extension.BuildExtension}
 )
+

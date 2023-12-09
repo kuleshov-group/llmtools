@@ -84,7 +84,6 @@ quip/lib/utils/data_utils.py
 quip/lib/utils/lm_eval_adaptor.py
 quip/lib/utils/math_utils.py
 quip/lib/utils/matmul_had.py
-quip/lib/utils/matmul_had_back.py
 quip/lib/utils/matmul_kron.py
 quip/lib/utils/misc.py
 quip/model/__init__.py

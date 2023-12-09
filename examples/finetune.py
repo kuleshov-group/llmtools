@@ -38,9 +38,9 @@ val_set_size=0.2
 warmup_steps=50
 save_steps=50
 save_total_limit=3
-logging_steps=10
+logging_steps=1
 
-data_type = 'alpaca'
+data_type = 'samsum'
 dataset = None # will load alpaca from HF
 adapter_path = './llama-7b-quantized-lora'
 

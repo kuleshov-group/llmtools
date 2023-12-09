@@ -10,17 +10,16 @@ from llmtools.utils import to_half_precision
 
 
 # model config
-model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama2-quip-7b'
+# model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama2-quip-7b'
+model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama1-quip-7b-D4'
 
 # load model
-if "quip" in model_name:
-    llm, tokenizer, quip_config = AutoLLMForCausalLM.from_pretrained(model_name)
-    llm.eval()
-
+llm, tokenizer, quip_config = AutoLLMForCausalLM.from_pretrained(model_name)
+llm.eval()
 
 # finetune training config
 mbatch_size=1
-batch_size=2
+batch_size=1
 epochs=3
 lr=2e-4
 cutoff_len=256
@@ -31,11 +30,11 @@ val_set_size=0.2
 warmup_steps=50
 save_steps=50
 save_total_limit=3
-logging_steps=10
+logging_steps=1
 
 data_type = 'samsum'
 dataset = None # will load alpaca from HF
-adapter_path = './llama2-7b-samsum-seed42'
+adapter_path = './llama1-7b-samsum-seed42'
 
 # set up finetuning config
 tune_config = FinetuneConfig(
@@ -68,10 +67,11 @@ lora_config = quant_peft.LoraConfig(
     task_type="CAUSAL_LM",
 )
 
-# breakpoint()
 # create a new lora from config
 model = quant_peft.get_peft_model(llm, lora_config)
-# breakpoint()
+
+print(model)
+
 
 # load stanford alpaca data
 data = TrainSAD(
@@ -91,9 +91,9 @@ training_arguments = transformers.TrainingArguments(
     learning_rate=tune_config.lr,
     fp16=True,
     logging_steps=tune_config.logging_steps,
-    evaluation_strategy="steps",
+    evaluation_strategy="no",
     save_strategy="steps",
-    eval_steps=20, #None
+    eval_steps=None, #None
     save_steps=tune_config.save_steps,
     output_dir=tune_config.lora_out_dir,
     save_total_limit=tune_config.save_total_limit,
@@ -117,8 +117,6 @@ model.config.use_cache = False
 # use half precision
 model = to_half_precision(model)
 
-
-breakpoint()
 
 # start training
 checkpoint_dir = tune_config.lora_out_dir

@@ -104,7 +104,6 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
             quip_model, quip_tokenizer, quip_config = load_llama_quip(model_name_or_path)
             return quip_model, quip_tokenizer, quip_config
         else:
-
             load_quantized = llm_config.quant_config is not None
 
             # resolve path to checkpoint (could be None)
@@ -137,7 +136,7 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
                 f'{llm_config.model_type} not supported'
                 )
 
-            return cls(model, llm_config), None
+            return cls(model, llm_config)
 
     def save_pretrained(self, save_dir: str):
         os.makedirs(save_dir, exist_ok=True)

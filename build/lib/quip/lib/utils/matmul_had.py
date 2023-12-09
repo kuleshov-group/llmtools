@@ -1,10 +1,12 @@
 import torch
-import hadamard_cuda
+
+try:
+    import hadamard_cuda as hadamard_cuda
+except:
+    import fast_hadamard_transform as hadamard_cuda
 
 import os
 import sys
-# parent_directory = os.path.abspath(f"{__file__}/../../../")
-# sys.path.append(parent_directory)
 from quip.lib import utils
 
 def matmul_hadU(X, transpose=False):
@@ -55,7 +57,11 @@ def matmul_hadU(X, transpose=False):
     else:
         assert (is_pow2(n))
         K = 1
+        
     input = X.clone().view(-1, n, 1)
+
+    ## Overflow issue
+    # input = input.to(torch.float64)
     output = input.clone()
     while input.shape[1] > K:
         input = input.view(input.shape[0], input.shape[1] // 2, 2, input.shape[2])
@@ -66,10 +72,14 @@ def matmul_hadU(X, transpose=False):
         (input, output) = (output, input)
     del output
     utils.clean()
+
     if K > 1:
-        input = torch.bmm(
-            hadK.repeat(len(input), 1, 1).to(input.device).to(input.dtype), input)
-    return input.view(X.shape) / torch.tensor(n).sqrt()
+        #input = torch.bmm(hadK.repeat(len(input), 1, 1).to(input.device).to(input.dtype), input) ##TODO: here it will produce float16 which create overflow
+        #input = torch.bmm(hadK.repeat(len(input), 1, 1).to(input.device).float(), input.float()) ## TODO: somehow torch.bmm() will produce half() instad of flow()
+        input = torch.bmm(hadK.repeat(len(input), 1, 1).to(input.device).to(torch.float64), input.to(torch.float64)).float() ##? Hacky way to do this for now. Seems to bypass the issue. 
+    input = (input.view(X.shape) / torch.tensor(n).sqrt()).to(torch.float32)
+    
+    return input
 
 def matmul_hadUt(X):
     return matmul_hadU(X, transpose=True)
@@ -123,7 +133,7 @@ def matmul_hadU_cuda(X, transpose=False):
     input = X.float().cuda().view(-1, K, n // K)
     input = hadamard_cuda.hadamard_transform(input)
     input = input.to(torch.float64) #* Convert to float64 for higher precision
-    input = hadK.to(input.device).to(input.dtype) @ input ##TODO: Here is whre numerical overflow happened with float16.
+    input = hadK.to(input.device).to(input.dtype) @ input ##TODO (SPOT): Here is whre numerical overflow happened with float16.
     return input.to(X.device).to(X.dtype).reshape(X.shape) / torch.tensor(n, dtype=torch.float).sqrt()
     #input = torch.matmul(hadK.to(input.device).to(input.dtype), input)
 

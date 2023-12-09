@@ -15,48 +15,53 @@ print('Adapter Path: ', args.adapter)
 print('Seed: ', args.seed)
 print('mbatch_size: ', args.mbatch_size)
 
-
 import os
 import torch
 import transformers
 from transformers import AutoTokenizer
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, AutoModelForCausalLM, DataCollatorForTokenClassification, DataCollatorForSeq2Seq
-from transformers import Trainer, TrainingArguments, logging, TrainerCallback, TrainerState, TrainerControl, BitsAndBytesConfig
-from llmtune.llms.autollm import AutoLLMForCausalLM
-from llmtune.engine.lora.config import FinetuneConfig
-from llmtune.engine.lora.peft import quant_peft
-from llmtune.utils import to_half_precision
+from transformers import DataCollatorForTokenClassification, DataCollatorForSeq2Seq
+from transformers import Trainer, TrainingArguments, logging
 from datasets import load_dataset
+
+from llmtools.llms.autollm import AutoLLMForCausalLM
+from llmtools.engine.lora.config import FinetuneConfig
+from llmtools.data import TrainSAD
+from llmtools.engine.lora.peft import quant_peft
+from llmtools.utils import to_half_precision
 
 from utils import *
 from data import *
 
 
-# os env setting
-os.environ["WANDB_DISABLED"] = "true"
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
 # model config
 model_name = args.model_name
-tokenizer_name = 'facebook/opt-6.7b'
-DEV = 'cuda'
-
-transformers.logging.set_verbosity_info()
+# DEV = 'cuda'
 
 
 #* load model (QUIP) *#
-if "quip" in model_name:
-    llm, tokenizer, quip_config = AutoLLMForCausalLM.from_pretrained(model_name)
-    llm.eval()
+llm, tokenizer, quip_config = AutoLLMForCausalLM.from_pretrained(model_name)
+llm.eval()
+
+
+#* Fixing the model and tokenizer for Experiment*#
+# tokenizer = fix_tokenizer(tokenizer)
+# llm = fix_model(llm, tokenizer, use_resize=False)
+
+
+# os env setting
+os.environ["WANDB_DISABLED"] = "true"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+transformers.logging.set_verbosity_info()
+
 
 #* LoRA Config Set-UP*#
 
 # finetune training config
 MICRO_BATCH_SIZE=args.mbatch_size
-BATCH_SIZE = 128
+BATCH_SIZE = 128 #128
 GRADIENT_ACCUMULATION_STEPS = BATCH_SIZE // MICRO_BATCH_SIZE
-EPOCHS = 3  
-LEARNING_RATE = 1e-3  # the Karpathy constant
+EPOCHS = 1 
+LEARNING_RATE = 4e-3  # the Karpathy constant
 CUTOFF_LEN = 128  # 128 accounts for about 95% of the data
 LORA_R = 8
 LORA_ALPHA = 32
@@ -73,18 +78,17 @@ device_map = "auto"
 world_size = int(os.environ.get("WORLD_SIZE", 1))
 ddp = world_size != 1
 
-# if ddp:
-#     device_map = {"": int(os.environ.get("LOCAL_RANK") or 0)}
-#     gradient_accumulation_steps = gradient_accumulation_steps // world_size
+if ddp:
+    device_map = {"": int(os.environ.get("LOCAL_RANK") or 0)}
+    gradient_accumulation_steps = gradient_accumulation_steps // world_size
 
-# adapter_path = '/share/kuleshov/vk379/alpacas/opt-7b-quantized-lora'
 lora_out_dir = args.adapter
 
 # set up lora config    
 lora_config = quant_peft.LoraConfig(
     r=LORA_R,
     lora_alpha=LORA_ALPHA,
-    target_modules=["q_proj", "v_proj"],
+    target_modules=["q_proj", "v_proj", "k_proj"],
     lora_dropout=LORA_DROPOUT,
     bias="none",
     task_type="CAUSAL_LM",
@@ -97,13 +101,15 @@ if not ddp and torch.cuda.device_count() > 1:
 
 
 # create a new lora from config
-breakpoint()
+# breakpoint()
 model = quant_peft.get_peft_model(llm, lora_config)
+
 
 if not ddp and torch.cuda.device_count() > 1:
     print("GPU parallel acctivated")
     model.is_parallelizable = True
     model.model_parallel = True
+
 
 # load stanford alpaca data
 dataset = load_dataset('samsum')
@@ -112,14 +118,12 @@ val_records = dataset['test']
 
 ## Config for SAMSum Dataset ##
 model_type = "causal"
-templates_path = "llama_lora_samsum.json"
+templates_path = "/share/kuleshov/jy928/llmtools-2bit/experiment/samsum_quip/llama_lora_samsum.json"
 only_target_loss = False
 mode = "instruct"
 
 
-
 #* Dataset Set-UP *#
-
 if mode == "instruct":
     max_source_tokens_count = 205 # Changed depending on the dataset
     max_target_tokens_count = 45
@@ -174,8 +178,6 @@ print(data_collator([train_dataset[0], train_dataset[1]])["attention_mask"][0])
 print("LABELS")
 print(data_collator([train_dataset[0], train_dataset[1]])["labels"][0])
 
-
-
 # Model configs
 model.config.num_beams = 5
 if mode == "instruct":
@@ -184,26 +186,26 @@ model.config.max_length = max_tokens_count if model_type == "causal" else max_ta
 
 
 # Training args
-training_arguments = transformers.TrainingArguments(
+training_arguments = TrainingArguments(
     per_device_train_batch_size = MICRO_BATCH_SIZE,
-    per_device_eval_batch_size = 1,
-    gradient_accumulation_steps=GRADIENT_ACCUMULATION_STEPS,
+    per_device_eval_batch_size = MICRO_BATCH_SIZE, #1
+    gradient_accumulation_steps = GRADIENT_ACCUMULATION_STEPS,
     warmup_ratio=0.06,
     #num_train_epochs=3,
-    max_steps = 400,
+    max_steps = 350, # (350 * 128 / 2)
     learning_rate=LEARNING_RATE,
     lr_scheduler_type = "cosine", ## LoRA original paper uses linear
     fp16=True,
-    logging_steps=50,
+    logging_steps=10,
     evaluation_strategy="steps",
-    logging_strategy="steps",
+    #logging_strategy="steps",
     save_strategy="steps",
-    eval_steps=50,
-    save_steps=50,
+    eval_steps=10, 
+    save_steps=10, #* For checkpoining for larger models
     output_dir=lora_out_dir,
     optim = "adamw_torch",
     torch_compile = False,
-    save_total_limit=2,
+    save_total_limit=3,
     load_best_model_at_end=True,
     ddp_find_unused_parameters=False if ddp else None,
 )
@@ -218,17 +220,17 @@ def preprocess_logits_for_metrics(logits, labels):
     return pred_ids, labels
 
 # Start trainer
-trainer = transformers.Trainer(
+trainer = Trainer(
     model=model,
     args=training_arguments,
     train_dataset=train_dataset,
     eval_dataset=val_dataset,
     data_collator=data_collator,
-    preprocess_logits_for_metrics = preprocess_logits_for_metrics,
+     #preprocess_logits_for_metrics = preprocess_logits_for_metrics,
 )
 
 # print("Prallel Training status: ", training_arguments.parallel_mode)
-model.config.use_cache = False
+model.config.use_cache = True
 
 # use half precision
 model = to_half_precision(model)
