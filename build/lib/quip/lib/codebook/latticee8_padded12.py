@@ -217,11 +217,11 @@ class QuantizedE8P12Linear(nn.Module):
 
     def __init__(self, device):
         super().__init__()
-        self.codebook = E8P12_codebook(inference=True).to(torch.float16).to(device)
+        self.codebook = E8P12_codebook(inference=True).to(torch.float32).to(device)
 
     def maybe_unpack_idxs(self, idxs):
         return idxs
-        
+    
     def forward(self,
                 input,
                 Qidxs,
@@ -238,41 +238,52 @@ class QuantizedE8P12Linear(nn.Module):
                 rescale_WH=False,
                 scaleWH=None,
                 **kwargs):
-        breakpoint()
+        #breakpoint()
+        if input.isnan().any() or input.isinf().any():
+            breakpoint()
 
         n, m = len(SU), len(SV)
 
         x = input.view(-1, n).to(torch.float32)
+        
+        if x.isnan().any() or x.isinf().any():
+            breakpoint()
+
         if rescale_WH:
             x /= scaleWH
         x = x * SU
+        if x.isnan().any() or x.isinf().any():
+            breakpoint()
 
         #* Custom Cuda *#
         transpose = torch.ones(1).to(x.device)
-        #x = AutogradOrthoMult.apply(x, transpose, had_left, had_right, K_left, K_right)
+        # x = AutogradOrthoMult.apply(x, transpose, had_left, had_right, K_left, K_right)
+        if x.isnan().any() or x.isinf().any():
+            breakpoint()
         x = matmul_hadUt_cuda(x, had_left, K_left)
 
         if rank > 0:
             Bx = x @ B.t().to(torch.float32)
             ABx = Bx @ A.t().to(torch.float32)
 
-        if x.size(0) == 1:
-            x = quiptools_cuda.decode_matvec_e8p(
-                x[0].to(torch.float16),
-                Qidxs.view(m//16, n//64, 8, 4),
-                self.codebook.grid_packed_abs
-            ).to(torch.float32)
-        else:
-            W_decompressed = quiptools_cuda.decompress_packed_e8p(
-                Qidxs.view(m//16, n//64, 8, 4),
-                self.codebook.grid_packed_abs
-            )
-            x = (x.to(torch.float16) @ W_decompressed.T).to(torch.float32)
+        W_decompressed = quiptools_cuda.decompress_packed_e8p(
+            Qidxs.view(m//16, n//64, 8, 4),
+            self.codebook.grid_packed_abs
+        )
+        x = (x.to(torch.float32) @ W_decompressed.T.to(torch.float32)).to(torch.float32)
+        #z = AutogradQuipE8.apply(x, self.codebook.grid_packed_abs, Qidxs, m, n)
 
-        z = AutogradQuipE8.apply(x, self.codebook.grid_packed_abs, Qidxs, m, n)
-        x = z.to(torch.float32)
+        if x.isnan().any() or x.isinf().any():
+            breakpoint()
+
+        x = x.to(torch.float32)
+
+        if x.isnan().any() or x.isinf().any():
+            breakpoint()
 
         x *= Wscale
+        if x.isnan().any() or x.isinf().any():
+            breakpoint()
 
         if rank > 0:
             x = x + ABx.to(torch.float32)
@@ -281,8 +292,15 @@ class QuantizedE8P12Linear(nn.Module):
         transpose = torch.zeros(1).to(x.device)
         #x = AutogradOrthoMult.apply(x, transpose, had_left, had_right, K_left, K_right)
         x = matmul_hadU_cuda(x, had_right, K_right)
+        if x.isnan().any() or x.isinf().any():
+            breakpoint()
 
         x = x * SV
 
         output = x.view(*input.shape[:-1], m)
+
+        if output.isnan().any() or output.isinf().any():
+            breakpoint()
+
+        output = output.to(torch.float64)
         return output

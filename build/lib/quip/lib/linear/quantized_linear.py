@@ -65,7 +65,8 @@ class QuantizedLinear(nn.Module):
                             in_features // (codesz * packsz),
                             dtype=dtype_from_str(idx_dtype)))
 
-        self.register_buffer("codebook_id", torch.tensor(0)) #* This is automatically 0 (meaning D4)? why? *#
+        self.register_buffer("codebook_id", torch.tensor(7)) #* This is automatically 0 (meaning D4)? why? *#
+        #self.register_buffer("codebook_id", torch.tensor(0))
 
         self.register_buffer("SU", torch.ones(in_features))
         self.register_buffer("SV", torch.ones(out_features))
@@ -106,7 +107,12 @@ class QuantizedLinear(nn.Module):
 
         #* overflow inssue *#
         # breakpoint()
-        input = input.to(torch.float32)
+        if input.isnan().any() or input.isinf().any():
+            breakpoint()
+            
+        input = input.to(torch.float64)
+        if input.isnan().any() or input.isinf().any():
+            breakpoint()
 
         if self.outlier_channel_split:
             input = input[..., self.ocs_dupe_inds]

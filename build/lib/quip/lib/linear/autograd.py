@@ -27,13 +27,17 @@ class AutogradQuipE8(torch.autograd.Function):
                 grid_packed_abs
             )
 
-        z = (x.to(torch.float16) @ W_decompressed.T).to(torch.float32)
+        z = (x.to(torch.float32) @ W_decompressed.T.to(torch.float32)).to(torch.float32) #(x.to(torch.float16) cause overflow!
+
+        if z.isnan().any() or z.isinf().any():
+            breakpoint()
 
         return z
 
     @staticmethod
     @custom_bwd
     def backward(ctx, grad_output):
+        breakpoint()
         x, grid_packed_abs, Qidxs, m_torch, n_torch = ctx.saved_tensors # saved tensors can be accessed through the saved_tensors attribute. breakpoint()
         m = m_torch.item()
         n = n_torch.item()
@@ -100,11 +104,17 @@ class AutogradOrthoMult(torch.autograd.Function):
 
         #* Tranpose is either a zero tensor or ones tensor *#
         if torch.is_nonzero(transpose.any()):
-            x = matmul_hadUt_cuda(x, had_left, K_left)
+            output = matmul_hadUt_cuda(x, had_left, K_left)
+            if output.isnan().any() or output.isinf().any():
+                breakpoint()
+                y = matmul_hadUt_cuda(x, had_left, K_left)
         else:
-            x = matmul_hadU_cuda(x, had_right, K_right)
+            output = matmul_hadU_cuda(x, had_right, K_right)
+            if output.isnan().any() or output.isinf().any():
+                breakpoint()
+                y = matmul_hadU_cuda(x, had_right, had_right)
 
-        return x
+        return output
 
     @staticmethod
     @custom_bwd

@@ -284,7 +284,7 @@ class LlamaMLP(nn.Module):
             gate_proj = self.gate_scale * self.gate_proj(x.float())
             down_proj = self.down_scale * self.down_proj(self.act_fn(gate_proj) * up_proj)
 
-        return down_proj.half()
+        return down_proj.half() #* potential issues here *#
 
 
 def repeat_kv(hidden_states: torch.Tensor, n_rep: int) -> torch.Tensor:
@@ -482,6 +482,11 @@ class LlamaAttention(nn.Module):
         if not output_attentions:
             attn_weights = None
 
+        if attn_output.isnan().any() or attn_output.isinf().any():
+            breakpoint()
+        if attn_weights:
+            if attn_weights.isnan().any() or attn_weights.isinf().any():
+                breakpoint()
         return attn_output, attn_weights, past_key_value
 
 

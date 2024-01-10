@@ -10,8 +10,8 @@ from llmtools.utils import to_half_precision
 
 
 # model config
-model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama1-quip-7b-D4'
-# model_name = 'relaxml/Llama-1-7b-E8P-2Bit'
+#model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama1-quip-7b-D4'
+model_name = 'relaxml/Llama-1-7b-E8P-2Bit'
 
 # load model
 llm, tokenizer, quip_config = AutoLLMForCausalLM.from_pretrained(model_name)
@@ -121,7 +121,7 @@ print(training_arguments.parallel_mode)
 model.config.use_cache = False
 
 # use half precision
-model = to_half_precision(model)
+# model = to_half_precision(model)
 
 
 # start training
