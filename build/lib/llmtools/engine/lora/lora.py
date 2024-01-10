@@ -120,7 +120,10 @@ class QuantLoraModel(torch.nn.Module):
                         target.in_features, 
                         target.out_features, 
                         target.codesz,
+                        target.packsz,
+                        target.pack_out,
                         target.idx_dtype,
+                        target.codebook_version,
                         target.rank,
                         target.rescale_WH,
                         **kwargs
@@ -173,6 +176,10 @@ class QuantLoraModel(torch.nn.Module):
 
             new_module.codesz = old_module.codesz
             new_module.idx_dtype = old_module.idx_dtype
+
+            new_module.packsz = old_module.packsz
+            new_module.pack_out = old_module.pack_out
+            new_module.codebook_version = old_module.codebook_version
 
             #? Understand this ?#
             if getattr(old_module, "state", None) is not None:
@@ -342,7 +349,10 @@ class LinearQuantLtQuip(QuantizedLinear, LoraLayer):
             in_features,
             out_features,
             codesz,
+            packsz,
+            pack_out,
             idx_dtype,
+            codebook_version,
             lora_rank,
             rescale_WH,
             r: int = 0,
@@ -356,7 +366,10 @@ class LinearQuantLtQuip(QuantizedLinear, LoraLayer):
                                 in_features=in_features,
                                 out_features=out_features,
                                 codesz=codesz,
+                                packsz=packsz,
+                                pack_out=pack_out,
                                 idx_dtype=idx_dtype,
+                                codebook_version=codebook_version,
                                 outlier_channel_split=False,
                                 rank=lora_rank,
                                 rescale_WH=rescale_WH)

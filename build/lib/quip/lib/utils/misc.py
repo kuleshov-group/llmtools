@@ -2,8 +2,8 @@ import gc
 import torch
 from tqdm import tqdm
 import pdb, sys
-
 import glog
+
 
 def clean():
     gc.collect()

@@ -15,8 +15,8 @@ from torch import nn, optim
 from transformers import LlamaTokenizer, LlamaForCausalLM
 from datasets import load_dataset
 
-from quip.lib import codebook, utils
-from quip.lib.algo import quip, preprocess, outlier_channel_split as ocs
+from lib import codebook, utils
+from lib.algo import quip, preprocess, outlier_channel_split as ocs
 
 import glog
 
@@ -28,12 +28,11 @@ parser.add_argument('--devset_size', default=64, type=int)
 parser.add_argument('--ctx_size', default=2048, type=int)
 parser.add_argument('--save_path', default='checkpoints/quantized-hada-70b', type=str)
 parser.add_argument('--hessian_path', default='/share/desa/nfs01/quip_llama2/hessians', type=str)
-parser.add_argument('--hessian_mode', default='off', type=str, choices=['off', 'onH', 'onHQuant'])
 parser.add_argument('--base_model', default='meta-llama/Llama-2-70b-hf', type=str)
 parser.add_argument('--sigma_reg', default=1e-2, type=float)
 parser.add_argument('--sigma_reg2', default=1e-3, type=float)
 parser.add_argument('--incoh_mode', default='had', type=str, choices=['had', 'kron'])
-parser.add_argument('--lora_rank', default=128, type=int, help='if <=0 then turned off')
+parser.add_argument('--lora_rank', default=0, type=int, help='if <=0 then turned off')
 parser.add_argument('--scale_override', default=-1, type=float)
 parser.add_argument('--codebook', default='D4', type=str)
 parser.add_argument('--quip_tune_iters', default=10, type=int)
@@ -68,7 +67,7 @@ def quantize_linear(H, mu, W, name, cb, args, device=0, check_only=False):
             n = next_pow2
         H, mu = preprocess.basic_preprocess(H, mu, n, args)
         W = (W / W_scale).to(dtype_).to(device)
-        hatW, attr = quip.quantize(H, mu, W, args.lora_rank, cb, args)
+        hatW, attr = quip.quantize(H, W, args.lora_rank, cb, args, device)
         attr.update({
             'W_scale': W_scale.cpu(),
         })
@@ -235,8 +234,11 @@ def main(args):
             'lora_rank': args.lora_rank,
             'rescale_WH': args.rescale_WH,
             'codebook': args.codebook,
+            'codebook_version': cb.version,
             'codesz': cb.codesz,
             'idx_dtype': str(cb.idx_dtype),
+            'fused': False,
+            'packsz': cb.packsz,
         }
     })
     torch.save(all_config, os.path.join(args.save_path, 'config.pt'))

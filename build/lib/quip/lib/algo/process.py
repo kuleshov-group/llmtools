@@ -1,6 +1,6 @@
 import torch
 from tqdm import tqdm
-from lib import lattice, utils
+from quip.lib import lattice, utils
 
 
 def preprocess(H, mu, args):

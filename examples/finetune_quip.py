@@ -10,16 +10,21 @@ from llmtools.utils import to_half_precision
 
 
 # model config
-# model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama2-quip-7b'
 model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama1-quip-7b-D4'
+# model_name = 'relaxml/Llama-1-7b-E8P-2Bit'
 
 # load model
 llm, tokenizer, quip_config = AutoLLMForCausalLM.from_pretrained(model_name)
+
+#* AutoTokenizer is the lateste version of tokenizer, avoid tokenizer warning and error *#
+# tokenizer_name = "relaxml/Llama-1-7b-hf"
+# tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, use_fast=False)
+
 llm.eval()
 
 # finetune training config
-mbatch_size=1
-batch_size=1
+mbatch_size=2
+batch_size=2
 epochs=3
 lr=2e-4
 cutoff_len=256
@@ -71,6 +76,7 @@ lora_config = quant_peft.LoraConfig(
 model = quant_peft.get_peft_model(llm, lora_config)
 
 print(model)
+# breakpoint()
 
 
 # load stanford alpaca data

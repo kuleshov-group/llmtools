@@ -1,6 +1,6 @@
 import torch
 from tqdm import tqdm
-from lib import utils
+from quip.lib import utils
 
 
 def basic_preprocess(H, mu, n, args):

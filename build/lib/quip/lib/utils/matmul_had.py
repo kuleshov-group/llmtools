@@ -1,92 +1,9 @@
 import torch
-
-try:
-    import hadamard_cuda as hadamard_cuda
-except:
-    import fast_hadamard_transform as hadamard_cuda
-
-import os
-import sys
+import fast_hadamard_transform
 from quip.lib import utils
 
-def matmul_hadU(X, transpose=False):
-    n = X.shape[-1]
-    if n % 172 == 0: # llama-2-7b up, llama-1-65b intermediate
-        assert (is_pow2(n // 172))
-        K = 172
-        hadK = get_had172().T if transpose else get_had172()
-    elif n % 156 == 0: # llama-1-30b 3x hidden
-        assert (is_pow2(n // 156))
-        K = 156
-        hadK = get_had156().T if transpose else get_had156()
-    elif n % 140 == 0: # llama-1-30b intermediate 
-        assert (is_pow2(n // 140))
-        K = 140
-        hadK = get_had140().T if transpose else get_had140()
-    elif n % 108 == 0: # llama-1-13b intermediate 
-        assert (is_pow2(n // 108))
-        K = 108
-        hadK = get_had108().T if transpose else get_had108()
-    elif n % 60 == 0: # llama-1-13b 3x hidden
-        assert (is_pow2(n // 60))
-        K = 60
-        hadK = get_had60().T if transpose else get_had60()
-    elif n % 52 == 0: # llama-1-13b 1x hidden
-        assert (is_pow2(n // 52))
-        K = 52
-        hadK = get_had52().T if transpose else get_had52()
-    # elif n % 113 == 0: # llama-2 13b
-    #     assert (is_pow2(n // 6780))
-    #     K = 6780
-    elif n % 36 == 0:
-        assert (is_pow2(n // 36))
-        K = 36
-        hadK = get_had36().T if transpose else get_had36()
-    elif n % 28 == 0:
-        assert (is_pow2(n // 28))
-        K = 28
-        hadK = get_had28().T if transpose else get_had28()
-    elif n % 20 == 0:
-        assert (is_pow2(n // 20))
-        K = 20
-        hadK = get_had20().T if transpose else get_had20()
-    elif n % 12 == 0:
-        assert (is_pow2(n // 12))
-        K = 12
-        hadK = get_had12().T if transpose else get_had12()
-    else:
-        assert (is_pow2(n))
-        K = 1
-        
-    input = X.clone().view(-1, n, 1)
-
-    ## Overflow issue
-    # input = input.to(torch.float64)
-    output = input.clone()
-    while input.shape[1] > K:
-        input = input.view(input.shape[0], input.shape[1] // 2, 2, input.shape[2])
-        output = output.view(input.shape)
-        output[:, :, 0, :] = input[:, :, 0, :] + input[:, :, 1, :]
-        output[:, :, 1, :] = input[:, :, 0, :] - input[:, :, 1, :]
-        output = output.view(input.shape[0], input.shape[1], -1)
-        (input, output) = (output, input)
-    del output
-    utils.clean()
-
-    if K > 1:
-        #input = torch.bmm(hadK.repeat(len(input), 1, 1).to(input.device).to(input.dtype), input) ##TODO: here it will produce float16 which create overflow
-        #input = torch.bmm(hadK.repeat(len(input), 1, 1).to(input.device).float(), input.float()) ## TODO: somehow torch.bmm() will produce half() instad of flow()
-        input = torch.bmm(hadK.repeat(len(input), 1, 1).to(input.device).to(torch.float64), input.to(torch.float64)).float() ##? Hacky way to do this for now. Seems to bypass the issue. 
-    input = (input.view(X.shape) / torch.tensor(n).sqrt()).to(torch.float32)
-    
-    return input
-
-def matmul_hadUt(X):
-    return matmul_hadU(X, transpose=True)
-
-
-def matmul_hadU_cuda(X, transpose=False):
-    n = X.shape[-1]
+def get_hadK(n, transpose=False):
+    hadK, K = None, None
     if n % 172 == 0: # llama-2-7b up
         assert (is_pow2(n // 172))
         K = 172
@@ -129,17 +46,52 @@ def matmul_hadU_cuda(X, transpose=False):
         hadK = get_had12().T if transpose else get_had12()
     else:
         assert (is_pow2(n))
-        return hadamard_cuda.hadamard_transform(X) / torch.tensor(n, dtype=torch.float).sqrt()
+        K = 1
+
+    return hadK, K
+    
+
+def matmul_hadU(X, transpose=False):
+    n = X.shape[-1]
+    hadK, K = get_hadK(n, transpose)
+    input = X.clone().view(-1, n, 1)
+    output = input.clone()
+    while input.shape[1] > K:
+        input = input.view(input.shape[0], input.shape[1] // 2, 2, input.shape[2])
+        output = output.view(input.shape)
+        output[:, :, 0, :] = input[:, :, 0, :] + input[:, :, 1, :]
+        output[:, :, 1, :] = input[:, :, 0, :] - input[:, :, 1, :]
+        output = output.view(input.shape[0], input.shape[1], -1)
+        (input, output) = (output, input)
+    del output
+    utils.clean()
+    if K > 1:
+        input = torch.bmm(
+            hadK.repeat(len(input), 1, 1).to(input.device).to(input.dtype), input)
+    return input.view(X.shape) / torch.tensor(n).sqrt()
+
+def matmul_hadUt(X):
+    return matmul_hadU(X, transpose=True)
+
+
+def matmul_hadU_cuda(X, hadK, K, transpose=False):
+    n = X.shape[-1]
+    if K == 1:
+        return fast_hadamard_transform.hadamard_transform(X.contiguous()) / torch.tensor(n).sqrt()
+
+    if transpose:
+        hadK = hadK.T.contiguous()
     input = X.float().cuda().view(-1, K, n // K)
-    input = hadamard_cuda.hadamard_transform(input)
-    input = input.to(torch.float64) #* Convert to float64 for higher precision
-    input = hadK.to(input.device).to(input.dtype) @ input ##TODO (SPOT): Here is whre numerical overflow happened with float16.
-    return input.to(X.device).to(X.dtype).reshape(X.shape) / torch.tensor(n, dtype=torch.float).sqrt()
-    #input = torch.matmul(hadK.to(input.device).to(input.dtype), input)
+    input = fast_hadamard_transform.hadamard_transform(input.contiguous())
+    #* QUIP-Finetuning *#
+    #input = input.to(torch.float64) #* Convert to float64 for higher precision
+    input = hadK.to(input.device).to(input.dtype) @ input
+    return input.to(X.device).to(X.dtype).reshape(
+        X.shape) / torch.tensor(n).sqrt()
 
 
-def matmul_hadUt_cuda(X):
-    return matmul_hadU_cuda(X, transpose=True)
+def matmul_hadUt_cuda(X, hadK, K):
+    return matmul_hadU_cuda(X, hadK, K, transpose=True)
 
 
 def is_pow2(n):

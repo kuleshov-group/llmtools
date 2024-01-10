@@ -13,6 +13,8 @@ class LLMType(Enum):
     LLAMA_QUIP = 'llama-quip'
     LLAMA1_QUIP = 'llama1-quip'
     LLAMA2_QUIP = 'llama2-quip'
+    LLAMA3_QUIP = 'E8P-2Bit'
+
 
 class AutoLLMConfig(PretrainedConfig,PushToHubMixin):
     def __init__(
@@ -52,8 +54,8 @@ class AutoLLMConfig(PretrainedConfig,PushToHubMixin):
     @classmethod
     def from_pretrained(cls, save_dir: str): #save_dir is the model_name_or_path
 
-        #* QUIP Implementation *#
-        if (LLMType.LLAMA_QUIP.value in save_dir) or (LLMType.LLAMA2_QUIP.value in save_dir) or (LLMType.LLAMA1_QUIP.value in save_dir):
+        #* QUIP Implementation, hacky version *#
+        if (LLMType.LLAMA_QUIP.value in save_dir) or (LLMType.LLAMA2_QUIP.value in save_dir) or (LLMType.LLAMA1_QUIP.value in save_dir) or (LLMType.LLAMA3_QUIP.value in save_dir):
             return "QUIP"
 
         # load config

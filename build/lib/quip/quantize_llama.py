@@ -12,11 +12,11 @@ os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:512'
 import torch
 import torch.multiprocessing as mp
 from torch import nn, optim
-from transformers import LlamaTokenizer, LlamaForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM
 from datasets import load_dataset
 
-from quip.lib import codebook, utils
-from quip.lib.algo import quip, preprocess, outlier_channel_split as ocs
+from lib import codebook, utils
+from lib.algo import quip, preprocess, outlier_channel_split as ocs
 
 import glog
 
@@ -28,13 +28,13 @@ parser.add_argument('--devset_size', default=64, type=int)
 parser.add_argument('--ctx_size', default=2048, type=int)
 parser.add_argument('--save_path', default='checkpoints/quantized-hada-70b', type=str)
 parser.add_argument('--hessian_path', default='/share/desa/nfs01/quip_llama2/hessians', type=str)
-parser.add_argument('--hessian_mode', default='off', type=str, choices=['off', 'onH', 'onHQuant'])
 parser.add_argument('--base_model', default='meta-llama/Llama-2-70b-hf', type=str)
 parser.add_argument('--sigma_reg', default=1e-2, type=float)
-parser.add_argument('--sigma_reg2', default=1e-3, type=float)
+parser.add_argument('--sigma_reg2', default=1e-2, type=float)
 parser.add_argument('--incoh_mode', default='had', type=str, choices=['had', 'kron'])
-parser.add_argument('--lora_rank', default=128, type=int, help='if <=0 then turned off')
+parser.add_argument('--lora_rank', default=0, type=int, help='if <=0 then turned off')
 parser.add_argument('--scale_override', default=-1, type=float)
+parser.add_argument('--resid_scale_override', default=-1, type=float)
 parser.add_argument('--codebook', default='D4', type=str)
 parser.add_argument('--quip_tune_iters', default=10, type=int)
 parser.add_argument('--remove_mean', action='store_true')
@@ -45,6 +45,7 @@ parser.add_argument('--full_svd', action='store_true')
 parser.add_argument('--no_use_buffered', action='store_true')
 parser.add_argument('--q_buffer_size', default=2, type=int)
 parser.add_argument('--rescale_WH', action='store_true')
+parser.add_argument('--sample_proc', default=1, type=int)
 
 
 def quantize_kqv(layer, idx, cb, args, device='cpu', check_only=False):
@@ -87,9 +88,12 @@ def quantize_kqv(layer, idx, cb, args, device='cpu', check_only=False):
                      (W_q.shape[0] + W_k.shape[0] + W_v.shape[0]), :] * W_v_scale).half()
 
     if args.remove_mean:
-        W_q.bias = nn.Parameter((W_q.to(dtype_) @ mu - W_q_next.to(dtype_) @ mu).half())
-        W_k.bias = nn.Parameter((W_k.to(dtype_) @ mu - W_k_next.to(dtype_) @ mu).half())
-        W_v.bias = nn.Parameter((W_v.to(dtype_) @ mu - W_v_next.to(dtype_) @ mu).half())
+        layer.self_attn.q_proj.bias = nn.Parameter(
+            (W_q.to(dtype_) @ mu - W_q_next.to(dtype_) @ mu).half())
+        layer.self_attn.k_proj.bias = nn.Parameter(
+            (W_k.to(dtype_) @ mu - W_k_next.to(dtype_) @ mu).half())
+        layer.self_attn.v_proj.bias = nn.Parameter(
+            (W_v.to(dtype_) @ mu - W_v_next.to(dtype_) @ mu).half())
 
     W_q.copy_(W_q_next)
     W_k.copy_(W_k_next)
@@ -124,7 +128,8 @@ def quantize_o(layer, idx, cb, args, device='cpu', check_only=False):
     W_o_next = (hatW * W_o_scale).half()
 
     if args.remove_mean:
-        W_o.bias = nn.Parameter((W_o.to(dtype_) @ mu - W_o_next.to(dtype_) @ mu).half())
+        layer.self_attn.o_proj.bias = nn.Parameter(
+            (W_o.to(dtype_) @ mu - W_o_next.to(dtype_) @ mu).half())
 
     W_o.copy_(W_o_next)
 
@@ -165,8 +170,10 @@ def quantize_up(layer, idx, cb, args, device='cpu', check_only=False):
     W_gate_next = (hatW[(W_up.shape[0]):(W_up.shape[0] + W_gate.shape[0]), :] * W_gate_scale).half()
 
     if args.remove_mean:
-        W_up.bias = nn.Parameter((W_up.to(dtype_) @ mu - W_up_next.to(dtype_) @ mu).half())
-        W_gate.bias = nn.Parameter((W_gate.to(dtype_) @ mu - W_gate_next.to(dtype_) @ mu).half())
+        layer.mlp.up_proj.bias = nn.Parameter(
+            (W_up.to(dtype_) @ mu - W_up_next.to(dtype_) @ mu).half())
+        layer.mlp.gate_proj.bias = nn.Parameter(
+            (W_gate.to(dtype_) @ mu - W_gate_next.to(dtype_) @ mu).half())
 
     W_up.copy_(W_up_next)
     W_gate.copy_(W_gate_next)
@@ -212,7 +219,8 @@ def quantize_down(layer, idx, cb, args, device='cpu', check_only=False):
     W_down_next = (hatW * W_down_scale).half()
 
     if args.remove_mean:
-        W_down.bias = nn.Parameter((W_down.to(dtype_) @ mu - W_down_next.to(dtype_) @ mu).half())
+        layer.mlp.down_proj.bias = nn.Parameter(
+            (W_down.to(dtype_) @ mu - W_down_next.to(dtype_) @ mu).half())
 
     if args.outlier_channel_split:
         # fuse back outlier channel split
@@ -227,6 +235,7 @@ def quantize_layer(layer, idx, cb, args, device='cpu', return_layer=False):
     # if it has been quantized already. Otherwise, load it for returning.
     torch.manual_seed(idx)
     torch.set_grad_enabled(False)
+    torch.set_num_threads(args.num_cpu_threads)
 
     utils.clean()
     quantize_kqv(layer, idx, cb, args, device, check_only=not return_layer)
@@ -256,32 +265,36 @@ def main(args):
 
     cb = codebook.get_codebook(args.codebook)
 
-    model = LlamaForCausalLM.from_pretrained(args.base_model,
-                                             torch_dtype='auto',
-                                             low_cpu_mem_usage=True)
+    model = AutoModelForCausalLM.from_pretrained(args.base_model,
+                                                 torch_dtype='auto',
+                                                 low_cpu_mem_usage=True)
 
     # save configs
     all_config = {'quant_args': args, 'model_config': model.config}
-    all_config['model_config'].update({
-        'quip_params': {
-            'outlier_channel_split': args.outlier_channel_split,
-            'lora_rank': args.lora_rank,
-            'rescale_WH': args.rescale_WH,
-            'codebook': args.codebook,
-            'codesz': cb.codesz,
-            'idx_dtype': str(cb.idx_dtype),
-        }
-    })
+    quip_params = {
+        'outlier_channel_split': args.outlier_channel_split,
+        'lora_rank': args.lora_rank,
+        'rescale_WH': args.rescale_WH,
+        'codebook': args.codebook,
+        'codebook_version': cb.version,
+        'codesz': cb.codesz,
+        'idx_dtype': str(cb.idx_dtype),
+        'fused': True,
+        'packsz': cb.packsz,
+        'resid_scale_override': args.resid_scale_override,
+    }
     if args.outlier_channel_split:
-        all_config['model_config'].quip_params['ocs_down_size'] = args.ocs_down_size
+        quip_params['ocs_down_size'] = args.ocs_down_size
+    all_config['model_config'].update({'quip_params': quip_params})
     torch.save(all_config, os.path.join(args.save_path, 'config.pt'))
 
-    tokenizer = LlamaTokenizer.from_pretrained(args.base_model)
+    tokenizer = AutoTokenizer.from_pretrained(args.base_model)
     tokenizer.pad_token = tokenizer.eos_token
     glog.info('loaded model')
 
     dataset = load_dataset('togethercomputer/RedPajama-Data-1T-Sample', split='train')
-    devset = utils.sample_devset(dataset, tokenizer, args.devset_size)
+    devset = utils.sample_devset(dataset, tokenizer, args.devset_size, args.ctx_size,
+                                 args.sample_proc)
     glog.info('loaded dataset and devset')
 
     # Reduce cpu memory consumption at the expense of latency. Tune as needed
@@ -314,9 +327,17 @@ def main(args):
     quant_emb = orig_emb.clone()
     position_ids = torch.arange(args.ctx_size, dtype=torch.int32)[None, :].to(device) + \
         torch.zeros(args.batch_size, args.ctx_size, dtype=torch.int32).to(device)
-    attention_mask = model.model._prepare_decoder_attention_mask(
-        torch.ones(args.batch_size, args.ctx_size, dtype=torch.bool),
-        (args.batch_size, args.ctx_size), quant_emb[0:args.batch_size], 0).to(device)
+    if hasattr(model.config, 'sliding_window'):
+        attention_mask = model.model._prepare_decoder_attention_mask(
+            torch.ones(args.batch_size, args.ctx_size,
+                       dtype=torch.bool), (args.batch_size, args.ctx_size),
+            quant_emb[0:args.batch_size],
+            0,
+            sliding_window=model.config.sliding_window).to(device)
+    else:
+        attention_mask = model.model._prepare_decoder_attention_mask(
+            torch.ones(args.batch_size, args.ctx_size, dtype=torch.bool),
+            (args.batch_size, args.ctx_size), quant_emb[0:args.batch_size], 0).to(device)
 
     for i in range(len(model.model.layers)):
         model.model.layers[i] = model.model.layers[i].to(device)
@@ -395,7 +416,6 @@ if __name__ == '__main__':
     torch.set_grad_enabled(False)
     mp.set_start_method('spawn')
     args = parser.parse_args()
-    torch.set_num_threads(args.num_cpu_threads)
     torch.manual_seed(args.seed)
     os.makedirs(args.save_path, exist_ok=True)
     main(args)

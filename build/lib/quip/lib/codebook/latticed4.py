@@ -18,9 +18,9 @@ import torch
 from torch import nn
 import quiptools_cuda
 
-from quip.lib.utils.matmul_had import matmul_hadU_cuda, matmul_hadUt_cuda, matmul_hadU, matmul_hadUt
+from quip.lib.utils.matmul_had import matmul_hadU_cuda, matmul_hadUt_cuda
 
-from quip.lib.linear.autograd import AutogradQuip, AutogradOrthoMult
+from quip.lib.linear.autograd import AutogradQuipD4, AutogradOrthoMult
 
 _D4_CODESZ = 4
 
@@ -118,25 +118,32 @@ def quantize_full_lattice(X):
 
 class D4_codebook(nn.Module):
 
-    def __init__(self):
+    def __init__(self, inference=False):
         super(D4_codebook, self).__init__()
         self.register_buffer("grid", build_D4_CB())
-        self.register_buffer('grid_norm', (self.grid @ self.grid.T).diag())        
+        if not inference:
+            self.register_buffer('grid_norm', (self.grid @ self.grid.T).diag())
         self.codesz = _D4_CODESZ
         self.opt_scale = 1.21
         self.idx_dtype = torch.uint8
-
+        self.packsz = 1
+        self.pack_out = False
+        self.version = 0
+        
     def _quantize_noscale(self, X, return_idx=True):
         Xqidx = (2 * X @ self.grid.T - self.grid_norm).argmax(1)
         if return_idx:
             return self.grid[Xqidx, :], Xqidx.to(self.idx_dtype)
         return self.grid[Xqidx, :]
 
-    def quantize(self, X, return_idx=True):
+    def quantize(self, X, return_idx=True, **kwargs):
         assert X.shape[-1] == self.codesz
         return self._quantize_noscale(X, return_idx=return_idx)
 
-    def by_idxs(self, idxs):
+    def maybe_pack_idxs(self, idxs):
+        return idxs
+
+    def by_idxs(self, idxs, **kwargs):
         return self.grid[idxs.int()]
 
 
@@ -144,87 +151,84 @@ class QuantizedD4Linear(nn.Module):
 
     def __init__(self, device):
         super().__init__()
-        self.D4_CB = build_D4_CB().to(device).to(torch.float16)
-        self.gd_check = True
+        self.codebook = D4_codebook(inference=True).to(torch.float16).to(device)
 
+    def maybe_unpack_idxs(self, idxs):
+        return idxs
+        
     def forward(self,
                 input,
                 Qidxs,
                 SU,
                 SV,
                 Wscale,
+                had_left,
+                had_right,
+                K_left,
+                K_right,
                 rank=-1,
                 A=None,
                 B=None,
                 rescale_WH=False,
-                scaleWH=None):
-
-        # quantizer_linear_output = {
-        # "input": input,
-        # "Qidxs": Qidxs,
-        # "SU": SU,
-        # "SV": SV,
-        # "Wscale": Wscale,
-        # "rank": rank,
-        # "A": A,
-        # "B": B,
-        # "rescale_WH": rescale_WH,
-        # "scaleWH": scaleWH
-        # }
-        # import pickle
-        # pickle.dump(quantizer_linear_output, open("/share/kuleshov/jy928/llmtools-2bit/debug/quantizer_linear_output.pkl", "wb"))
-        # pickle.dump(self.D4_CB, open("/share/kuleshov/jy928/llmtools-2bit/debug/D4_CB.pkl", "wb"))
-        
+                scaleWH=None,
+                **kwargs):
         #breakpoint()
         (m, n) = Qidxs.shape
-        x = input.view(-1, _D4_CODESZ * n).to(torch.float32)
 
+        x = input.view(-1, _D4_CODESZ * n).to(torch.float32)
         if rescale_WH:
             x /= scaleWH
-        x = x * SU
 
-        # breakpoint()
-        # import pickle
-        # pickle.dump(x, open("/share/kuleshov/jy928/llmtools-2bit/debug/ortho_input.pkl", "wb"))
-
-        # x = matmul_hadUt(x) #? Non-Cuda
-
+        #x = matmul_hadUt_cuda(x, had_left, K_left)
         transpose = torch.ones(1).to(x.device)
-        x = AutogradOrthoMult.apply(x, transpose)
+        x = AutogradOrthoMult.apply(x, transpose, had_left, had_right, K_left, K_right)
 
         if rank > 0:
             Bx = x @ B.t().to(torch.float32)
             ABx = Bx @ A.t().to(torch.float32)
 
-        num_scale = 1024
-        x = x / num_scale
-        x = x.to(torch.float16)
+        x = (x / 1024).to(torch.float16)
 
-        ## We wrap the following in a autograd function
-        """
-        # manifest the matrix
-        W_decompressed = torch.zeros(m, n * _D4_CODESZ, dtype=torch.float16, device=x.device)
-        quiptools_cuda.decompress(Qidxs, self.D4_CB, W_decompressed)
-        z = x @ W_decompressed.t()
-        """
+        # if (x.shape[0] <= 8):
+        #     if (x.shape[0] == 8):
+        #         x_padded = x.contiguous()
+        #     else:
+        #         x_padded = torch.zeros(8, n * _D4_CODESZ, dtype=torch.float16, device=x.device)
+        #         x_padded[0:(x.shape[0]), :] = x
+        #     z = torch.zeros(8, m, dtype=x.dtype, device=x.device)
+        #     quiptools_cuda.lookupmatmul_d4_k8(x_padded, Qidxs, self.codebook.grid, z)
+        #     z = z[0:(x.shape[0]), :]
+        # elif (x.shape[0] <= 16):
+        #     if (x.shape[0] == 16):
+        #         x_padded = x.contiguous()
+        #     else:
+        #         x_padded = torch.zeros(16, n * _D4_CODESZ, dtype=torch.float16, device=x.device)
+        #         x_padded[0:(x.shape[0]), :] = x
+        #     z = torch.zeros(16, m, dtype=x.dtype, device=x.device)
+        #     quiptools_cuda.lookupmatmul_d4_k16(x_padded, Qidxs, self.codebook.grid, z)
+        #     z = z[0:(x.shape[0]), :]
+        # elif (x.shape[0] <= 32):
+        #     if (x.shape[0] == 32):
+        #         x_padded = x.contiguous()
+        #     else:
+        #         x_padded = torch.zeros(32, n * _D4_CODESZ, dtype=torch.float16, device=x.device)
+        #         x_padded[0:(x.shape[0]), :] = x
+        #     z = torch.zeros(32, m, dtype=x.dtype, device=x.device)
+        #     quiptools_cuda.lookupmatmul_d4_k32(x_padded, Qidxs, self.codebook.grid, z)
+        #     z = z[0:(x.shape[0]), :]
+        # else:
+        #     # manifest the matrix
+        #     W_decompressed = torch.zeros(m, n * _D4_CODESZ, dtype=torch.float16, device=x.device)
+        #     quiptools_cuda.decompress_d4(Qidxs, self.codebook.grid, W_decompressed)
+        #     z = x @ W_decompressed.t()
+        z = AutogradQuipD4.apply(x, self.codebook.grid, Qidxs)
 
-        z = AutogradQuip.apply(x, self.D4_CB, Qidxs)
-        x = z.to(torch.float32)
-
-        x = x * (Wscale * num_scale)
-
+        x = z.to(torch.float32) * (Wscale * 1024)
         if rank > 0:
             x = x + ABx.to(torch.float32)
 
-        # torch.min(x): tensor(-255.6819, device='cuda:0'), no NaNs as well. torch.max(x): tensor(229.4429, device='cuda:0') #
-        #x = matmul_hadU(x) ##TODO (solved): Numerical Overflow. Produce -inf.
-
-        #x = matmul_hadU(x) #? Non-CUDA
-
         transpose = torch.zeros(1).to(x.device)
-        x = AutogradOrthoMult.apply(x, transpose)
-        
+        x = AutogradOrthoMult.apply(x, transpose, had_left, had_right, K_left, K_right)    
         x = x * SV
-        output = x.view(*input.shape[:-1], m)
 
-        return output
+        return x.view(*input.shape[:-1], m)

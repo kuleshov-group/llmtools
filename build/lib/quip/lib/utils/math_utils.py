@@ -12,7 +12,10 @@ def block_LDL(H, b, check_nan=True):
     n = H.shape[0]
     assert (n % b == 0)
     m = n // b
-    L = torch.linalg.cholesky(H)
+    try:
+        L = torch.linalg.cholesky(H)
+    except:
+        return None
     DL = torch.diagonal(L.reshape(m, b, m, b), dim1=0, dim2=2).permute(2, 0, 1)
     D = (DL @ DL.permute(0, 2, 1)).cpu()
     DL = torch.linalg.inv(DL)

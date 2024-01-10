@@ -12,7 +12,46 @@ from quip.lib.utils.matmul_had import matmul_hadU_cuda, matmul_hadUt_cuda
 
 _D4_CODESZ = 4
 
-class AutogradQuip(torch.autograd.Function):
+#* Custom Gradient Pass for E8 codebook*# 
+class AutogradQuipE8(torch.autograd.Function):
+    @staticmethod
+    @custom_fwd(cast_inputs=torch.float16)
+    def forward(ctx, x, grid_packed_abs, Qidxs, m, n):
+        m_torch = torch.tensor(m, dtype=torch.int32)
+        n_torch = torch.tensor(n, dtype=torch.int32)
+        ctx.save_for_backward(Qidxs, grid_packed_abs, x, m_torch, n_torch) # Saves given tensors for a future call to backward().
+
+        # * manifest the matrix #
+        W_decompressed = quiptools_cuda.decompress_packed_e8p(
+                Qidxs.view(m//16, n//64, 8, 4),
+                grid_packed_abs
+            )
+
+        z = (x.to(torch.float16) @ W_decompressed.T).to(torch.float32)
+
+        return z
+
+    @staticmethod
+    @custom_bwd
+    def backward(ctx, grad_output):
+        x, grid_packed_abs, Qidxs, m_torch, n_torch = ctx.saved_tensors # saved tensors can be accessed through the saved_tensors attribute. breakpoint()
+        m = m_torch.item()
+        n = n_torch.item()
+
+        if ctx.needs_input_grad[0]:
+            # * re-manifest the matrix #
+            W_decompressed = quiptools_cuda.decompress_packed_e8p(
+                Qidxs.view(m//16, n//64, 8, 4),
+                grid_packed_abs
+            )
+
+            grad = (grad_output.to(torch.float16) @ W_decompressed).to(torch.float32)
+
+        return grad, None, None, None, None, None, None
+
+
+#* Custom Gradient Pass for D4 codebook*# 
+class AutogradQuipD4(torch.autograd.Function):
     @staticmethod
     @custom_fwd(cast_inputs=torch.float16)
     def forward(ctx, x, D4_CB, Qidxs):
@@ -54,29 +93,32 @@ class AutogradQuip(torch.autograd.Function):
 class AutogradOrthoMult(torch.autograd.Function):
     @staticmethod
     @custom_fwd(cast_inputs=torch.float32)
-    def forward(ctx, x, transpose):
-        ctx.save_for_backward(transpose) # Saves given tensors for a future call to backward().
+    def forward(ctx, x, transpose, had_left, had_right, K_left, K_right):
+        K_left_torch = torch.tensor(K_left, dtype=torch.int32)
+        K_right_torch = torch.tensor(K_right, dtype=torch.int32)
+        ctx.save_for_backward(transpose, had_left, had_right, K_left_torch, K_right_torch) # Saves given tensors for a future call to backward().
 
         #* Tranpose is either a zero tensor or ones tensor *#
-        #breakpoint()
         if torch.is_nonzero(transpose.any()):
-            x = matmul_hadUt_cuda(x)
+            x = matmul_hadUt_cuda(x, had_left, K_left)
         else:
-            x = matmul_hadU_cuda(x)
+            x = matmul_hadU_cuda(x, had_right, K_right)
+
         return x
 
     @staticmethod
     @custom_bwd
     def backward(ctx, grad_output):
-        """
-        """
-        transpose = ctx.saved_tensors[0] # saved tensors can be accessed through the saved_tensors attribute. breakpoint()
-        
+        # breakpoint()
+        transpose, had_left, had_right, K_left_torch, K_right_torch = ctx.saved_tensors # saved tensors can be accessed through the saved_tensors attribute. breakpoint()
+        K_right = K_right_torch.item()
+        K_left = K_left_torch.item()
+
         if ctx.needs_input_grad[0]:
             if torch.is_nonzero(transpose.any()):
-                grad = matmul_hadU_cuda(grad_output)
+                grad = matmul_hadU_cuda(grad_output, had_left, K_left)
             else:
-                grad = matmul_hadUt_cuda(grad_output)
+                grad = matmul_hadUt_cuda(grad_output, had_right, K_right)
 
 
         return grad, None, None, None, None, None, None

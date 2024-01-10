@@ -1,6 +1,6 @@
 import torch
 from tqdm import tqdm
-from lib import utils
+from quip.lib import utils
 import glog
 import copy
 
@@ -93,7 +93,7 @@ def low_rank_preprocess(Wr, Hr, Lhr, args):
                    svdZ.Vh[:args.lora_rank] @ Lhr.to(torch.float64).T).to(dtype_)
         Hr += torch.diag(Hr).mean() * args.sigma_reg2 * \
             torch.eye(Hr.shape[0], device=Hr.device, dtype=Hr.dtype)
-        Wr -= (svdZ_U[:, :args.lora_rank] @ svdZ_U.T[:args.lora_rank] @ Wr.to(
+        Wr -= (svdZ.U[:, :args.lora_rank] @ svdZ.U.T[:args.lora_rank] @ Wr.to(
             torch.float64)).to(dtype_)
     else:
         U_lrz, S_lrz, V_lrz = torch.svd_lowrank(Wr.to(torch.float64) @ Lhr.to(torch.float64),
@@ -138,7 +138,6 @@ def LDLQ(Wr, Hr, L, D, cb, args):
     want hatWr = Q( Wr + (Wr - hatWr) @ (L - I) )
     '''
     (m, n) = Wr.shape
-    L, D = utils.block_LDL(Hr, cb.codesz)
     hatWr = torch.zeros(m, n, dtype=Hr.dtype, device=Hr.device)
     Qidxs = torch.zeros(m, n // cb.codesz, dtype=cb.idx_dtype, device=Hr.device)
     for k in reversed(range(n // cb.codesz)):
@@ -146,14 +145,14 @@ def LDLQ(Wr, Hr, L, D, cb, args):
             (Wr[:, (cb.codesz * (k + 1)):n] - hatWr[:, (cb.codesz * (k + 1)):n]) @ \
             L[(cb.codesz * (k + 1)):n, (cb.codesz * k):(cb.codesz * (k + 1))]
         hatWr[:, (cb.codesz * k):(cb.codesz * (k + 1))], Qidxs[:, k] = \
-            cb.quantize(WXWX)
+            cb.quantize(WXWX, resid_scale_override=args.resid_scale_override)
     for ie in range(args.quip_tune_iters):
         for k in reversed(range(n // cb.codesz)):
             WXWX = hatWr[:, (cb.codesz * k):(cb.codesz * (k + 1))] + (Wr - hatWr) @ \
                 Hr[:, (cb.codesz * k):(cb.codesz * (k + 1))] @ \
                 torch.linalg.inv(Hr[(cb.codesz * k):(cb.codesz * (k + 1)),
                                     (cb.codesz * k):(cb.codesz * (k + 1))])
-            hatWr[:, (cb.codesz * k):(cb.codesz * (k + 1))], Qidxs[:, k] = cb.quantize(WXWX)
+            hatWr[:, (cb.codesz * k):(cb.codesz * (k + 1))], Qidxs[:, k] = cb.quantize(WXWX, resid_scale_override=args.resid_scale_override)
 
     return hatWr, Qidxs
 
@@ -168,7 +167,6 @@ def LDLQ_buffered(Wr, Hr, L, D, cb, args, buf_cols=128):
     assert n % buf_cols == 0
     buf_size = buf_cols // cb.codesz
 
-    L, D = utils.block_LDL(Hr, cb.codesz)
     hatWr_T = torch.zeros(n, m, dtype=Hr.dtype, device=Hr.device)
     Qidxs_T = torch.zeros(n // cb.codesz, m, dtype=cb.idx_dtype, device=Hr.device)
 
@@ -186,13 +184,16 @@ def LDLQ_buffered(Wr, Hr, L, D, cb, args, buf_cols=128):
         b_hatWr_T = hatWr_T[cb.codesz * (cur_col - buf_size):cb.codesz * cur_col]
         b_L = L[cb.codesz * (cur_col - buf_size):cb.codesz * cur_col].contiguous()
         b_prod = prod_cache[cb.codesz * (cur_col - buf_size):cb.codesz * cur_col]
+        b_Qidxs_T = Qidxs_T[cur_col - buf_size:cur_col]
         L_offset = cb.codesz * (cur_col - buf_size)
         for i in reversed(range(buf_size)):
             WXWX = b_Wr_T[cb.codesz * i : cb.codesz * (i + 1)] + \
                 b_L[cb.codesz * (i + 1):, L_offset + cb.codesz * i : L_offset + cb.codesz * (i + 1)].T @ \
                 (b_Wr_T[cb.codesz * (i + 1):] - b_hatWr_T[cb.codesz * (i + 1):]) + \
                 b_prod[cb.codesz * i : cb.codesz * (i + 1)]
-            b_hatWr_T[cb.codesz * i:cb.codesz * (i + 1)] = cb.quantize(WXWX.T, return_idx=False).T
+            q_out = cb.quantize(WXWX.T, resid_scale_override=args.resid_scale_override)
+            b_hatWr_T[cb.codesz * i:cb.codesz * (i + 1)] = q_out[0].T
+            b_Qidxs_T[i] = q_out[1]
 
         prod_cache += b_L.T @ (b_Wr_T - b_hatWr_T)
         hatWr_T[cb.codesz * (cur_col - buf_size):cb.codesz * cur_col] = b_hatWr_T
@@ -221,9 +222,9 @@ def LDLQ_buffered(Wr, Hr, L, D, cb, args, buf_cols=128):
                                                                           (i + 1)]
 
                 if ie < args.quip_tune_iters - 1:
-                    b_hatWr_T[cb.codesz * i:cb.codesz * (i + 1)] = cb.quantize(WXWX.T, False).T
+                    b_hatWr_T[cb.codesz * i:cb.codesz * (i + 1)] = cb.quantize(WXWX.T, return_idx=False, resid_scale_override=args.resid_scale_override).T
                 else:
-                    q_out = cb.quantize(WXWX.T)
+                    q_out = cb.quantize(WXWX.T, resid_scale_override=args.resid_scale_override)
                     b_hatWr_T[cb.codesz * i:cb.codesz * (i + 1)] = q_out[0].T
                     b_Qidxs_T[i] = q_out[1]
 
@@ -256,14 +257,14 @@ def LDLQ_buffered_lowmem(Wr, Hr, L, D, cb, args, buf_cols=128):
         b_hatWr = hatWr[:, cb.codesz * (cur_col - buf_size):cb.codesz * cur_col]
         b_L = L[cb.codesz * (cur_col - buf_size):cb.codesz * cur_col]
         b_prod = prod_cache[:, cb.codesz * (cur_col - buf_size):cb.codesz * cur_col]
+        b_Qidxs = Qidxs[:, cur_col - buf_size:cur_col]
         L_offset = cb.codesz * (cur_col - buf_size)
         for i in reversed(range(buf_size)):
             WXWX = b_Wr[:, cb.codesz * i : cb.codesz * (i + 1)] + \
                 (b_Wr[:, cb.codesz * (i + 1):] - b_hatWr[:, cb.codesz * (i + 1):]) @ \
                 b_L[cb.codesz * (i + 1):, L_offset + cb.codesz * i : L_offset + cb.codesz * (i + 1)] + \
                 b_prod[:, cb.codesz * i : cb.codesz * (i + 1)]
-            b_hatWr[:, cb.codesz * i : cb.codesz * (i + 1)] = \
-                cb.quantize(WXWX, False)
+            b_hatWr[:, cb.codesz * i : cb.codesz * (i + 1)], b_Qidxs[:, i] = cb.quantize(WXWX, resid_scale_override=args.resid_scale_override)
         prod_cache += (b_Wr - b_hatWr) @ b_L
 
     del b_Wr, b_hatWr, b_L, b_prod, L_offset, prod_cache
@@ -294,11 +295,11 @@ def LDLQ_buffered_lowmem(Wr, Hr, L, D, cb, args, buf_cols=128):
                                                                     cb.codesz * i:cb.codesz * (i + 1)]
 
                 if ie < args.quip_tune_iters - 1:
-                    b_hatWr[:, cb.codesz * i:cb.codesz * (i + 1)] = cb.quantize(WXWX, False)
+                    b_hatWr[:, cb.codesz * i:cb.codesz * (i + 1)] = cb.quantize(WXWX, return_idx=False, resid_scale_override=args.resid_scale_override)
                 else:
                     b_hatWr[:,
                             cb.codesz * i:cb.codesz * (i + 1)], b_Qidxs[:,
-                                                                      i] = cb.quantize(WXWX)
+                                                                      i] = cb.quantize(WXWX, resid_scale_override=args.resid_scale_override)
 
                 b_delta[:,
                         cb.codesz * i:cb.codesz * (i + 1)] -= b_hatWr[:,
@@ -383,7 +384,7 @@ def quantize(H_orig, W_orig, rank, codebook_orig, args, device='cpu'):
         hatWr, Qidxs = LDLQ_buffered_lowmem(Wr, Hr, L, D, codebook, args, buf_cols=128)
     else:
         hatWr, Qidxs = LDLQ_buffered(Wr, Hr, L, D, codebook, args, buf_cols=128)
-
+        
     hatWr = hatWr * Wscale
 
     # low rank correction
@@ -396,6 +397,8 @@ def quantize(H_orig, W_orig, rank, codebook_orig, args, device='cpu'):
 
     # reverse incoherence process
     hatW = incoherence_process(hatWr, SU, SV, scaleWH, args)
+
+    Qidxs = codebook.maybe_pack_idxs(Qidxs)
 
     attr = {
         'Qidxs': Qidxs.to(orig_device),

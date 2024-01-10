@@ -1,6 +1,7 @@
 import torch
 from quip.lib.utils.matmul_had import matmul_hadU
 import glog
+import multiprocessing as mp
 
 def flat_to_sym(V, N):
     A = torch.zeros(N, N, dtype=V.dtype, device=V.device)
@@ -54,23 +55,40 @@ def block_LDL(H, b):
     L = L.reshape(n, n)
     return (L, D)
 
+def wrap_tokenizer(tokenizer, x, ctx_size):
+    return tokenizer(x, return_tensors='pt', truncation=True, padding=True, max_length=ctx_size)
 
-def sample_devset(dataset, tokenizer, size=128, ctx_size=2048):
+def sample_devset(dataset, tokenizer, size=128, ctx_size=2048, nproc=1):
     devset = torch.zeros((size, ctx_size), dtype=torch.int64)
     saved = 0
-    while saved < size:
-        tokens = tokenizer(dataset[torch.randint(len(dataset), (size,))]['text'],
-                           return_tensors='pt',
-                           truncation=True,
-                           padding=True,
-                           max_length=ctx_size)
-        lens = tokens.attention_mask.sum(dim=-1)
-        good = torch.where(lens == ctx_size)[0]
-        if len(good) > 0:
-            if saved + len(good) > size:
-                good = good[:size - saved]
-            devset[saved: saved+len(good)] = tokens.input_ids[good]
-            saved += len(good)
+    if nproc > 1:
+        p = mp.Pool(nproc)
+        while saved < size:
+            seqs = [(tokenizer, dataset[torch.randint(len(dataset), (size,))]['text'], ctx_size) for _ in range(nproc)]
+            tokens = p.starmap(wrap_tokenizer, seqs)
+            for i in range(len(tokens)):
+                lens = tokens[i].attention_mask.sum(dim=-1)
+                good = torch.where(lens == ctx_size)[0]
+                if len(good) > 0:
+                    if saved + len(good) > size:
+                        good = good[:size - saved]
+                    devset[saved: saved+len(good)] = tokens[i].input_ids[good]
+                    saved += len(good)
+                    print(saved)
+    else:
+        while saved < size:
+         tokens = tokenizer(dataset[torch.randint(len(dataset), (size,))]['text'],
+                            return_tensors='pt',
+                            truncation=True,
+                            padding=True,
+                            max_length=ctx_size)
+         lens = tokens.attention_mask.sum(dim=-1)
+         good = torch.where(lens == ctx_size)[0]
+         if len(good) > 0:
+             if saved + len(good) > size:
+                 good = good[:size - saved]
+             devset[saved: saved+len(good)] = tokens.input_ids[good]
+             saved += len(good)
     return devset
 
 
@@ -81,8 +99,8 @@ def load_quip(save_name, cb, args, device):
     SV = dict_loaded['SV'].to(device)
     Wscale = dict_loaded['Wscale'].to(device)
     Qidxs = dict_loaded['Qidxs'].to(device)
-    (m, n) = Qidxs.shape
-    hatWr = cb.to(device).by_idxs(Qidxs).view(m, n * cb.codesz)
+    n, m = len(SU), len(SV)
+    hatWr = cb.to(device).by_idxs(Qidxs, packed=(cb.packsz != 1)).view(m, n)
     hatWr = hatWr * Wscale
     del Wscale
     if args.lora_rank > 0:
@@ -103,6 +121,7 @@ def load_quip(save_name, cb, args, device):
 
 def dtype_from_str(str):
     dtype_map = {
+        'torch.int64': torch.int64,
         'torch.int32': torch.int32,
         'torch.int16': torch.int16,
         'torch.uint8': torch.uint8,
