@@ -78,6 +78,7 @@ class QuantizedLinear(nn.Module):
 
         had_left, K_left = get_hadK(in_features)
         had_right, K_right = get_hadK(out_features)
+
         self.register_buffer('had_left', had_left, persistent=False)
         self.register_buffer('had_right', had_right, persistent=False)
         self.K_left = K_left
@@ -105,14 +106,10 @@ class QuantizedLinear(nn.Module):
             
             self.built_codebook_class = True
 
-        #* overflow inssue *#
+        #* TODO: numerical overflow inssue here: input contains either inf or nans *#
         # breakpoint()
-        if input.isnan().any() or input.isinf().any():
-            breakpoint()
-            
-        input = input.to(torch.float64)
-        if input.isnan().any() or input.isinf().any():
-            breakpoint()
+        # if input.isnan().any() or input.isinf().any():
+        #     breakpoint()
 
         if self.outlier_channel_split:
             input = input[..., self.ocs_dupe_inds]

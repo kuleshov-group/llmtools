@@ -239,68 +239,44 @@ class QuantizedE8P12Linear(nn.Module):
                 scaleWH=None,
                 **kwargs):
         #breakpoint()
-        if input.isnan().any() or input.isinf().any():
-            breakpoint()
-
         n, m = len(SU), len(SV)
 
         x = input.view(-1, n).to(torch.float32)
-        
-        if x.isnan().any() or x.isinf().any():
-            breakpoint()
 
         if rescale_WH:
             x /= scaleWH
         x = x * SU
-        if x.isnan().any() or x.isinf().any():
-            breakpoint()
 
         #* Custom Cuda *#
         transpose = torch.ones(1).to(x.device)
-        # x = AutogradOrthoMult.apply(x, transpose, had_left, had_right, K_left, K_right)
-        if x.isnan().any() or x.isinf().any():
-            breakpoint()
-        x = matmul_hadUt_cuda(x, had_left, K_left)
+        x = AutogradOrthoMult.apply(x, transpose, had_left, had_right, K_left, K_right)
+        #x = matmul_hadUt_cuda(x, had_left, K_left)
 
         if rank > 0:
             Bx = x @ B.t().to(torch.float32)
             ABx = Bx @ A.t().to(torch.float32)
+        # W_decompressed = quiptools_cuda.decompress_packed_e8p(
+        #     Qidxs.view(m//16, n//64, 8, 4),
+        #     self.codebook.grid_packed_abs
+        # )
+        #z = (x.to(torch.float32) @ W_decompressed.T.to(torch.float32)).to(torch.float32) #* fp16 precision doesn't work here, would render into inf/nans issue. (fp32 also?)
+        z = AutogradQuipE8.apply(x, self.codebook.grid_packed_abs, Qidxs, m, n)
 
-        W_decompressed = quiptools_cuda.decompress_packed_e8p(
-            Qidxs.view(m//16, n//64, 8, 4),
-            self.codebook.grid_packed_abs
-        )
-        x = (x.to(torch.float32) @ W_decompressed.T.to(torch.float32)).to(torch.float32)
-        #z = AutogradQuipE8.apply(x, self.codebook.grid_packed_abs, Qidxs, m, n)
-
-        if x.isnan().any() or x.isinf().any():
-            breakpoint()
-
-        x = x.to(torch.float32)
-
-        if x.isnan().any() or x.isinf().any():
-            breakpoint()
+        x = z.to(torch.float32)
 
         x *= Wscale
-        if x.isnan().any() or x.isinf().any():
-            breakpoint()
 
         if rank > 0:
             x = x + ABx.to(torch.float32)
 
         #* Custom Cuda *#
         transpose = torch.zeros(1).to(x.device)
-        #x = AutogradOrthoMult.apply(x, transpose, had_left, had_right, K_left, K_right)
-        x = matmul_hadU_cuda(x, had_right, K_right)
-        if x.isnan().any() or x.isinf().any():
-            breakpoint()
+        x = AutogradOrthoMult.apply(x, transpose, had_left, had_right, K_left, K_right)
+        #x = matmul_hadU_cuda(x, had_right, K_right)
 
         x = x * SV
 
         output = x.view(*input.shape[:-1], m)
 
-        if output.isnan().any() or output.isinf().any():
-            breakpoint()
-
-        output = output.to(torch.float64)
+        output = output.to(torch.float32)
         return output

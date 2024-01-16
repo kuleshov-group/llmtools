@@ -26,13 +26,13 @@ llm.eval()
 mbatch_size=2
 batch_size=2
 epochs=3
-lr=2e-4
+lr=1e-3
 cutoff_len=256
 lora_r=8
 lora_alpha=16
 lora_dropout=0.05
 val_set_size=0.2
-warmup_steps=50
+warmup_steps=0
 save_steps=50
 save_total_limit=3
 logging_steps=1

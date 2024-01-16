@@ -15,11 +15,11 @@ _D4_CODESZ = 4
 #* Custom Gradient Pass for E8 codebook*# 
 class AutogradQuipE8(torch.autograd.Function):
     @staticmethod
-    @custom_fwd(cast_inputs=torch.float16)
+    @custom_fwd(cast_inputs=torch.float32)
     def forward(ctx, x, grid_packed_abs, Qidxs, m, n):
         m_torch = torch.tensor(m, dtype=torch.int32)
         n_torch = torch.tensor(n, dtype=torch.int32)
-        ctx.save_for_backward(Qidxs, grid_packed_abs, x, m_torch, n_torch) # Saves given tensors for a future call to backward().
+        ctx.save_for_backward(x, grid_packed_abs, Qidxs, m_torch, n_torch) # Saves given tensors for a future call to backward().
 
         # * manifest the matrix #
         W_decompressed = quiptools_cuda.decompress_packed_e8p(
@@ -28,16 +28,11 @@ class AutogradQuipE8(torch.autograd.Function):
             )
 
         z = (x.to(torch.float32) @ W_decompressed.T.to(torch.float32)).to(torch.float32) #(x.to(torch.float16) cause overflow!
-
-        if z.isnan().any() or z.isinf().any():
-            breakpoint()
-
         return z
 
     @staticmethod
     @custom_bwd
     def backward(ctx, grad_output):
-        breakpoint()
         x, grid_packed_abs, Qidxs, m_torch, n_torch = ctx.saved_tensors # saved tensors can be accessed through the saved_tensors attribute. breakpoint()
         m = m_torch.item()
         n = n_torch.item()
@@ -49,7 +44,7 @@ class AutogradQuipE8(torch.autograd.Function):
                 grid_packed_abs
             )
 
-            grad = (grad_output.to(torch.float16) @ W_decompressed).to(torch.float32)
+            grad = (grad_output.to(torch.float32) @ W_decompressed.to(torch.float32)).to(torch.float32)
 
         return grad, None, None, None, None, None, None
 
@@ -105,14 +100,10 @@ class AutogradOrthoMult(torch.autograd.Function):
         #* Tranpose is either a zero tensor or ones tensor *#
         if torch.is_nonzero(transpose.any()):
             output = matmul_hadUt_cuda(x, had_left, K_left)
-            if output.isnan().any() or output.isinf().any():
-                breakpoint()
-                y = matmul_hadUt_cuda(x, had_left, K_left)
+            y = matmul_hadUt_cuda(x, had_left, K_left)
         else:
             output = matmul_hadU_cuda(x, had_right, K_right)
-            if output.isnan().any() or output.isinf().any():
-                breakpoint()
-                y = matmul_hadU_cuda(x, had_right, had_right)
+            y = matmul_hadU_cuda(x, had_right, K_right)
 
         return output
 

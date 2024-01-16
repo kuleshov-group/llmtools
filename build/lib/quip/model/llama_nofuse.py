@@ -281,10 +281,25 @@ class LlamaMLP(nn.Module):
             raise Exception
         else:
             up_proj = self.up_scale * self.up_proj(x.float())
-            gate_proj = self.gate_scale * self.gate_proj(x.float())
-            down_proj = self.down_scale * self.down_proj(self.act_fn(gate_proj) * up_proj)
+            if up_proj.isnan().any() or up_proj.isinf().any():
+                breakpoint()
 
-        return down_proj.half() #* potential issues here *#
+            gate_proj = self.gate_scale * self.gate_proj(x.float())
+            if gate_proj.isnan().any() or gate_proj.isinf().any():
+                breakpoint()
+
+            down_proj = self.down_scale * self.down_proj(self.act_fn(gate_proj) * up_proj)
+            if down_proj.isnan().any() or down_proj.isinf().any():
+                breakpoint()
+
+        #* Quip# Debug *#
+        #output = down_proj.half() #* potential issues here *#
+        output = down_proj
+
+        if output.isnan().any() or output.isinf().any():
+            breakpoint()
+
+        return output 
 
 
 def repeat_kv(hidden_states: torch.Tensor, n_rep: int) -> torch.Tensor:
@@ -421,8 +436,14 @@ class LlamaAttention(nn.Module):
             # key_states = self.k_scale * self.k_proj(hidden_states.float()).half()
             # value_states = self.v_scale * self.v_proj(hidden_states.float()).half()
             query_states = self.q_scale * self.q_proj(hidden_states.float())
+            if query_states.isnan().any() or query_states.isinf().any():
+                breakpoint()
             key_states = self.k_scale * self.k_proj(hidden_states.float())
+            if key_states.isnan().any() or key_states.isinf().any():
+                breakpoint()
             value_states = self.v_scale * self.v_proj(hidden_states.float())
+            if value_states.isnan().any() or value_states.isinf().any():
+                breakpoint()
 
         query_states = query_states.view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
         key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
@@ -434,6 +455,11 @@ class LlamaAttention(nn.Module):
         cos, sin = self.rotary_emb(value_states, seq_len=kv_seq_len)
         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
 
+        if query_states.isnan().any() or query_states.isinf().any():
+            breakpoint()
+        if key_states.isnan().any() or key_states.isinf().any():
+            breakpoint()
+
         if past_key_value is not None:
             # reuse k, v, self_attention
             key_states = torch.cat([past_key_value[0], key_states], dim=2)
@@ -444,7 +470,9 @@ class LlamaAttention(nn.Module):
         key_states = repeat_kv(key_states, self.num_key_value_groups)
         value_states = repeat_kv(value_states, self.num_key_value_groups)
 
-        attn_weights = torch.matmul(query_states.to(torch.float64), key_states.transpose(2, 3).to(torch.float64)).float() / math.sqrt(self.head_dim) ##TODO: matmul here turns into fp16
+        attn_weights = torch.matmul(query_states.to(torch.float64), key_states.transpose(2, 3).to(torch.float64)).float() / math.sqrt(self.head_dim) ##TODO: matmul here turns into fp16. Somehow fp32 dot product fp32 return fp16.
+        if attn_weights.isnan().any() or attn_weights.isinf().any():
+            breakpoint()
 
         if attn_weights.size() != (bsz, self.num_heads, q_len, kv_seq_len):
             raise ValueError(
@@ -462,6 +490,11 @@ class LlamaAttention(nn.Module):
         # upcast attention to fp32
         attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
         attn_output = torch.matmul(attn_weights, value_states)
+
+        if attn_output.isnan().any() or attn_output.isinf().any():
+            breakpoint()
+        if attn_weights.isnan().any() or attn_weights.isinf().any():
+            breakpoint()
 
         if attn_output.size() != (bsz, self.num_heads, q_len, self.head_dim):
             raise ValueError(
@@ -482,11 +515,6 @@ class LlamaAttention(nn.Module):
         if not output_attentions:
             attn_weights = None
 
-        if attn_output.isnan().any() or attn_output.isinf().any():
-            breakpoint()
-        if attn_weights:
-            if attn_weights.isnan().any() or attn_weights.isinf().any():
-                breakpoint()
         return attn_output, attn_weights, past_key_value
 
 

@@ -81,27 +81,18 @@ def matmul_hadU_cuda(X, hadK, K, transpose=False):
 
     if transpose:
         hadK = hadK.T.contiguous()
-    if X.isnan().any() or X.isinf().any():
-        breakpoint()
+
     input = X.float().cuda().view(-1, K, n // K)
-    if input.isnan().any() or input.isinf().any():
-        breakpoint()
+
     input = fast_hadamard_transform.hadamard_transform(input.contiguous())
-    if input.isnan().any() or input.isinf().any():
-        breakpoint()
+
     #* QUIP-Finetuning *#
     input = input.to(torch.float64) #* Convert to float64 for higher precision
-    if input.isnan().any() or input.isinf().any():
-        breakpoint()
 
     input = hadK.to(input.device).to(input.dtype) @ input
-    if input.isnan().any() or input.isinf().any():
-        breakpoint()
 
     output = input.to(X.device).to(X.dtype).reshape(
         X.shape) / torch.tensor(n).sqrt()
-    if output.isnan().any() or output.isinf().any():
-        breakpoint()
     
     return output
 
