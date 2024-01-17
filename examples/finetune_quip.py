@@ -26,7 +26,7 @@ llm.eval()
 mbatch_size=2
 batch_size=2
 epochs=3
-lr=1e-3
+lr=4e-3
 cutoff_len=256
 lora_r=8
 lora_alpha=16
@@ -35,7 +35,7 @@ val_set_size=0.2
 warmup_steps=0
 save_steps=50
 save_total_limit=3
-logging_steps=1
+logging_steps=10
 
 data_type = 'samsum'
 dataset = None # will load alpaca from HF
@@ -76,7 +76,7 @@ lora_config = quant_peft.LoraConfig(
 model = quant_peft.get_peft_model(llm, lora_config)
 
 print(model)
-# breakpoint()
+breakpoint()
 
 
 # load stanford alpaca data

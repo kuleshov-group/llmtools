@@ -1,0 +1,623 @@
+Tue Jan 16 20:45:17 2024       
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 530.30.02              Driver Version: 530.30.02    CUDA Version: 12.1     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                  Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf            Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA RTX A6000                On | 00000000:1D:00.0 Off |                  Off |
+| 30%   52C    P8               19W / 300W|      1MiB / 49140MiB |      0%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+                                                                                         
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
+|  No running processes found                                                           |
++---------------------------------------------------------------------------------------+
+running install
+running bdist_egg
+running egg_info
+writing quiptools_cuda.egg-info/PKG-INFO
+writing dependency_links to quiptools_cuda.egg-info/dependency_links.txt
+writing top-level names to quiptools_cuda.egg-info/top_level.txt
+reading manifest file 'quiptools_cuda.egg-info/SOURCES.txt'
+writing manifest file 'quiptools_cuda.egg-info/SOURCES.txt'
+installing library code to build/bdist.linux-x86_64/egg
+running install_lib
+running build_ext
+building 'quiptools_cuda' extension
+ninja: no work to do.
+g++ -pthread -B /share/kuleshov/jy928/envs/llmtools-quip-0/compiler_compat -shared -Wl,-rpath,/share/kuleshov/jy928/envs/llmtools-quip-0/lib -Wl,-rpath-link,/share/kuleshov/jy928/envs/llmtools-quip-0/lib -L/share/kuleshov/jy928/envs/llmtools-quip-0/lib -Wl,-rpath,/share/kuleshov/jy928/envs/llmtools-quip-0/lib -Wl,-rpath-link,/share/kuleshov/jy928/envs/llmtools-quip-0/lib -L/share/kuleshov/jy928/envs/llmtools-quip-0/lib /share/kuleshov/jy928/llmtools-2bit-e8/quip/quiptools/build/temp.linux-x86_64-cpython-310/quiptools.o /share/kuleshov/jy928/llmtools-2bit-e8/quip/quiptools/build/temp.linux-x86_64-cpython-310/quiptools_e8p_gemv.o /share/kuleshov/jy928/llmtools-2bit-e8/quip/quiptools/build/temp.linux-x86_64-cpython-310/quiptools_wrapper.o -L/share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages/torch/lib -L/usr/local/cuda-12.1/lib64 -lc10 -ltorch -ltorch_cpu -ltorch_python -lcudart -lc10_cuda -ltorch_cuda -o build/lib.linux-x86_64-cpython-310/quiptools_cuda.cpython-310-x86_64-linux-gnu.so
+creating build/bdist.linux-x86_64/egg
+copying build/lib.linux-x86_64-cpython-310/quiptools_cuda.cpython-310-x86_64-linux-gnu.so -> build/bdist.linux-x86_64/egg
+creating stub loader for quiptools_cuda.cpython-310-x86_64-linux-gnu.so
+byte-compiling build/bdist.linux-x86_64/egg/quiptools_cuda.py to quiptools_cuda.cpython-310.pyc
+creating build/bdist.linux-x86_64/egg/EGG-INFO
+copying quiptools_cuda.egg-info/PKG-INFO -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying quiptools_cuda.egg-info/SOURCES.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying quiptools_cuda.egg-info/dependency_links.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying quiptools_cuda.egg-info/top_level.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+writing build/bdist.linux-x86_64/egg/EGG-INFO/native_libs.txt
+creating 'dist/quiptools_cuda-0.0.0-py3.10-linux-x86_64.egg' and adding 'build/bdist.linux-x86_64/egg' to it
+removing 'build/bdist.linux-x86_64/egg' (and everything under it)
+Processing quiptools_cuda-0.0.0-py3.10-linux-x86_64.egg
+removing '/share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages/quiptools_cuda-0.0.0-py3.10-linux-x86_64.egg' (and everything under it)
+creating /share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages/quiptools_cuda-0.0.0-py3.10-linux-x86_64.egg
+Extracting quiptools_cuda-0.0.0-py3.10-linux-x86_64.egg to /share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages
+Adding quiptools-cuda 0.0.0 to easy-install.pth file
+
+Installed /share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages/quiptools_cuda-0.0.0-py3.10-linux-x86_64.egg
+Processing dependencies for quiptools-cuda==0.0.0
+Finished processing dependencies for quiptools-cuda==0.0.0
+running install
+running bdist_egg
+running egg_info
+writing llmtools.egg-info/PKG-INFO
+writing dependency_links to llmtools.egg-info/dependency_links.txt
+writing entry points to llmtools.egg-info/entry_points.txt
+writing top-level names to llmtools.egg-info/top_level.txt
+reading manifest file 'llmtools.egg-info/SOURCES.txt'
+writing manifest file 'llmtools.egg-info/SOURCES.txt'
+installing library code to build/bdist.linux-x86_64/egg
+running install_lib
+running build_py
+creating build/bdist.linux-x86_64/egg
+creating build/bdist.linux-x86_64/egg/llmtools
+copying build/lib/llmtools/__init__.py -> build/bdist.linux-x86_64/egg/llmtools
+copying build/lib/llmtools/config.py -> build/bdist.linux-x86_64/egg/llmtools
+copying build/lib/llmtools/executor.py -> build/bdist.linux-x86_64/egg/llmtools
+copying build/lib/llmtools/run.py -> build/bdist.linux-x86_64/egg/llmtools
+copying build/lib/llmtools/utils.py -> build/bdist.linux-x86_64/egg/llmtools
+creating build/bdist.linux-x86_64/egg/llmtools/data
+copying build/lib/llmtools/data/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/data
+copying build/lib/llmtools/data/abstract.py -> build/bdist.linux-x86_64/egg/llmtools/data
+copying build/lib/llmtools/data/alpaca.py -> build/bdist.linux-x86_64/egg/llmtools/data
+copying build/lib/llmtools/data/calibration.py -> build/bdist.linux-x86_64/egg/llmtools/data
+copying build/lib/llmtools/data/gpt4all.py -> build/bdist.linux-x86_64/egg/llmtools/data
+copying build/lib/llmtools/data/text.py -> build/bdist.linux-x86_64/egg/llmtools/data
+creating build/bdist.linux-x86_64/egg/llmtools/engine
+copying build/lib/llmtools/engine/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/engine
+creating build/bdist.linux-x86_64/egg/llmtools/engine/inference
+copying build/lib/llmtools/engine/inference/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/engine/inference
+copying build/lib/llmtools/engine/inference/autograd.py -> build/bdist.linux-x86_64/egg/llmtools/engine/inference
+copying build/lib/llmtools/engine/inference/matmult.py -> build/bdist.linux-x86_64/egg/llmtools/engine/inference
+copying build/lib/llmtools/engine/inference/modules.py -> build/bdist.linux-x86_64/egg/llmtools/engine/inference
+creating build/bdist.linux-x86_64/egg/llmtools/engine/lora
+copying build/lib/llmtools/engine/lora/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/engine/lora
+copying build/lib/llmtools/engine/lora/config.py -> build/bdist.linux-x86_64/egg/llmtools/engine/lora
+copying build/lib/llmtools/engine/lora/utils.py -> build/bdist.linux-x86_64/egg/llmtools/engine/lora
+copying build/lib/llmtools/engine/lora/lora.py -> build/bdist.linux-x86_64/egg/llmtools/engine/lora
+copying build/lib/llmtools/engine/lora/peft.py -> build/bdist.linux-x86_64/egg/llmtools/engine/lora
+creating build/bdist.linux-x86_64/egg/llmtools/engine/quant
+copying build/lib/llmtools/engine/quant/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant
+copying build/lib/llmtools/engine/quant/algorithm.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant
+copying build/lib/llmtools/engine/quant/config.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant
+copying build/lib/llmtools/engine/quant/converter.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant
+creating build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq
+copying build/lib/llmtools/engine/quant/gptq/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq
+copying build/lib/llmtools/engine/quant/gptq/algorithm.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq
+copying build/lib/llmtools/engine/quant/gptq/executor.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq
+copying build/lib/llmtools/engine/quant/gptq/extras.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq
+copying build/lib/llmtools/engine/quant/gptq/quantizer.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq
+creating build/bdist.linux-x86_64/egg/llmtools/llms
+copying build/lib/llmtools/llms/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/llms
+copying build/lib/llmtools/llms/autollm.py -> build/bdist.linux-x86_64/egg/llmtools/llms
+copying build/lib/llmtools/llms/config.py -> build/bdist.linux-x86_64/egg/llmtools/llms
+creating build/bdist.linux-x86_64/egg/llmtools/llms/bloom
+copying build/lib/llmtools/llms/bloom/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/llms/bloom
+copying build/lib/llmtools/llms/bloom/model.py -> build/bdist.linux-x86_64/egg/llmtools/llms/bloom
+creating build/bdist.linux-x86_64/egg/llmtools/llms/llama
+copying build/lib/llmtools/llms/llama/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/llms/llama
+copying build/lib/llmtools/llms/llama/config.py -> build/bdist.linux-x86_64/egg/llmtools/llms/llama
+copying build/lib/llmtools/llms/llama/model.py -> build/bdist.linux-x86_64/egg/llmtools/llms/llama
+creating build/bdist.linux-x86_64/egg/llmtools/llms/llama2
+copying build/lib/llmtools/llms/llama2/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/llms/llama2
+copying build/lib/llmtools/llms/llama2/model.py -> build/bdist.linux-x86_64/egg/llmtools/llms/llama2
+creating build/bdist.linux-x86_64/egg/llmtools/llms/opt
+copying build/lib/llmtools/llms/opt/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/llms/opt
+copying build/lib/llmtools/llms/opt/config.py -> build/bdist.linux-x86_64/egg/llmtools/llms/opt
+copying build/lib/llmtools/llms/opt/model.py -> build/bdist.linux-x86_64/egg/llmtools/llms/opt
+creating build/bdist.linux-x86_64/egg/llmtools/llms/llamaquip
+copying build/lib/llmtools/llms/llamaquip/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/llms/llamaquip
+copying build/lib/llmtools/llms/llamaquip/model.py -> build/bdist.linux-x86_64/egg/llmtools/llms/llamaquip
+creating build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/eval_ppl.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/eval_zeroshot.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/gen_speed.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/hessian_offline_llama.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/hfize_llama.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/interactive_gen.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/quantize_llama.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/quantize_llama_nofuse.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/__init__.py -> build/bdist.linux-x86_64/egg/quip
+creating build/bdist.linux-x86_64/egg/quip/lib
+copying build/lib/quip/lib/__init__.py -> build/bdist.linux-x86_64/egg/quip/lib
+creating build/bdist.linux-x86_64/egg/quip/lib/algo
+copying build/lib/quip/lib/algo/__init__.py -> build/bdist.linux-x86_64/egg/quip/lib/algo
+copying build/lib/quip/lib/algo/outlier_channel_split.py -> build/bdist.linux-x86_64/egg/quip/lib/algo
+copying build/lib/quip/lib/algo/preprocess.py -> build/bdist.linux-x86_64/egg/quip/lib/algo
+copying build/lib/quip/lib/algo/process.py -> build/bdist.linux-x86_64/egg/quip/lib/algo
+copying build/lib/quip/lib/algo/quip.py -> build/bdist.linux-x86_64/egg/quip/lib/algo
+creating build/bdist.linux-x86_64/egg/quip/lib/codebook
+copying build/lib/quip/lib/codebook/__init__.py -> build/bdist.linux-x86_64/egg/quip/lib/codebook
+copying build/lib/quip/lib/codebook/half_integer_4bit_1col.py -> build/bdist.linux-x86_64/egg/quip/lib/codebook
+copying build/lib/quip/lib/codebook/latticed4.py -> build/bdist.linux-x86_64/egg/quip/lib/codebook
+copying build/lib/quip/lib/codebook/latticee8_padded12.py -> build/bdist.linux-x86_64/egg/quip/lib/codebook
+copying build/lib/quip/lib/codebook/latticee8_padded12_rvq4bit.py -> build/bdist.linux-x86_64/egg/quip/lib/codebook
+creating build/bdist.linux-x86_64/egg/quip/lib/linear
+copying build/lib/quip/lib/linear/__init__.py -> build/bdist.linux-x86_64/egg/quip/lib/linear
+copying build/lib/quip/lib/linear/fused_quantized_linear.py -> build/bdist.linux-x86_64/egg/quip/lib/linear
+copying build/lib/quip/lib/linear/quantized_linear.py -> build/bdist.linux-x86_64/egg/quip/lib/linear
+copying build/lib/quip/lib/linear/autograd.py -> build/bdist.linux-x86_64/egg/quip/lib/linear
+creating build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/lm_eval_adaptor.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/matmul_kron.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/__init__.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/data_utils.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/gptq_data_utils.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/math_utils.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/matmul_had.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/misc.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/unsafe_import.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+creating build/bdist.linux-x86_64/egg/quip/model
+copying build/lib/quip/model/graph_wrapper.py -> build/bdist.linux-x86_64/egg/quip/model
+copying build/lib/quip/model/llama.py -> build/bdist.linux-x86_64/egg/quip/model
+copying build/lib/quip/model/llama_nofuse.py -> build/bdist.linux-x86_64/egg/quip/model
+copying build/lib/quip/model/mistral.py -> build/bdist.linux-x86_64/egg/quip/model
+copying build/lib/quip/model/version.py -> build/bdist.linux-x86_64/egg/quip/model
+copying build/lib/quip/model/__init__.py -> build/bdist.linux-x86_64/egg/quip/model
+creating build/bdist.linux-x86_64/egg/quip/quiptools
+copying build/lib/quip/quiptools/benchmark_e8p.py -> build/bdist.linux-x86_64/egg/quip/quiptools
+copying build/lib/quip/quiptools/setup.py -> build/bdist.linux-x86_64/egg/quip/quiptools
+copying build/lib/quip/quiptools/test_d4.py -> build/bdist.linux-x86_64/egg/quip/quiptools
+copying build/lib/quip/quiptools/test_e8p.py -> build/bdist.linux-x86_64/egg/quip/quiptools
+copying build/lib/quip/quiptools/__init__.py -> build/bdist.linux-x86_64/egg/quip/quiptools
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/config.py to config.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/executor.py to executor.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/run.py to run.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/utils.py to utils.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/data/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/data/abstract.py to abstract.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/data/alpaca.py to alpaca.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/data/calibration.py to calibration.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/data/gpt4all.py to gpt4all.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/data/text.py to text.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/inference/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/inference/autograd.py to autograd.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/inference/matmult.py to matmult.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/inference/modules.py to modules.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/lora/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/lora/config.py to config.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/lora/utils.py to utils.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/lora/lora.py to lora.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/lora/peft.py to peft.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/algorithm.py to algorithm.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/config.py to config.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/converter.py to converter.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq/algorithm.py to algorithm.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq/executor.py to executor.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq/extras.py to extras.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq/quantizer.py to quantizer.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/autollm.py to autollm.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/config.py to config.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/bloom/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/bloom/model.py to model.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/llama/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/llama/config.py to config.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/llama/model.py to model.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/llama2/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/llama2/model.py to model.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/opt/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/opt/config.py to config.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/opt/model.py to model.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/llamaquip/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/llamaquip/model.py to model.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/eval_ppl.py to eval_ppl.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/eval_zeroshot.py to eval_zeroshot.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/gen_speed.py to gen_speed.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/hessian_offline_llama.py to hessian_offline_llama.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/hfize_llama.py to hfize_llama.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/interactive_gen.py to interactive_gen.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/quantize_llama.py to quantize_llama.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/quantize_llama_nofuse.py to quantize_llama_nofuse.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/algo/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/algo/outlier_channel_split.py to outlier_channel_split.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/algo/preprocess.py to preprocess.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/algo/process.py to process.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/algo/quip.py to quip.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/codebook/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/codebook/half_integer_4bit_1col.py to half_integer_4bit_1col.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/codebook/latticed4.py to latticed4.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/codebook/latticee8_padded12.py to latticee8_padded12.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/codebook/latticee8_padded12_rvq4bit.py to latticee8_padded12_rvq4bit.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/linear/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/linear/fused_quantized_linear.py to fused_quantized_linear.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/linear/quantized_linear.py to quantized_linear.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/linear/autograd.py to autograd.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/lm_eval_adaptor.py to lm_eval_adaptor.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/matmul_kron.py to matmul_kron.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/data_utils.py to data_utils.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/gptq_data_utils.py to gptq_data_utils.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/math_utils.py to math_utils.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/matmul_had.py to matmul_had.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/misc.py to misc.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/unsafe_import.py to unsafe_import.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/model/graph_wrapper.py to graph_wrapper.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/model/llama.py to llama.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/model/llama_nofuse.py to llama_nofuse.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/model/mistral.py to mistral.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/model/version.py to version.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/model/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/quiptools/benchmark_e8p.py to benchmark_e8p.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/quiptools/setup.py to setup.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/quiptools/test_d4.py to test_d4.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/quiptools/test_e8p.py to test_e8p.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/quiptools/__init__.py to __init__.cpython-310.pyc
+creating build/bdist.linux-x86_64/egg/EGG-INFO
+copying llmtools.egg-info/PKG-INFO -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying llmtools.egg-info/SOURCES.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying llmtools.egg-info/dependency_links.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying llmtools.egg-info/entry_points.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying llmtools.egg-info/top_level.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+creating 'dist/llmtools-0.1.0-py3.10.egg' and adding 'build/bdist.linux-x86_64/egg' to it
+removing 'build/bdist.linux-x86_64/egg' (and everything under it)
+Processing llmtools-0.1.0-py3.10.egg
+Removing /share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages/llmtools-0.1.0-py3.10.egg
+Copying llmtools-0.1.0-py3.10.egg to /share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages
+Adding llmtools 0.1.0 to easy-install.pth file
+Installing llmtools script to /share/kuleshov/jy928/envs/llmtools-quip-0/bin
+
+Installed /share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages/llmtools-0.1.0-py3.10.egg
+Processing dependencies for llmtools==0.1.0
+Finished processing dependencies for llmtools==0.1.0
+running install
+running bdist_egg
+running egg_info
+writing quip.egg-info/PKG-INFO
+writing dependency_links to quip.egg-info/dependency_links.txt
+writing top-level names to quip.egg-info/top_level.txt
+reading manifest file 'quip.egg-info/SOURCES.txt'
+writing manifest file 'quip.egg-info/SOURCES.txt'
+installing library code to build/bdist.linux-x86_64/egg
+running install_lib
+running build_py
+copying quip/model/llama_nofuse.py -> build/lib/quip/model
+creating build/bdist.linux-x86_64/egg
+creating build/bdist.linux-x86_64/egg/llmtools
+copying build/lib/llmtools/__init__.py -> build/bdist.linux-x86_64/egg/llmtools
+copying build/lib/llmtools/config.py -> build/bdist.linux-x86_64/egg/llmtools
+copying build/lib/llmtools/executor.py -> build/bdist.linux-x86_64/egg/llmtools
+copying build/lib/llmtools/run.py -> build/bdist.linux-x86_64/egg/llmtools
+copying build/lib/llmtools/utils.py -> build/bdist.linux-x86_64/egg/llmtools
+creating build/bdist.linux-x86_64/egg/llmtools/data
+copying build/lib/llmtools/data/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/data
+copying build/lib/llmtools/data/abstract.py -> build/bdist.linux-x86_64/egg/llmtools/data
+copying build/lib/llmtools/data/alpaca.py -> build/bdist.linux-x86_64/egg/llmtools/data
+copying build/lib/llmtools/data/calibration.py -> build/bdist.linux-x86_64/egg/llmtools/data
+copying build/lib/llmtools/data/gpt4all.py -> build/bdist.linux-x86_64/egg/llmtools/data
+copying build/lib/llmtools/data/text.py -> build/bdist.linux-x86_64/egg/llmtools/data
+creating build/bdist.linux-x86_64/egg/llmtools/engine
+copying build/lib/llmtools/engine/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/engine
+creating build/bdist.linux-x86_64/egg/llmtools/engine/inference
+copying build/lib/llmtools/engine/inference/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/engine/inference
+copying build/lib/llmtools/engine/inference/autograd.py -> build/bdist.linux-x86_64/egg/llmtools/engine/inference
+copying build/lib/llmtools/engine/inference/matmult.py -> build/bdist.linux-x86_64/egg/llmtools/engine/inference
+copying build/lib/llmtools/engine/inference/modules.py -> build/bdist.linux-x86_64/egg/llmtools/engine/inference
+creating build/bdist.linux-x86_64/egg/llmtools/engine/lora
+copying build/lib/llmtools/engine/lora/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/engine/lora
+copying build/lib/llmtools/engine/lora/config.py -> build/bdist.linux-x86_64/egg/llmtools/engine/lora
+copying build/lib/llmtools/engine/lora/utils.py -> build/bdist.linux-x86_64/egg/llmtools/engine/lora
+copying build/lib/llmtools/engine/lora/lora.py -> build/bdist.linux-x86_64/egg/llmtools/engine/lora
+copying build/lib/llmtools/engine/lora/peft.py -> build/bdist.linux-x86_64/egg/llmtools/engine/lora
+creating build/bdist.linux-x86_64/egg/llmtools/engine/quant
+copying build/lib/llmtools/engine/quant/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant
+copying build/lib/llmtools/engine/quant/algorithm.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant
+copying build/lib/llmtools/engine/quant/config.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant
+copying build/lib/llmtools/engine/quant/converter.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant
+creating build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq
+copying build/lib/llmtools/engine/quant/gptq/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq
+copying build/lib/llmtools/engine/quant/gptq/algorithm.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq
+copying build/lib/llmtools/engine/quant/gptq/executor.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq
+copying build/lib/llmtools/engine/quant/gptq/extras.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq
+copying build/lib/llmtools/engine/quant/gptq/quantizer.py -> build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq
+creating build/bdist.linux-x86_64/egg/llmtools/llms
+copying build/lib/llmtools/llms/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/llms
+copying build/lib/llmtools/llms/autollm.py -> build/bdist.linux-x86_64/egg/llmtools/llms
+copying build/lib/llmtools/llms/config.py -> build/bdist.linux-x86_64/egg/llmtools/llms
+creating build/bdist.linux-x86_64/egg/llmtools/llms/bloom
+copying build/lib/llmtools/llms/bloom/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/llms/bloom
+copying build/lib/llmtools/llms/bloom/model.py -> build/bdist.linux-x86_64/egg/llmtools/llms/bloom
+creating build/bdist.linux-x86_64/egg/llmtools/llms/llama
+copying build/lib/llmtools/llms/llama/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/llms/llama
+copying build/lib/llmtools/llms/llama/config.py -> build/bdist.linux-x86_64/egg/llmtools/llms/llama
+copying build/lib/llmtools/llms/llama/model.py -> build/bdist.linux-x86_64/egg/llmtools/llms/llama
+creating build/bdist.linux-x86_64/egg/llmtools/llms/llama2
+copying build/lib/llmtools/llms/llama2/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/llms/llama2
+copying build/lib/llmtools/llms/llama2/model.py -> build/bdist.linux-x86_64/egg/llmtools/llms/llama2
+creating build/bdist.linux-x86_64/egg/llmtools/llms/opt
+copying build/lib/llmtools/llms/opt/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/llms/opt
+copying build/lib/llmtools/llms/opt/config.py -> build/bdist.linux-x86_64/egg/llmtools/llms/opt
+copying build/lib/llmtools/llms/opt/model.py -> build/bdist.linux-x86_64/egg/llmtools/llms/opt
+creating build/bdist.linux-x86_64/egg/llmtools/llms/llamaquip
+copying build/lib/llmtools/llms/llamaquip/__init__.py -> build/bdist.linux-x86_64/egg/llmtools/llms/llamaquip
+copying build/lib/llmtools/llms/llamaquip/model.py -> build/bdist.linux-x86_64/egg/llmtools/llms/llamaquip
+creating build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/eval_ppl.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/eval_zeroshot.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/gen_speed.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/hessian_offline_llama.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/hfize_llama.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/interactive_gen.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/quantize_llama.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/quantize_llama_nofuse.py -> build/bdist.linux-x86_64/egg/quip
+copying build/lib/quip/__init__.py -> build/bdist.linux-x86_64/egg/quip
+creating build/bdist.linux-x86_64/egg/quip/lib
+copying build/lib/quip/lib/__init__.py -> build/bdist.linux-x86_64/egg/quip/lib
+creating build/bdist.linux-x86_64/egg/quip/lib/algo
+copying build/lib/quip/lib/algo/__init__.py -> build/bdist.linux-x86_64/egg/quip/lib/algo
+copying build/lib/quip/lib/algo/outlier_channel_split.py -> build/bdist.linux-x86_64/egg/quip/lib/algo
+copying build/lib/quip/lib/algo/preprocess.py -> build/bdist.linux-x86_64/egg/quip/lib/algo
+copying build/lib/quip/lib/algo/process.py -> build/bdist.linux-x86_64/egg/quip/lib/algo
+copying build/lib/quip/lib/algo/quip.py -> build/bdist.linux-x86_64/egg/quip/lib/algo
+creating build/bdist.linux-x86_64/egg/quip/lib/codebook
+copying build/lib/quip/lib/codebook/__init__.py -> build/bdist.linux-x86_64/egg/quip/lib/codebook
+copying build/lib/quip/lib/codebook/half_integer_4bit_1col.py -> build/bdist.linux-x86_64/egg/quip/lib/codebook
+copying build/lib/quip/lib/codebook/latticed4.py -> build/bdist.linux-x86_64/egg/quip/lib/codebook
+copying build/lib/quip/lib/codebook/latticee8_padded12.py -> build/bdist.linux-x86_64/egg/quip/lib/codebook
+copying build/lib/quip/lib/codebook/latticee8_padded12_rvq4bit.py -> build/bdist.linux-x86_64/egg/quip/lib/codebook
+creating build/bdist.linux-x86_64/egg/quip/lib/linear
+copying build/lib/quip/lib/linear/__init__.py -> build/bdist.linux-x86_64/egg/quip/lib/linear
+copying build/lib/quip/lib/linear/fused_quantized_linear.py -> build/bdist.linux-x86_64/egg/quip/lib/linear
+copying build/lib/quip/lib/linear/quantized_linear.py -> build/bdist.linux-x86_64/egg/quip/lib/linear
+copying build/lib/quip/lib/linear/autograd.py -> build/bdist.linux-x86_64/egg/quip/lib/linear
+creating build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/lm_eval_adaptor.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/matmul_kron.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/__init__.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/data_utils.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/gptq_data_utils.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/math_utils.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/matmul_had.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/misc.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+copying build/lib/quip/lib/utils/unsafe_import.py -> build/bdist.linux-x86_64/egg/quip/lib/utils
+creating build/bdist.linux-x86_64/egg/quip/model
+copying build/lib/quip/model/graph_wrapper.py -> build/bdist.linux-x86_64/egg/quip/model
+copying build/lib/quip/model/llama.py -> build/bdist.linux-x86_64/egg/quip/model
+copying build/lib/quip/model/mistral.py -> build/bdist.linux-x86_64/egg/quip/model
+copying build/lib/quip/model/version.py -> build/bdist.linux-x86_64/egg/quip/model
+copying build/lib/quip/model/__init__.py -> build/bdist.linux-x86_64/egg/quip/model
+copying build/lib/quip/model/llama_nofuse.py -> build/bdist.linux-x86_64/egg/quip/model
+creating build/bdist.linux-x86_64/egg/quip/quiptools
+copying build/lib/quip/quiptools/benchmark_e8p.py -> build/bdist.linux-x86_64/egg/quip/quiptools
+copying build/lib/quip/quiptools/setup.py -> build/bdist.linux-x86_64/egg/quip/quiptools
+copying build/lib/quip/quiptools/test_d4.py -> build/bdist.linux-x86_64/egg/quip/quiptools
+copying build/lib/quip/quiptools/test_e8p.py -> build/bdist.linux-x86_64/egg/quip/quiptools
+copying build/lib/quip/quiptools/__init__.py -> build/bdist.linux-x86_64/egg/quip/quiptools
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/config.py to config.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/executor.py to executor.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/run.py to run.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/utils.py to utils.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/data/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/data/abstract.py to abstract.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/data/alpaca.py to alpaca.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/data/calibration.py to calibration.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/data/gpt4all.py to gpt4all.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/data/text.py to text.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/inference/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/inference/autograd.py to autograd.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/inference/matmult.py to matmult.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/inference/modules.py to modules.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/lora/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/lora/config.py to config.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/lora/utils.py to utils.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/lora/lora.py to lora.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/lora/peft.py to peft.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/algorithm.py to algorithm.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/config.py to config.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/converter.py to converter.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq/algorithm.py to algorithm.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq/executor.py to executor.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq/extras.py to extras.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/engine/quant/gptq/quantizer.py to quantizer.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/autollm.py to autollm.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/config.py to config.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/bloom/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/bloom/model.py to model.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/llama/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/llama/config.py to config.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/llama/model.py to model.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/llama2/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/llama2/model.py to model.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/opt/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/opt/config.py to config.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/opt/model.py to model.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/llamaquip/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/llmtools/llms/llamaquip/model.py to model.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/eval_ppl.py to eval_ppl.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/eval_zeroshot.py to eval_zeroshot.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/gen_speed.py to gen_speed.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/hessian_offline_llama.py to hessian_offline_llama.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/hfize_llama.py to hfize_llama.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/interactive_gen.py to interactive_gen.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/quantize_llama.py to quantize_llama.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/quantize_llama_nofuse.py to quantize_llama_nofuse.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/algo/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/algo/outlier_channel_split.py to outlier_channel_split.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/algo/preprocess.py to preprocess.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/algo/process.py to process.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/algo/quip.py to quip.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/codebook/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/codebook/half_integer_4bit_1col.py to half_integer_4bit_1col.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/codebook/latticed4.py to latticed4.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/codebook/latticee8_padded12.py to latticee8_padded12.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/codebook/latticee8_padded12_rvq4bit.py to latticee8_padded12_rvq4bit.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/linear/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/linear/fused_quantized_linear.py to fused_quantized_linear.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/linear/quantized_linear.py to quantized_linear.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/linear/autograd.py to autograd.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/lm_eval_adaptor.py to lm_eval_adaptor.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/matmul_kron.py to matmul_kron.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/data_utils.py to data_utils.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/gptq_data_utils.py to gptq_data_utils.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/math_utils.py to math_utils.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/matmul_had.py to matmul_had.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/misc.py to misc.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/lib/utils/unsafe_import.py to unsafe_import.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/model/graph_wrapper.py to graph_wrapper.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/model/llama.py to llama.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/model/mistral.py to mistral.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/model/version.py to version.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/model/__init__.py to __init__.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/model/llama_nofuse.py to llama_nofuse.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/quiptools/benchmark_e8p.py to benchmark_e8p.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/quiptools/setup.py to setup.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/quiptools/test_d4.py to test_d4.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/quiptools/test_e8p.py to test_e8p.cpython-310.pyc
+byte-compiling build/bdist.linux-x86_64/egg/quip/quiptools/__init__.py to __init__.cpython-310.pyc
+creating build/bdist.linux-x86_64/egg/EGG-INFO
+copying quip.egg-info/PKG-INFO -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying quip.egg-info/SOURCES.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying quip.egg-info/dependency_links.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying quip.egg-info/top_level.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+creating 'dist/quip-0.1.0-py3.10.egg' and adding 'build/bdist.linux-x86_64/egg' to it
+removing 'build/bdist.linux-x86_64/egg' (and everything under it)
+Processing quip-0.1.0-py3.10.egg
+Removing /share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages/quip-0.1.0-py3.10.egg
+Copying quip-0.1.0-py3.10.egg to /share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages
+Adding quip 0.1.0 to easy-install.pth file
+
+Installed /share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages/quip-0.1.0-py3.10.egg
+Processing dependencies for quip==0.1.0
+Finished processing dependencies for quip==0.1.0
+running install
+running bdist_egg
+running egg_info
+writing quant_cuda.egg-info/PKG-INFO
+writing dependency_links to quant_cuda.egg-info/dependency_links.txt
+writing top-level names to quant_cuda.egg-info/top_level.txt
+reading manifest file 'quant_cuda.egg-info/SOURCES.txt'
+writing manifest file 'quant_cuda.egg-info/SOURCES.txt'
+installing library code to build/bdist.linux-x86_64/egg
+running install_lib
+running build_ext
+building 'quant_cuda' extension
+ninja: no work to do.
+g++ -pthread -B /share/kuleshov/jy928/envs/llmtools-quip-0/compiler_compat -shared -Wl,-rpath,/share/kuleshov/jy928/envs/llmtools-quip-0/lib -Wl,-rpath-link,/share/kuleshov/jy928/envs/llmtools-quip-0/lib -L/share/kuleshov/jy928/envs/llmtools-quip-0/lib -Wl,-rpath,/share/kuleshov/jy928/envs/llmtools-quip-0/lib -Wl,-rpath-link,/share/kuleshov/jy928/envs/llmtools-quip-0/lib -L/share/kuleshov/jy928/envs/llmtools-quip-0/lib /share/kuleshov/jy928/llmtools-2bit-e8/build/temp.linux-x86_64-cpython-310/llmtools/engine/inference/cuda/quant_cuda.o /share/kuleshov/jy928/llmtools-2bit-e8/build/temp.linux-x86_64-cpython-310/llmtools/engine/inference/cuda/quant_cuda_kernel.o -L/share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages/torch/lib -L/usr/local/cuda-12.1/lib64 -lc10 -ltorch -ltorch_cpu -ltorch_python -lcudart -lc10_cuda -ltorch_cuda -o build/lib.linux-x86_64-cpython-310/quant_cuda.cpython-310-x86_64-linux-gnu.so
+creating build/bdist.linux-x86_64/egg
+copying build/lib.linux-x86_64-cpython-310/quant_cuda.cpython-310-x86_64-linux-gnu.so -> build/bdist.linux-x86_64/egg
+creating stub loader for quant_cuda.cpython-310-x86_64-linux-gnu.so
+byte-compiling build/bdist.linux-x86_64/egg/quant_cuda.py to quant_cuda.cpython-310.pyc
+creating build/bdist.linux-x86_64/egg/EGG-INFO
+copying quant_cuda.egg-info/PKG-INFO -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying quant_cuda.egg-info/SOURCES.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying quant_cuda.egg-info/dependency_links.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying quant_cuda.egg-info/top_level.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+writing build/bdist.linux-x86_64/egg/EGG-INFO/native_libs.txt
+creating 'dist/quant_cuda-0.0.0-py3.10-linux-x86_64.egg' and adding 'build/bdist.linux-x86_64/egg' to it
+removing 'build/bdist.linux-x86_64/egg' (and everything under it)
+Processing quant_cuda-0.0.0-py3.10-linux-x86_64.egg
+removing '/share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages/quant_cuda-0.0.0-py3.10-linux-x86_64.egg' (and everything under it)
+creating /share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages/quant_cuda-0.0.0-py3.10-linux-x86_64.egg
+Extracting quant_cuda-0.0.0-py3.10-linux-x86_64.egg to /share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages
+Adding quant-cuda 0.0.0 to easy-install.pth file
+
+Installed /share/kuleshov/jy928/envs/llmtools-quip-0/lib/python3.10/site-packages/quant_cuda-0.0.0-py3.10-linux-x86_64.egg
+Processing dependencies for quant-cuda==0.0.0
+Finished processing dependencies for quant-cuda==0.0.0
+Model Name: relaxml/Llama-1-7b-E8P-2Bit
+Adapter Path:  llama1_adapters/llama1-samsum-e8-7b-fix-seed42-mb4
+Seed:  42
+mbatch_size:  4
+LOADING QUIP MODEL...
+{'pad_token': '<unk>', 'sep_token': '<s>'}
+Vocab size:  32000
+PAD:  0 <unk>
+BOS:  1 <s>
+EOS:  2 </s>
+UNK:  0 <unk>
+SEP:  1 <s>
+Source and target examples
+### Summarize this: Amanda: I baked  cookies. Do you want some?
+Jerry: Sure!
+Amanda: I'll bring you tomorrow :-)
+ ### Output: 
+Amanda baked cookies and will bring Jerry some tomorrow.
+Source and target examples
+### Summarize this: Hannah: Hey, do you have Betty's number?
+Amanda: Lemme check
+Hannah: <file_gif>
+Amanda: Sorry, can't find it.
+Amanda: Ask Larry
+Amanda: He called her last time we were at the park together
+Hannah: I don't know him well
+Hannah: <file_gif>
+Amanda: Don't be shy, he's very nice
+Hannah: If you say so..
+Hannah: I'd rather you texted him
+Amanda: Just text him 🙂
+Hannah: Urgh.. Alright
+Hannah: Bye
+Amanda: Bye bye
+ ### Output: 
+Hannah needs Betty's number but Amanda doesn't have it. She needs to contact Larry.
+INPUT_IDS
+tensor([    1,   835,  6991,  3034,   675,   445, 29901,  1913,  5863, 29901,
+          306,   289, 12535, 29871, 21046, 29889,  1938,   366,   864,   777,
+        29973, 30004,    13, 29967,   261,   719, 29901, 18585, 29991, 30004,
+           13,  6833,  5863, 29901,   306, 29915,   645,  6963,   366,  6454,
+        22396, 15626,    13,   835, 10604, 29901, 29871,  1913,  5863,   289,
+        12535, 21046,   322,   674,  6963, 23052,   777,  6454, 22396, 29889,
+            2,     0,     0,     0])
+MASK
+tensor([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0])
+LABELS
+tensor([    1,   835,  6991,  3034,   675,   445, 29901,  1913,  5863, 29901,
+          306,   289, 12535, 29871, 21046, 29889,  1938,   366,   864,   777,
+        29973, 30004,    13, 29967,   261,   719, 29901, 18585, 29991, 30004,
+           13,  6833,  5863, 29901,   306, 29915,   645,  6963,   366,  6454,
+        22396, 15626,    13,   835, 10604, 29901, 29871,  1913,  5863,   289,
+        12535, 21046,   322,   674,  6963, 23052,   777,  6454, 22396, 29889,
+            2,  -100,  -100,  -100])
+{'loss': 12.5965, 'learning_rate': 0.00038095238095238096, 'epoch': 0.09}
+{'eval_loss': 12.605514526367188, 'eval_runtime': 725.3194, 'eval_samples_per_second': 1.129, 'eval_steps_per_second': 0.283, 'epoch': 0.09}
+{'loss': 12.7352, 'learning_rate': 0.0015238095238095239, 'epoch': 0.17}
+{'eval_loss': 12.73206901550293, 'eval_runtime': 721.0317, 'eval_samples_per_second': 1.136, 'eval_steps_per_second': 0.284, 'epoch': 0.17}
+{'loss': 12.8552, 'learning_rate': 0.0030476190476190477, 'epoch': 0.26}
+{'eval_loss': 12.420148849487305, 'eval_runtime': 720.9911, 'eval_samples_per_second': 1.136, 'eval_steps_per_second': 0.284, 'epoch': 0.26}
+{'loss': 12.4003, 'learning_rate': 0.0039977208891053655, 'epoch': 0.35}
+{'eval_loss': 12.159384727478027, 'eval_runtime': 721.0309, 'eval_samples_per_second': 1.136, 'eval_steps_per_second': 0.284, 'epoch': 0.35}
+{'loss': 11.7598, 'learning_rate': 0.003979519156188621, 'epoch': 0.43}
+{'eval_loss': 11.636980056762695, 'eval_runtime': 723.8887, 'eval_samples_per_second': 1.131, 'eval_steps_per_second': 0.283, 'epoch': 0.43}
+{'loss': 11.3942, 'learning_rate': 0.00394328153088019, 'epoch': 0.52}
+{'eval_loss': 11.243168830871582, 'eval_runtime': 721.7065, 'eval_samples_per_second': 1.135, 'eval_steps_per_second': 0.284, 'epoch': 0.52}
+{'loss': 11.1928, 'learning_rate': 0.0038893381832158375, 'epoch': 0.61}
+{'eval_loss': 11.186936378479004, 'eval_runtime': 725.5894, 'eval_samples_per_second': 1.129, 'eval_steps_per_second': 0.283, 'epoch': 0.61}
+{'loss': 11.1243, 'learning_rate': 0.0038181806044805455, 'epoch': 0.7}
+{'eval_loss': 11.413541793823242, 'eval_runtime': 725.7905, 'eval_samples_per_second': 1.128, 'eval_steps_per_second': 0.282, 'epoch': 0.7}
+{'loss': 11.4947, 'learning_rate': 0.0037304571291089206, 'epoch': 0.78}
+{'eval_loss': 11.739001274108887, 'eval_runtime': 725.0726, 'eval_samples_per_second': 1.13, 'eval_steps_per_second': 0.283, 'epoch': 0.78}
+{'loss': 11.6618, 'learning_rate': 0.0036269670275485776, 'epoch': 0.87}
+{'eval_loss': 12.03721809387207, 'eval_runtime': 719.2881, 'eval_samples_per_second': 1.139, 'eval_steps_per_second': 0.285, 'epoch': 0.87}
+{'loss': 11.929, 'learning_rate': 0.0035086532239078845, 'epoch': 0.96}

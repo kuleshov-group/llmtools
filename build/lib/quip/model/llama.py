@@ -269,7 +269,13 @@ class LlamaMLP(nn.Module):
             raise Exception
 
         up_proj, gate_proj = self.upgate_proj(x.to(torch.float32))
-        return self.down_proj(self.act_fn(gate_proj) * up_proj).half()
+        
+        output = self.down_proj(self.act_fn(gate_proj) * up_proj).half()
+
+        if output.isnan().any() or output.isinf().any():
+            breakpoint()
+
+        return output #self.down_proj(self.act_fn(gate_proj) * up_proj).half()
 
 
 def repeat_kv(hidden_states: torch.Tensor, n_rep: int) -> torch.Tensor:

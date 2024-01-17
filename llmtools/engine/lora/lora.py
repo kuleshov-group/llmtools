@@ -21,8 +21,9 @@ import warnings
 
 from llmtools.engine.inference.modules import QuantLinear
 from llmtools.engine.lora.peft import quant_peft
-#* QUIP Quant Linear Latyer path *#
+#* QUIP Quant Linear Layer path *#
 from quip.lib.linear.quantized_linear import QuantizedLinear
+from quip.lib.linear.fused_quantized_linear import FusedQuantizedLinear
 
 # hacky way to do imports for now
 LoraLayer = quant_peft.tuners.lora.LoraLayer
@@ -106,12 +107,28 @@ class QuantLoraModel(torch.nn.Module):
                     new_module = Linear(target.in_features, target.out_features, bias=bias, **kwargs)
                 elif isinstance(target, QuantLinear) and self.peft_config.enable_lora is None:
                     new_module = LinearQuantLt(
-                        target.bits,
+                        # target.bits,
                         target.in_features, 
                         target.out_features, 
                         target.groupsize,
                         bias=bias, 
                         is_cuda=target.is_cuda,
+                        **kwargs
+                    )
+                elif isinstance (target, FusedQuantizedLinear) and self.peft_config.enable_lora is None:
+                    new_module = FusedLinearQuantLtQuip(
+                        target.fuse_dim,
+                        target.fuse_sizes,
+                        # target.bits,
+                        target.in_features, 
+                        target.out_features, 
+                        target.codesz,
+                        target.packsz,
+                        target.pack_out,
+                        target.idx_dtype,
+                        target.codebook_version,
+                        target.rank,
+                        target.rescale_WH,
                         **kwargs
                     )
                 ## TODO QUIP Implementation
@@ -142,7 +159,7 @@ class QuantLoraModel(torch.nn.Module):
                                 "Setting fan_in_fan_out to False."
                             )
                             kwargs["fan_in_fan_out"] = self.peft_config.fan_in_fan_out = False
-                    new_module = MergedLinear(in_features, out_features, bias=bias, **kwargs) 
+                    new_module = MergedLinear(in_features, out_features, bias=bias, **kwargs) #* MergedLienar Not used *#
                 self._replace_module(parent, target_name, new_module, target)
         if not is_target_modules_in_base_model:
             raise ValueError(
@@ -158,9 +175,43 @@ class QuantLoraModel(torch.nn.Module):
 
     def _replace_module(self, parent_module, child_name, new_module, old_module):
         setattr(parent_module, child_name, new_module)
-        #breakpoint()
         ##TODO: QUIP Implementation
-        if isinstance(old_module, QuantizedLinear) and isinstance(new_module, LinearQuantLtQuip):
+        if isinstance(old_module, FusedQuantizedLinear) and isinstance(new_module, FusedLinearQuantLtQuip):
+            #* Fused Linear Layer *#
+            new_module.fuse_scales = old_module.fuse_scales
+            new_module.fuse_dim = old_module.fuse_dim
+            new_module.fuse_sizes = old_module.fuse_sizes
+            new_module.n = old_module.n
+
+            new_module.Qidxs = old_module.Qidxs
+            new_module.codebook_id = old_module.codebook_id
+            new_module.SU = old_module.SU
+            new_module.SV = old_module.SV
+            new_module.Wscale = old_module.Wscale
+
+            new_module.rank = old_module.rank
+            new_module.A = old_module.A
+            new_module.B = old_module.B
+            new_module.rescale_WH = old_module.rescale_WH
+            new_module.scaleWH = old_module.scaleWH
+
+            new_module.codesz = old_module.codesz
+            new_module.idx_dtype = old_module.idx_dtype
+
+            new_module.packsz = old_module.packsz
+            new_module.pack_out = old_module.pack_out
+            new_module.codebook_version = old_module.codebook_version
+
+            #? Understand this ?#
+            if getattr(old_module, "state", None) is not None:
+                new_module.state = old_module.state
+                new_module.to(old_module.Qidxs.device) 
+            
+            # dispatch to correct device
+            for name, module in new_module.named_modules():
+                if "lora_" in name:
+                    module.to(old_module.Qidxs.device)
+        elif isinstance(old_module, QuantizedLinear) and isinstance(new_module, LinearQuantLtQuip):
             #new_module.D4_CB = old_module.D4_CB #? D4_CB is our quantzied weighgt
             new_module.Qidxs = old_module.Qidxs
             new_module.codebook_id = old_module.codebook_id
@@ -426,6 +477,120 @@ class LinearQuantLtQuip(QuantizedLinear, LoraLayer):
             # print("Lora A weights: ", self.lora_A.weight[0])
             # print("Lora B weights: ", self.lora_B.weight[0])
         return result
+
+
+##* Quip Implementation *##
+class FusedLinearQuantLtQuip(FusedQuantizedLinear, LoraLayer):
+    # Lora implemented in a dense layer
+    def __init__(
+            self,
+            fuse_dim, 
+            fuse_sizes, 
+            in_features,
+            out_features,
+            codesz,
+            packsz,
+            pack_out,
+            idx_dtype,
+            codebook_version,
+            lora_rank,
+            rescale_WH,
+            r: int = 0,
+            lora_alpha: int = 1,
+            lora_dropout: float = 0.0,
+            is_cuda=True,
+            **kwargs,
+    ):
+        ## TODO Initialize FusedQuantizedLinear
+        FusedQuantizedLinear.__init__(self, 
+                                fuse_dim=fuse_dim, 
+                                fuse_sizes=fuse_sizes, 
+                                in_features=in_features,
+                                out_features=out_features,
+                                codesz=codesz,
+                                packsz=packsz,
+                                pack_out=pack_out,
+                                idx_dtype=idx_dtype,
+                                codebook_version=codebook_version,
+                                outlier_channel_split=False,
+                                rank=lora_rank,
+                                rescale_WH=rescale_WH)
+        LoraLayer.__init__(
+            self, 
+            r=r, 
+            lora_alpha=lora_alpha, 
+            lora_dropout=lora_dropout, 
+            merge_weights=False
+        )
+        # Actual trainable parameters
+        if r > 0:
+            # self.lora_A = nn.Linear(in_features, r, bias=False)
+            # self.lora_B = nn.Linear(r, out_features, bias=False)
+            self.scaling = self.lora_alpha / self.r #? This could be in a ModuleDict, but we now assume this is shared across all adapters ?#
+
+            self.lora_dropout = nn.ModuleDict({})
+            self.lora_A = nn.ModuleDict({})
+            self.lora_B = nn.ModuleDict({})
+            for i in range(len(self.fuse_sizes)):
+                lora_dropout_layer = nn.Dropout(p=lora_dropout)
+                self.lora_dropout.update(nn.ModuleDict({str(i): lora_dropout_layer}))
+                self.lora_A[str(i)] = nn.Linear(self.fuse_sizes[i], r, bias=False)
+                self.lora_B[str(i)] = nn.Linear(r, self.fuse_sizes[i], bias=False)
+
+            # Freezing the tensors except for LoRA parameters
+            self.Qidxs.requires_grad = False
+            self.SU.requires_grad = False
+            self.SV.requires_grad = False
+            self.Wscale.requires_grad = False
+            if self.A is not None: self.A.requires_grad = False
+            if self.B is not None: self.B.requires_grad = False
+            if self.scaleWH is not None: self.scaleWH.requires_grad = False
+
+            #* Fused *#
+            self.fuse_scales.requires_grad = False
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        if hasattr(self, "lora_A"):
+            for i in range(len(self.fuse_sizes)):
+                # initialize A the same way as the default for nn.Linear and B to zero
+                nn.init.kaiming_uniform_(self.lora_A[str(i)].weight, a=math.sqrt(5))
+                nn.init.zeros_(self.lora_B[str(i)].weight)
+            # # initialize A the same way as the default for nn.Linear and B to zero
+            # nn.init.kaiming_uniform_(self.lora_A.weight, a=math.sqrt(5))
+            # nn.init.zeros_(self.lora_B.weight)
+
+    def forward(self, x: torch.Tensor):
+        # breakpoint()
+        fuse_result_tuple = super().forward(x) #? LoRA is only applied to attention module? 
+        query_states, key_states, value_states = fuse_result_tuple
+
+        if self.disable_adapters:
+            return fuse_result_tuple
+        elif self.r > 0:
+            if not torch.is_autocast_enabled():
+                expected_dtype = query_states.dtype
+                
+                if x.dtype != torch.float32:
+                    x = x.float()
+                
+                for i in range(len(self.fuse_sizes)):
+                    query_states += self.lora_B[str(i)](self.lora_A[str(i)](self.lora_dropout[str(i)](x))).to(expected_dtype) * self.scaling
+                    key_states += self.lora_B[str(i)](self.lora_A[str(i)](self.lora_dropout[str(i)](x))).to(expected_dtype) * self.scaling
+                    value_states += self.lora_B[str(i)](self.lora_A[str(i)](self.lora_dropout[str(i)](x))).to(expected_dtype) * self.scaling
+                #output = self.lora_B(self.lora_A(self.lora_dropout(x))).to(expected_dtype) * self.scaling
+                #result += output
+            else:
+                for i in range(len(self.fuse_sizes)):
+                    query_states += self.lora_B[str(i)](self.lora_A[str(i)](self.lora_dropout[str(i)](x))) * self.scaling
+                    key_states += self.lora_B[str(i)](self.lora_A[str(i)](self.lora_dropout[str(i)](x))) * self.scaling
+                    value_states += self.lora_B[str(i)](self.lora_A[str(i)](self.lora_dropout[str(i)](x))) * self.scaling
+                # output = self.lora_B(self.lora_A(self.lora_dropout(x))) * self.scaling
+                # result += output
+            # print("Lora A weights: ", self.lora_A.weight[0])
+            # print("Lora B weights: ", self.lora_B.weight[0])
+        return fuse_result_tuple #TODO: Check this: seems working. 
+    
 
 def mark_only_lora_as_trainable(model: nn.Module, bias: str = "none") -> None:
     for n, p in model.named_parameters():

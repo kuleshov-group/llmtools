@@ -293,8 +293,8 @@ class LlamaMLP(nn.Module):
                 breakpoint()
 
         #* Quip# Debug *#
-        #output = down_proj.half() #* potential issues here *#
-        output = down_proj
+        output = down_proj.half() #* potential issues here *#
+        #output = down_proj
 
         if output.isnan().any() or output.isinf().any():
             breakpoint()
@@ -432,16 +432,17 @@ class LlamaAttention(nn.Module):
         if self.config.pretraining_tp > 1:
             assert (False)
         else:
-            # query_states = self.q_scale * self.q_proj(hidden_states.float()).half() #TODO problem here: Numerical overflow.
-            # key_states = self.k_scale * self.k_proj(hidden_states.float()).half()
-            # value_states = self.v_scale * self.v_proj(hidden_states.float()).half()
-            query_states = self.q_scale * self.q_proj(hidden_states.float())
+            query_states = self.q_scale * self.q_proj(hidden_states.float()).half() #TODO problem here: Numerical overflow.
+            key_states = self.k_scale * self.k_proj(hidden_states.float()).half()
+            value_states = self.v_scale * self.v_proj(hidden_states.float()).half()
+
+            #query_states = self.q_scale * self.q_proj(hidden_states.float())
             if query_states.isnan().any() or query_states.isinf().any():
                 breakpoint()
-            key_states = self.k_scale * self.k_proj(hidden_states.float())
+            #key_states = self.k_scale * self.k_proj(hidden_states.float())
             if key_states.isnan().any() or key_states.isinf().any():
                 breakpoint()
-            value_states = self.v_scale * self.v_proj(hidden_states.float())
+            #value_states = self.v_scale * self.v_proj(hidden_states.float())
             if value_states.isnan().any() or value_states.isinf().any():
                 breakpoint()
 
@@ -511,6 +512,7 @@ class LlamaAttention(nn.Module):
         else:
             # breakpoint()
             attn_output = (self.o_scale * self.o_proj(attn_output)).half()
+            #attn_output = (self.o_scale * self.o_proj(attn_output))
 
         if not output_attentions:
             attn_weights = None

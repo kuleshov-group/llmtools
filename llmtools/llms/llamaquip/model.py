@@ -2,8 +2,8 @@ import glog
 import os
 import json
 from transformers import LlamaTokenizer, LlamaConfig
-#from quip.model.llama import LlamaForCausalLM #* This is the latest llama with the fused quantized linear layer *#
-from quip.model.llama_nofuse import LlamaForCausalLM #* This is the latest llama with the unfused quantized linear layer *#
+from quip.model.llama import LlamaForCausalLM #* This is the latest llama with the fused quantized linear layer *#
+#from quip.model.llama_nofuse import LlamaForCausalLM #* This is the latest llama with the unfused quantized linear layer *#
 
 def load_llama_quip(hf_path):
     model = LlamaForCausalLM.from_pretrained(hf_path,
