@@ -65,7 +65,7 @@ MICRO_BATCH_SIZE=args.mbatch_size
 BATCH_SIZE = 128 #128
 GRADIENT_ACCUMULATION_STEPS = BATCH_SIZE // MICRO_BATCH_SIZE
 EPOCHS = 1 
-LEARNING_RATE = 4e-3  # the Karpathy constant
+LEARNING_RATE = 3e-4  # the Karpathy constant 4e-3 
 CUTOFF_LEN = 128  # 128 accounts for about 95% of the data
 LORA_R = 8
 LORA_ALPHA = 32
@@ -84,7 +84,7 @@ ddp = world_size != 1
 
 if ddp:
     device_map = {"": int(os.environ.get("LOCAL_RANK") or 0)}
-    gradient_accumulation_steps = gradient_accumulation_steps // world_size
+    gradient_accumulation_steps = GRADIENT_ACCUMULATION_STEPS // world_size
 
 lora_out_dir = args.adapter
 

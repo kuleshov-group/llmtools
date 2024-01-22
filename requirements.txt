@@ -1,5 +1,5 @@
 sentencepiece==0.1.97
-transformers==4.34.0
+transformers==4.31.0
 git+https://github.com/huggingface/peft@ff9a1edbfd2d405b86d50a2e5299cc1bbd49d887#egg=peft
 datasets
 bitsandbytes
