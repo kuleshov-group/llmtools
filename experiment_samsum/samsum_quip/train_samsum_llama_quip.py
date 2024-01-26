@@ -44,6 +44,7 @@ llm.eval()
 
 ##? Defining our own tokenizer. ?##
 tokenizer_name = "relaxml/Llama-1-7b-E8P-2Bit"
+#tokenizer_name = "model_name"
 tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, use_fast=False)
 
 
@@ -194,7 +195,7 @@ model.config.max_length = max_tokens_count if model_type == "causal" else max_ta
 # Training args
 training_arguments = TrainingArguments(
     per_device_train_batch_size = MICRO_BATCH_SIZE,
-    per_device_eval_batch_size = MICRO_BATCH_SIZE, #1
+    per_device_eval_batch_size = 1, #MICRO_BATCH_SIZE
     gradient_accumulation_steps = GRADIENT_ACCUMULATION_STEPS,
     warmup_ratio=0.06,
     #num_train_epochs=3,

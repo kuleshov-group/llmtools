@@ -90,13 +90,13 @@ model.eval()
 
 
 ##? Defining our own tokenizer: Fixed the issue with generation! ?##
-tokenizer_name = "relaxml/Llama-1-7b-hf"
+tokenizer_name = "relaxml/Llama-1-7b-E8P-2Bit"
 tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, use_fast=False)
 
 
 #* Fixing the model and tokenizer for Experiment*#
-tokenizer = fix_tokenizer(tokenizer)
-model = fix_model(model, tokenizer, use_resize=False)
+# tokenizer = fix_tokenizer(tokenizer)
+# model = fix_model(model, tokenizer, use_resize=False)
 
 
 # Default model generation params
