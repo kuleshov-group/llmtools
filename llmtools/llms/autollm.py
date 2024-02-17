@@ -93,17 +93,19 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
     def from_pretrained(
         cls,
         model_name_or_path: str,
+        quantizer_name: str,
         device_map: Optional[Union[str, Dict[str, Union[int, str]]]] = None,
         device: Optional[Union[str, int]] = None,
     ):
         # load config
         llm_config = AutoLLMConfig.from_pretrained(model_name_or_path)
         
-        if llm_config == "QUIP" or llm_config == "quip":
+        if quantizer_name == "QUIP" or quantizer_name == "quip":
             print("LOADING QUIP MODEL...")
             quip_model, quip_tokenizer, quip_config = load_llama_quip(model_name_or_path)
-            return quip_model, quip_tokenizer, quip_config
-        else:
+            return quip_model, quip_config
+        elif quantizer_name == "GBTQ" or quantizer_name == "gbtq":
+            print("LOADING GBTQ MODEL...")
             load_quantized = llm_config.quant_config is not None
 
             # resolve path to checkpoint (could be None)
@@ -126,7 +128,7 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
             if llm_config.model_type == LLMType.LLAMA.value:
                 model = load_llama(llm_config, checkpoint)
             elif llm_config.model_type == LLMType.LLAMA2.value:
-                model = load2_llama(llm_config, checkpoint)
+                model = load_llama2(llm_config, checkpoint)
             elif llm_config.model_type == LLMType.OPT.value:
                 model = load_opt(llm_config, checkpoint)
             elif llm_config.model_type == LLMType.BLOOM.value:
@@ -135,8 +137,7 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
                 raise NotImplementedError(
                 f'{llm_config.model_type} not supported'
                 )
-
-            return cls(model, llm_config)
+            return model, llm_config
 
     def save_pretrained(self, save_dir: str):
         os.makedirs(save_dir, exist_ok=True)

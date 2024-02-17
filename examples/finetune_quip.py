@@ -14,11 +14,10 @@ from llmtools.utils import to_half_precision
 model_name = 'relaxml/Llama-1-7b-E8P-2Bit'
 
 # load model
-llm, tokenizer, quip_config = AutoLLMForCausalLM.from_pretrained(model_name)
+llm, quip_config = AutoLLMForCausalLM.from_pretrained(model_name, "QUIP")
 
 #* AutoTokenizer is the lateste version of tokenizer, avoid tokenizer warning and error *#
-# tokenizer_name = "relaxml/Llama-1-7b-hf"
-# tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, use_fast=False)
+tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
 
 llm.eval()
 
@@ -37,7 +36,7 @@ save_steps=50
 save_total_limit=3
 logging_steps=10
 
-data_type = 'samsum'
+data_type = 'alpaca'
 dataset = None # will load alpaca from HF
 adapter_path = './llama1-7b-samsum-seed42'
 
@@ -65,8 +64,7 @@ tune_config = FinetuneConfig(
 lora_config = quant_peft.LoraConfig(
     r=tune_config.lora_r,
     lora_alpha=tune_config.lora_alpha,
-    target_modules=["q_proj", "v_proj"], #* QUIP LLAMA models has qkv_proj instead, but somehow replacement is working *#
-    #target_modules=["qkv_proj"],
+    target_modules=["q_proj", "v_proj"], 
     lora_dropout=tune_config.lora_dropout,
     bias="none",
     task_type="CAUSAL_LM",
@@ -119,9 +117,6 @@ trainer = transformers.Trainer(
 )
 print(training_arguments.parallel_mode)
 model.config.use_cache = False
-
-# use half precision
-# model = to_half_precision(model)
 
 
 # start training

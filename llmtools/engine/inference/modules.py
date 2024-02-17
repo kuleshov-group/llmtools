@@ -15,7 +15,7 @@ from quip.lib import codebook
 try:
     import quant_cuda
 except:
-    print('CUDA extension not installed. Inference will not work.')
+    print('CUDA extension not installed. Inference will not work for (OPTQ)')
 
 
 # Assumes layer is perfectly divisible into 256 * 256 blocks

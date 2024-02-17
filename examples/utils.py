@@ -17,6 +17,7 @@ def set_random_seed(seed):
     torch.backends.cudnn.deterministic = True
 
 
+#* Discarded as of 2024 Feb *#
 def fix_tokenizer(tokenizer):
     # Fixing broken tokenizers
     special_tokens = dict()
@@ -58,7 +59,7 @@ def fix_tokenizer(tokenizer):
     print("SEP: ", tokenizer.sep_token_id, tokenizer.sep_token)
     return tokenizer
 
-
+#* Discarded as of 2024 Feb *#
 def fix_model(model, tokenizer, use_resize=True):
     model.config.pad_token_id = tokenizer.pad_token_id
     assert model.config.pad_token_id is not None
@@ -97,7 +98,7 @@ def gen_batch(records, batch_size):
         batch_start = batch_end
         yield batch
 
-
+#* Discarded as of 2024 Feb *#
 def print_special_tokens(tokenizer):
     print("Vocab size: ", tokenizer.vocab_size)
     print("PAD: ", tokenizer.pad_token_id, tokenizer.pad_token)
@@ -113,6 +114,8 @@ def print_special_tokens(tokenizer):
 # UNK:  0 <unk>
 # SEP:  1 <s>
 
+
+#* Discarded as of 2024 Feb *#
 def fix_tokenizer_opt(tokenizer):
     # Fixing broken tokenizers
     special_tokens = {
