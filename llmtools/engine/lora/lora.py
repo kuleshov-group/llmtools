@@ -89,22 +89,8 @@ class QuantLoraModel(torch.nn.Module):
                 parent, target, target_name = self._get_submodules(key)
                 if hasattr(target, "bias"): #* QUIP *#
                     bias = target.bias is not None
-                if loaded_in_8bit and isinstance(target, bnb.nn.Linear8bitLt):
-                    kwargs.update(
-                        {
-                            "has_fp16_weights": target.state.has_fp16_weights,
-                            "memory_efficient_backward": target.state.memory_efficient_backward,
-                            "threshold": target.state.threshold,
-                            "index": target.index,
-                        }
-                    )
-                    if self.peft_config.enable_lora is None:
-                        new_module = Linear8bitLt(target.in_features, target.out_features, bias=bias, **kwargs)
-                    else:
-                        kwargs.update({"enable_lora": self.peft_config.enable_lora})
-                        new_module = MergedLinear8bitLt(target.in_features, target.out_features, bias=bias, **kwargs)
-                elif isinstance(target, torch.nn.Linear) and self.peft_config.enable_lora is None:
-                    new_module = Linear(target.in_features, target.out_features, bias=bias, **kwargs)
+                if isinstance(target, torch.nn.Linear) and self.peft_config.enable_lora is None:
+                    new_module = nn.Linear(target.in_features, target.out_features, bias=bias, **kwargs)
                 elif isinstance(target, QuantLinear) and self.peft_config.enable_lora is None:
                     new_module = LinearQuantLt(
                         # target.bits,
@@ -115,6 +101,7 @@ class QuantLoraModel(torch.nn.Module):
                         is_cuda=target.is_cuda,
                         **kwargs
                     )
+                #* QUIP Implementation *#
                 elif isinstance (target, FusedQuantizedLinear) and self.peft_config.enable_lora is None:
                     new_module = FusedLinearQuantLtQuip(
                         target.fuse_dim,
@@ -131,7 +118,7 @@ class QuantLoraModel(torch.nn.Module):
                         target.rescale_WH,
                         **kwargs
                     )
-                ## TODO QUIP Implementation
+                #* QUIP Implementation *#
                 elif isinstance(target, QuantizedLinear) and self.peft_config.enable_lora is None:
                     new_module = LinearQuantLtQuip(
                         target.in_features, 
@@ -145,21 +132,6 @@ class QuantLoraModel(torch.nn.Module):
                         target.rescale_WH,
                         **kwargs
                     )
-                elif self.peft_config.enable_lora is not None:
-                    kwargs.update({"enable_lora": self.peft_config.enable_lora})
-                    if isinstance(target, Conv1d):
-                        in_features, out_features = (
-                            target.weight.ds_shape if hasattr(target.weight, "ds_shape") else target.weight.shape
-                        )
-                    else:
-                        in_features, out_features = target.in_features, target.out_features
-                        if kwargs["fan_in_fan_out"]:
-                            warnings.warn(
-                                "fan_in_fan_out is set to True but the target module is not a Conv1D. "
-                                "Setting fan_in_fan_out to False."
-                            )
-                            kwargs["fan_in_fan_out"] = self.peft_config.fan_in_fan_out = False
-                    new_module = MergedLinear(in_features, out_features, bias=bias, **kwargs) #* MergedLienar Not used *#
                 self._replace_module(parent, target_name, new_module, target)
         if not is_target_modules_in_base_model:
             raise ValueError(
@@ -175,7 +147,7 @@ class QuantLoraModel(torch.nn.Module):
 
     def _replace_module(self, parent_module, child_name, new_module, old_module):
         setattr(parent_module, child_name, new_module)
-        ##TODO: QUIP Implementation
+        ## QUIP Implementation
         if isinstance(old_module, FusedQuantizedLinear) and isinstance(new_module, FusedLinearQuantLtQuip):
             #* Fused Linear Layer *#
             new_module.fuse_scales = old_module.fuse_scales
@@ -241,6 +213,7 @@ class QuantLoraModel(torch.nn.Module):
             for name, module in new_module.named_modules():
                 if "lora_" in name:
                     module.to(old_module.Qidxs.device) ## TODO: Not sure about this. QUIP doesn't store Qweights equialent to LORA.
+
         elif isinstance(old_module, QuantLinear) and isinstance(new_module, LinearQuantLt):
             new_module.qweight = old_module.qweight
             new_module.scales = old_module.scales
@@ -412,7 +385,6 @@ class LinearQuantLtQuip(QuantizedLinear, LoraLayer):
             is_cuda=True,
             **kwargs,
     ):
-        ## TODO Initialize QuantLinear
         QuantizedLinear.__init__(self,
                                 in_features=in_features,
                                 out_features=out_features,
