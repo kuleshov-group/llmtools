@@ -23,3 +23,9 @@ build/
 experiment_samsum/
 
 experiment*
+
+dist/
+
+llmtools.egg-info/
+quant_cuda.egg-info/
+quip.egg-info/
