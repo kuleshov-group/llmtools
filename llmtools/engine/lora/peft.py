@@ -1,5 +1,7 @@
 """Wraps around PEFT to use QuantLoraModel instead of regular LoraModel."""
 
+#* Latest Integration with Peft=0.8.2, Feb 2024 *#
+
 import peft as quant_peft
 from llmtools.engine.lora.lora import QuantLoraModel
 
@@ -9,6 +11,8 @@ quant_peft.peft_model.LoraModel = QuantLoraModel
 
 # the above works for PEFT at the time of writing this code;
 # when upgrading to a newer PEFT, use this insted:
-# quant_peft.peft_model.PEFT_TYPE_TO_MODEL_MAPPING[
-# 	quant_peft.utils.PeftType.LORA
-# ] = QuantLoraModel
+quant_peft.peft_model.PEFT_TYPE_TO_MODEL_MAPPING[
+	quant_peft.utils.PeftType.LORA
+] = QuantLoraModel
+
+

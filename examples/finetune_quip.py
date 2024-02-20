@@ -10,31 +10,33 @@ from llmtools.utils import to_half_precision
 
 
 # model config
-#model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama1-quip-7b-D4'
-model_name = 'relaxml/Llama-1-7b-E8P-2Bit'
+#model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama1-quip-7b-D4' # local dir.
+model_name = 'relaxml/Llama-1-7b-E8P-2Bit' # HF dir.
 
 # load model
 llm, quip_config = AutoLLMForCausalLM.from_pretrained(model_name, "QUIP")
+llm.eval()
 
 #* AutoTokenizer is the lateste version of tokenizer, avoid tokenizer warning and error *#
 tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
+tokenizer.pad_token = tokenizer.eos_token
 
 llm.eval()
 
 # finetune training config
 mbatch_size=2
-batch_size=2
+batch_size= 32 #128
 epochs=3
-lr=4e-3
+lr=1e-3
 cutoff_len=256
 lora_r=8
 lora_alpha=16
 lora_dropout=0.05
 val_set_size=0.2
 warmup_steps=0
-save_steps=50
+save_steps=10
 save_total_limit=3
-logging_steps=10
+logging_steps=1
 
 data_type = 'alpaca'
 dataset = None # will load alpaca from HF
@@ -61,20 +63,27 @@ tune_config = FinetuneConfig(
 )
 
 # set up lora config    
+# lora_config = quant_peft.LoraConfig(
+#     r=tune_config.lora_r,
+#     lora_alpha=tune_config.lora_alpha,
+#     target_modules=["q_proj", "v_proj"], 
+#     lora_dropout=tune_config.lora_dropout,
+#     bias="none",
+#     task_type="CAUSAL_LM",
+# )
 lora_config = quant_peft.LoraConfig(
+    task_type="CAUSAL_LM",
     r=tune_config.lora_r,
     lora_alpha=tune_config.lora_alpha,
-    target_modules=["q_proj", "v_proj"], 
-    lora_dropout=tune_config.lora_dropout,
     bias="none",
-    task_type="CAUSAL_LM",
+    target_modules=["q_proj", "v_proj"]
 )
 
+breakpoint()
 # create a new lora from config
 model = quant_peft.get_peft_model(llm, lora_config)
 
 print(model)
-breakpoint()
 
 
 # load stanford alpaca data

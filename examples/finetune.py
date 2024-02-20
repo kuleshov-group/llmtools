@@ -65,13 +65,21 @@ tune_config = FinetuneConfig(
 )
 
 # set up lora config    
+# lora_config = quant_peft.LoraConfig(
+#     r=tune_config.lora_r,
+#     lora_alpha=tune_config.lora_alpha,
+#     target_modules=["q_proj", "v_proj"],
+#     lora_dropout=tune_config.lora_dropout,
+#     bias="none",
+#     task_type="CAUSAL_LM",
+# )
+
 lora_config = quant_peft.LoraConfig(
+    task_type="CAUSAL_LM",
     r=tune_config.lora_r,
     lora_alpha=tune_config.lora_alpha,
-    target_modules=["q_proj", "v_proj"],
-    lora_dropout=tune_config.lora_dropout,
     bias="none",
-    task_type="CAUSAL_LM",
+    target_modules=["q_proj", "v_proj"]
 )
 
 # create a new lora from config

@@ -28,6 +28,8 @@ from quip.lib.linear.fused_quantized_linear import FusedQuantizedLinear
 # hacky way to do imports for now
 LoraLayer = quant_peft.tuners.lora.LoraLayer
 
+
+#* Latest integration with peft=0.8.2 *#
 class QuantLoraModel(torch.nn.Module):
     """
     Creates Low Rank Adapter (Lora) model from a pretrained transformers model.
@@ -52,13 +54,19 @@ class QuantLoraModel(torch.nn.Module):
         - **peft_config** ([`LoraConfig`]): The configuration of the Lora model.
     """
 
-    def __init__(self, config, model):
+    def __init__(self, model, config, adapter_name= "default"):
         super().__init__()
         self.peft_config = config
         self.model = model
+
+        #* Latest Peft Integration *#
+        self.active_adapter = adapter_name
+        self.self.model.peft_config = self.peft_config
+
         self._find_and_replace()
         mark_only_lora_as_trainable(self.model, self.peft_config.bias)
         self.forward = self.model.forward
+        
 
     def _find_and_replace(self):
         loaded_in_8bit = getattr(self.model, "is_loaded_in_8bit", False)
@@ -248,6 +256,7 @@ class QuantLoraModel(torch.nn.Module):
 
     def __getattr__(self, name: str):
         """Forward missing attributes to the wrapped module."""
+        breakpoint()
         try:
             return super().__getattr__(name)  # defer to nn.Module's logic
         except AttributeError:
