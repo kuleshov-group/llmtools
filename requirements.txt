@@ -1,5 +1,5 @@
 # sentencepiece==0.1.97
-# transformers==4.34.0
-peft
+transformers==4.34.0
+peft==0.5.0
 datasets
 bitsandbytes

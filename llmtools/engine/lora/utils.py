@@ -14,7 +14,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#* Peft Integration: no longer used *#
+
 import torch
+
+
+def prepare_model_for_quip_training(
+        model,
+):
+    r"""
+    This method wraps the quip# 
+    Args:
+        model, (`transformers.PreTrainedModel`):
+            The loaded model from `transformers`
+    """  
+    loaded_in_quip = True
+    return model
+
 
 
 def prepare_model_for_int4_training(

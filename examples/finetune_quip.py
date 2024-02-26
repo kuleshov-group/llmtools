@@ -6,8 +6,6 @@ from llmtools.llms.autollm import AutoLLMForCausalLM
 from llmtools.engine.lora.config import FinetuneConfig
 from llmtools.data import TrainSAD
 from llmtools.engine.lora.peft import quant_peft
-from llmtools.utils import to_half_precision
-
 
 # model config
 #model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama1-quip-7b-D4' # local dir.
@@ -63,20 +61,14 @@ tune_config = FinetuneConfig(
 )
 
 # set up lora config    
-# lora_config = quant_peft.LoraConfig(
-#     r=tune_config.lora_r,
-#     lora_alpha=tune_config.lora_alpha,
-#     target_modules=["q_proj", "v_proj"], 
-#     lora_dropout=tune_config.lora_dropout,
-#     bias="none",
-#     task_type="CAUSAL_LM",
-# )
 lora_config = quant_peft.LoraConfig(
     task_type="CAUSAL_LM",
     r=tune_config.lora_r,
     lora_alpha=tune_config.lora_alpha,
+    lora_dropout=tune_config.lora_dropout,
     bias="none",
-    target_modules=["q_proj", "v_proj"]
+    target_modules=["qkv_proj"],
+    # quantization_method="QUIP",
 )
 
 breakpoint()
