@@ -16,7 +16,6 @@ class LLMType(Enum):
     LLAMA2_QUIP = 'llama2-quip'
     LLAMA3_QUIP = 'E8P-2Bit'
 
-
 class AutoLLMConfig(PretrainedConfig,PushToHubMixin):
     def __init__(
         self, 

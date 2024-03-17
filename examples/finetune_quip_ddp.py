@@ -8,22 +8,19 @@ from llmtools.data import TrainSAD
 from llmtools.engine.lora.peft import quant_peft
 
 from accelerate import Accelerator
-from accelerate import dispatch_model, infer_auto_device_map
-from accelerate.utils import get_balanced_memory
 
+os.environ['NUMEXPR_MAX_THREADS'] = '24'
 
 # model config
 #model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama1-quip-7b-D4' # local dir.
 model_name = 'relaxml/Llama-1-7b-E8P-2Bit' # HF dir.
 
-device_map = "auto"
-accelerator = Accelerator()
-
-# device_index = Accelerator().process_index
-# device_map = {"": device_index}
+# device_map = "auto"
+device_index = Accelerator().process_index
+device_map = {"": device_index}
 
 # load model
-llm, quip_config = AutoLLMForCausalLM.from_pretrained(model_name, "QUIP", device_map=device_map)
+llm, quip_config = AutoLLMForCausalLM.from_pretrained(model_name, load_in_quip=True, device_map=device_map)
 llm.eval()
 
 #* AutoTokenizer is the lateste version of tokenizer, avoid tokenizer warning and error *#
@@ -32,8 +29,9 @@ tokenizer.pad_token = tokenizer.eos_token
 
 llm.eval()
 
+
 # finetune training config
-mbatch_size_per_device=1
+mbatch_size_per_device=4
 batch_size= 16 #128
 epochs=3
 lr=1e-3
@@ -49,7 +47,7 @@ logging_steps=1
 
 data_type = 'alpaca'
 dataset = None # will load alpaca from HF
-adapter_path = './llama1-77b-samsum-seed42'
+adapter_path = './llama1-7b-samsum-seed42'
 
 # set up finetuning config
 tune_config = FinetuneConfig(
@@ -71,8 +69,6 @@ tune_config = FinetuneConfig(
     logging_steps=logging_steps,
 )
 
-
-
 # set up lora config    
 lora_config = quant_peft.LoraConfig(
     task_type="CAUSAL_LM",
@@ -85,45 +81,22 @@ lora_config = quant_peft.LoraConfig(
 )
 
 # Data Parallel Training
-world_size = int(os.environ.get("WORLD_SIZE", 1))
-ddp = world_size != 1
-if ddp:
-    device_map = {"": int(os.environ.get("LOCAL_RANK") or 0)}
-    gradient_accumulation_steps = tune_config.gradient_accumulation_steps // world_size
+# world_size = int(os.environ.get("WORLD_SIZE", 1))
+# ddp = world_size != 1
+# # if ddp:
+# #     device_map = {"": int(os.environ.get("LOCAL_RANK") or 0)}
+#     gradient_accumulation_steps = gradient_accumulation_steps // world_size
 
+
+# breakpoint()
+# if not ddp and torch.cuda.device_count() > 1:
+#     llm.is_parallelizable = True
+#     llm.model_parallel = True
 
 # create a new lora from config
 model = quant_peft.get_peft_model(llm, lora_config)
-# model = accelerator.prepare(model)
-if not ddp and torch.cuda.device_count() > 1:
-    print("Enable Distributed Data Parallel")
-    model.is_parallelizable = True
-    model.model_parallel = True
 
 print(model)
-
-
-#* Enable Naive Pipeline Parallel *#
-num_of_gpus = torch.cuda.device_count()
-
-if num_of_gpus > 1:
-    print("Enabling Naive Pipeline Parallel")
-    max_memory = get_balanced_memory(
-        model,
-        max_memory=None,
-        no_split_module_classes=["LlamaDecoderLayer", "LlamaMLP"],
-        dtype='float16',
-        low_zero=False,
-    )
-
-    device_map = infer_auto_device_map(
-        model,
-        max_memory=max_memory,
-        no_split_module_classes=["LlamaDecoderLayer", "LlamaMLP"],
-        dtype='float16'
-    )
-
-    model = dispatch_model(model, device_map=device_map)
 
 
 # load stanford alpaca data
@@ -135,10 +108,16 @@ data = TrainSAD(
 )
 data.prepare_data() # this tokenizes the dataset
 
+
+gradient_accumulation_steps = tune_config.batch_size // tune_config.mbatch_size
+gradient_accumulation_steps = gradient_accumulation_steps // 4 # for testing: hardcoded for 2 gpus
+
+print("gradient_accumulation_steps: ", gradient_accumulation_steps)
+
 # training args
 training_arguments = transformers.TrainingArguments(
     per_device_train_batch_size=tune_config.mbatch_size,
-    gradient_accumulation_steps=tune_config.gradient_accumulation_steps,
+    gradient_accumulation_steps=gradient_accumulation_steps,
     warmup_steps=tune_config.warmup_steps,
     num_train_epochs=tune_config.epochs,
     learning_rate=tune_config.lr,

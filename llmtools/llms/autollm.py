@@ -93,18 +93,23 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
     def from_pretrained(
         cls,
         model_name_or_path: str,
-        quantizer_name: str,
+        load_in_quip: Optional[bool] = False,
+        load_in_gbtq: Optional[bool] = False,
         device_map: Optional[Union[str, Dict[str, Union[int, str]]]] = None,
         device: Optional[Union[str, int]] = None,
+        trust_remote_code: Optional[bool] = False, # currently unused. 
     ):
         # load config
         llm_config = AutoLLMConfig.from_pretrained(model_name_or_path)
         
-        if quantizer_name == "QUIP" or quantizer_name == "quip":
+        if load_in_quip:
             print("LOADING QUIP MODEL...")
-            quip_model, quip_tokenizer, quip_config = load_llama_quip(model_name_or_path)
+            if device_map is None:
+                quip_model, quip_tokenizer, quip_config = load_llama_quip(model_name_or_path)
+            else:
+                quip_model, quip_tokenizer, quip_config = load_llama_quip(model_name_or_path, device_map=device_map)
             return quip_model, quip_config
-        elif quantizer_name == "GBTQ" or quantizer_name == "gbtq":
+        elif load_in_gbtq:
             print("LOADING GBTQ MODEL...")
             load_quantized = llm_config.quant_config is not None
 
@@ -138,6 +143,8 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
                 f'{llm_config.model_type} not supported'
                 )
             return model, llm_config
+        else:
+            print("No quantizer specified. Plese specify a quantizer (QuIP or GPTQ)")
 
     def save_pretrained(self, save_dir: str):
         os.makedirs(save_dir, exist_ok=True)
