@@ -461,6 +461,7 @@ class ModuLoraModel(BaseTuner):
             new_module.packsz = old_module.packsz
             new_module.pack_out = old_module.pack_out
             new_module.codebook_version = old_module.codebook_version
+            new_module.codebook_name = old_module.codebook_name
 
             #? Understand this ?#
             if getattr(old_module, "state", None) is not None:
@@ -491,6 +492,7 @@ class ModuLoraModel(BaseTuner):
             new_module.packsz = old_module.packsz
             new_module.pack_out = old_module.pack_out
             new_module.codebook_version = old_module.codebook_version
+            new_module.codebook_name = old_module.codebook_name
 
             #? Understand this ?#
             if getattr(old_module, "state", None) is not None:
@@ -580,6 +582,7 @@ class ModuLoraModel(BaseTuner):
                 target.pack_out,
                 target.idx_dtype,
                 target.codebook_version,
+                target.codebook_name,
                 target.rank,
                 target.rescale_WH,
                 **kwargs
@@ -594,6 +597,7 @@ class ModuLoraModel(BaseTuner):
                 target.pack_out,
                 target.idx_dtype,
                 target.codebook_version,
+                target.codebook_name,
                 target.rank,
                 target.rescale_WH,
                 **kwargs
@@ -1452,6 +1456,7 @@ class QuipQuantLTLinear(QuipQuantLinear, LoraLayer):
             pack_out,
             idx_dtype,
             codebook_version,
+            codebook_name,
             lora_rank,
             rescale_WH,
             r: int = 0,
@@ -1468,6 +1473,7 @@ class QuipQuantLTLinear(QuipQuantLinear, LoraLayer):
                                 pack_out=pack_out,
                                 idx_dtype=idx_dtype,
                                 codebook_version=codebook_version,
+                                codebook_name=codebook_name,
                                 outlier_channel_split=False,
                                 rank=lora_rank,
                                 rescale_WH=rescale_WH)
@@ -1543,6 +1549,7 @@ class FusedQuipQuantLTLinear(FusedQuipQuantLinear, LoraLayer):
             pack_out,
             idx_dtype,
             codebook_version,
+            codebook_name,
             lora_rank,
             rescale_WH,
             r: int = 0,
@@ -1561,6 +1568,7 @@ class FusedQuipQuantLTLinear(FusedQuipQuantLinear, LoraLayer):
                                 pack_out=pack_out,
                                 idx_dtype=idx_dtype,
                                 codebook_version=codebook_version,
+                                codebook_name=codebook_name,
                                 outlier_channel_split=False,
                                 rank=lora_rank,
                                 rescale_WH=rescale_WH)

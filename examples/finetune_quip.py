@@ -14,7 +14,8 @@ from accelerate.utils import get_balanced_memory
 
 # model config
 #model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama1-quip-7b-D4' # local dir.
-model_name = 'relaxml/Llama-1-7b-E8P-2Bit' # HF dir.
+# model_name = 'relaxml/Llama-1-7b-E8P-2Bit' # HF dir.
+model_name = 'relaxml/Llama-1-7b-E8PRVQ-4Bit' # HF dir.
 
 device_map = "auto"
 accelerator = Accelerator()
@@ -49,7 +50,7 @@ logging_steps=1
 
 data_type = 'alpaca'
 dataset = None # will load alpaca from HF
-adapter_path = './llama1-77b-samsum-seed42'
+adapter_path = './llama1-7b-samsum-seed42'
 
 # set up finetuning config
 tune_config = FinetuneConfig(
