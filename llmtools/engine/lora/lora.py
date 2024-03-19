@@ -48,7 +48,7 @@ if is_bnb_available():
 
 #* ModuLoRA Integration *#
 # from llmtools.engine.inference.modules import QuantLinear
-from llmtools.engine.lora.peft import quant_peft
+# from llmtools.engine.lora.peft import quant_peft
 # QUIP Quant Linear Layer path #
 from quip.lib.linear.quantized_linear import QuipQuantLinear
 from quip.lib.linear.fused_quantized_linear import FusedQuipQuantLinear

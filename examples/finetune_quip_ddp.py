@@ -16,7 +16,7 @@ os.environ['NUMEXPR_MAX_THREADS'] = '24'
 
 # model config
 #model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama1-quip-7b-D4' # local dir.
-model_name = 'relaxml/Llama-1-7b-E8P-2Bit' # HF dir.
+model_name = 'relaxml/Llama-1-30b-E8P-2Bit' # HF dir.
 
 # device_map = "auto"
 device_index = Accelerator().process_index
@@ -33,7 +33,7 @@ tokenizer.pad_token = tokenizer.eos_token
 llm.eval()
 
 # finetune training config
-mbatch_size_per_device=4
+mbatch_size_per_device=1
 batch_size= 16 #128
 epochs=3
 lr=1e-3
@@ -49,7 +49,7 @@ logging_steps=1
 
 data_type = 'alpaca'
 dataset = None # will load alpaca from HF
-adapter_path = './llama1-7b-samsum-seed42'
+adapter_path = './llama1-30b-samsum-seed42-ddp'
 
 # set up finetuning config
 tune_config = FinetuneConfig(
@@ -79,27 +79,22 @@ lora_config = quant_peft.LoraConfig(
     lora_dropout=tune_config.lora_dropout,
     bias="none",
     target_modules=["qkv_proj"],
-    # quantization_method="QUIP",
 )
 
 # Data Parallel Training
-# world_size = int(os.environ.get("WORLD_SIZE", 1))
-# ddp = world_size != 1
-# # if ddp:
-# #     device_map = {"": int(os.environ.get("LOCAL_RANK") or 0)}
-#     gradient_accumulation_steps = gradient_accumulation_steps // world_size
+world_size = int(os.environ.get("WORLD_SIZE", 1))
+ddp = world_size != 1
+if ddp:
+    num_of_gpus = torch.cuda.device_count()
+    device_map = {"": int(os.environ.get("LOCAL_RANK") or 0)}
+    gradient_accumulation_steps = tune_config.batch_size // (tune_config.mbatch_size*num_of_gpus)
+    print("gradient_accumulation_steps: ", gradient_accumulation_steps)
 
-
-# breakpoint()
-# if not ddp and torch.cuda.device_count() > 1:
-#     llm.is_parallelizable = True
-#     llm.model_parallel = True
 
 # create a new lora from config
 model = quant_peft.get_peft_model(llm, lora_config)
 
 print(model)
-
 
 # load stanford alpaca data
 data = TrainSAD(
@@ -110,14 +105,8 @@ data = TrainSAD(
 )
 data.prepare_data() # this tokenizes the dataset
 
-
-gradient_accumulation_steps = tune_config.batch_size // tune_config.mbatch_size
-gradient_accumulation_steps = gradient_accumulation_steps // 4 # for testing: hardcoded for 2 gpus
-
-print("gradient_accumulation_steps: ", gradient_accumulation_steps)
-
 # training args
-training_arguments = transformers.TrainingArguments(
+training_arguments = TrainingArguments(
     per_device_train_batch_size=tune_config.mbatch_size,
     gradient_accumulation_steps=gradient_accumulation_steps,
     warmup_steps=tune_config.warmup_steps,
@@ -136,7 +125,7 @@ training_arguments = transformers.TrainingArguments(
 )
 
 # start trainer
-trainer = transformers.Trainer(
+trainer = Trainer(
     model=model,
     train_dataset=data.train_data,
     eval_dataset=data.val_data,

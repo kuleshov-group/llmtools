@@ -16,15 +16,11 @@ from accelerate.utils import get_balanced_memory
 
 
 # model config
-#model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama1-quip-7b-D4' # local dir.
 model_name = 'relaxml/Llama-1-65b-E8P-2Bit' # HF dir.
 # model_name = 'relaxml/Llama-1-7b-E8PRVQ-4Bit' # HF dir-4bit
 
 device_map = "auto"
 accelerator = Accelerator()
-
-# device_index = Accelerator().process_index
-# device_map = {"": device_index}
 
 # load model
 llm, quip_config = AutoLLMForCausalLM.from_pretrained(model_name, "QUIP", device_map=device_map)
