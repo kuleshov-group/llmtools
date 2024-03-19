@@ -16,14 +16,14 @@ from accelerate.utils import get_balanced_memory
 
 
 # model config
-model_name = 'relaxml/Llama-1-65b-E8P-2Bit' # HF dir.
+model_name = 'relaxml/Llama-1-7b-E8P-2Bit' # HF dir.
 # model_name = 'relaxml/Llama-1-7b-E8PRVQ-4Bit' # HF dir-4bit
 
 device_map = "auto"
 accelerator = Accelerator()
 
 # load model
-llm, quip_config = AutoLLMForCausalLM.from_pretrained(model_name, "QUIP", device_map=device_map)
+llm, quip_config = AutoLLMForCausalLM.from_pretrained(model_name, load_in_quip=True, device_map=device_map)
 llm.eval()
 
 #* AutoTokenizer is the lateste version of tokenizer, avoid tokenizer warning and error *#
@@ -49,7 +49,7 @@ logging_steps=1
 
 data_type = 'alpaca'
 dataset = None # will load alpaca from HF
-adapter_path = './llama1-65b-samsum-seed42'
+adapter_path = './llama1-7b-samsum-seed42'
 
 # set up finetuning config
 tune_config = FinetuneConfig(
@@ -94,7 +94,7 @@ if not ddp and torch.cuda.device_count() > 1:
     model.is_parallelizable = True
     model.model_parallel = True
 
-print(model)
+# print(model)
 
 
 #* Enable Naive Pipeline Parallel *#
@@ -156,7 +156,6 @@ trainer = Trainer(
         tokenizer, mlm=False
     ),
 )
-# print(training_arguments.parallel_mode)
 model.config.use_cache = False
 
 
