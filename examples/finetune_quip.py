@@ -2,13 +2,13 @@ import os
 import torch
 import transformers
 from transformers import AutoTokenizer
+from transformers import TrainingArguments
 
 from llmtools.llms.autollm import AutoLLMForCausalLM
 from llmtools.engine.lora.config import FinetuneConfig
 from llmtools.data import TrainSAD
 from llmtools.engine.lora.peft import quant_peft
 from llmtools.engine.hf.trainer import Trainer
-from llmtools.engine.lora.peft_model import PeftModel, PeftModelForCausalLM
 
 from accelerate import Accelerator
 from accelerate import dispatch_model, infer_auto_device_map
@@ -17,8 +17,8 @@ from accelerate.utils import get_balanced_memory
 
 # model config
 #model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama1-quip-7b-D4' # local dir.
-# model_name = 'relaxml/Llama-1-7b-E8P-2Bit' # HF dir.
-model_name = 'relaxml/Llama-1-7b-E8PRVQ-4Bit' # HF dir.
+model_name = 'relaxml/Llama-1-65b-E8P-2Bit' # HF dir.
+# model_name = 'relaxml/Llama-1-7b-E8PRVQ-4Bit' # HF dir-4bit
 
 device_map = "auto"
 accelerator = Accelerator()
@@ -53,7 +53,7 @@ logging_steps=1
 
 data_type = 'alpaca'
 dataset = None # will load alpaca from HF
-adapter_path = './llama1-7b-samsum-seed42'
+adapter_path = './llama1-65b-samsum-seed42'
 
 # set up finetuning config
 tune_config = FinetuneConfig(
@@ -84,23 +84,17 @@ lora_config = quant_peft.LoraConfig(
     lora_dropout=tune_config.lora_dropout,
     bias="none",
     target_modules=["qkv_proj"],
-    # quantization_method="QUIP",
 )
+
+# create a new lora from config
+model = quant_peft.get_peft_model(llm, lora_config)
+model = accelerator.prepare(model)
 
 # Data Parallel Training
 world_size = int(os.environ.get("WORLD_SIZE", 1))
 ddp = world_size != 1
-if ddp:
-    device_map = {"": int(os.environ.get("LOCAL_RANK") or 0)}
-    gradient_accumulation_steps = tune_config.gradient_accumulation_steps // world_size
-
-# create a new lora from config
-# model = quant_peft.get_peft_model(llm, lora_config)
-model = PeftModelForCausalLM(llm, lora_config, adapter_name="default")
-
-# model = accelerator.prepare(model)
 if not ddp and torch.cuda.device_count() > 1:
-    print("Enable Distributed Data Parallel")
+    # print("Enable Pipeline Parallel")
     model.is_parallelizable = True
     model.model_parallel = True
 
@@ -109,7 +103,6 @@ print(model)
 
 #* Enable Naive Pipeline Parallel *#
 num_of_gpus = torch.cuda.device_count()
-
 if num_of_gpus > 1:
     print("Enabling Naive Pipeline Parallel")
     max_memory = get_balanced_memory(
@@ -129,7 +122,6 @@ if num_of_gpus > 1:
 
     model = dispatch_model(model, device_map=device_map)
 
-
 # load stanford alpaca data
 data = TrainSAD(
     tune_config.dataset, 
@@ -140,7 +132,7 @@ data = TrainSAD(
 data.prepare_data() # this tokenizes the dataset
 
 # training args
-training_arguments = transformers.TrainingArguments(
+training_arguments = TrainingArguments(
     per_device_train_batch_size=tune_config.mbatch_size,
     gradient_accumulation_steps=tune_config.gradient_accumulation_steps,
     warmup_steps=tune_config.warmup_steps,
@@ -168,21 +160,17 @@ trainer = Trainer(
         tokenizer, mlm=False
     ),
 )
-print(training_arguments.parallel_mode)
+# print(training_arguments.parallel_mode)
 model.config.use_cache = False
 
 
 # start training
 checkpoint_dir = tune_config.lora_out_dir
 if os.path.exists(checkpoint_dir) and os.listdir(checkpoint_dir):
-    breakpoint()
     trainer.train(resume_from_checkpoint=True)
-    #model.load_adapter(model_id="/share/kuleshov/jy928/llmtools-pub/llama1-7b-samsum-seed42/checkpoint-10", adapter_name="default", resume_from_checkpoint=True, load_adapter=model.active_adapter, is_trainable=True)
 else:
     trainer.train()
 
 # Save Model
 model.save_pretrained(tune_config.lora_out_dir)
 
-
-#* Problem: missing keys and unexpected_keys needs to be matched together *#

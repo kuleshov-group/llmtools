@@ -98,7 +98,6 @@ def set_peft_model_state_dict(model, peft_model_state_dict, adapter_name="defaul
         model ([`PeftModel`]): The Peft model.
         peft_model_state_dict (`dict`): The state dict of the Peft model.
     """
-    breakpoint()
     config = model.peft_config[adapter_name]
     state_dict = {}
     if getattr(model, "modules_to_save", None) is not None:
@@ -147,9 +146,9 @@ def set_peft_model_state_dict(model, peft_model_state_dict, adapter_name="defaul
 
 
 def rename_modulora_adapters_in_dict(original_dict, adapter_name="default"):
-    updated_dict = original_dict.copy()  # Make a copy to safely modify keys
+    updated_dict = original_dict.copy() 
     
-    for key in list(original_dict.keys()):  # List() to make a copy of keys for safe iteration
+    for key in list(original_dict.keys()):
         segments = key.split('.')
         
         for i, segment in enumerate(segments):
