@@ -134,10 +134,35 @@ def set_peft_model_state_dict(model, peft_model_state_dict, adapter_name="defaul
         peft_model_state_dict = state_dict
     else:
         raise NotImplementedError
-
+    
+    #* ModuLoRA TODO: Rename peft_model_state_dict keys() for appropriate weights reassignment *# 
+    peft_model_state_dict = rename_modulora_adapters_in_dict(peft_model_state_dict)
+    
     load_result = model.load_state_dict(peft_model_state_dict, strict=False)
     if config.is_prompt_learning:
         model.prompt_encoder[adapter_name].embedding.load_state_dict(
             {"weight": peft_model_state_dict["prompt_embeddings"]}, strict=True
         )
     return load_result
+
+
+def rename_modulora_adapters_in_dict(original_dict, adapter_name="default"):
+    updated_dict = original_dict.copy()  # Make a copy to safely modify keys
+    
+    for key in list(original_dict.keys()):  # List() to make a copy of keys for safe iteration
+        segments = key.split('.')
+        
+        for i, segment in enumerate(segments):
+            if "lora_A_" in segment or "lora_B_" in segment:
+                prefix, num = segment.rsplit('_', 1)
+                if i+1 < len(segments) and segments[i+1] == adapter_name:
+                    segments[i] = prefix  # Update the current segment
+                    segments[i+1] = f'{adapter_name}_{num}'  # Update the 'default' segment
+                    
+                    # Construct the new key and update the dictionary
+                    new_key = '.'.join(segments)
+                    updated_dict[new_key] = updated_dict.pop(key)  # Replace key in the dict
+                    
+                    break  # Assuming only one modification per key
+    
+    return updated_dict

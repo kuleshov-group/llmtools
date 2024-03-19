@@ -29,3 +29,6 @@ dist/
 llmtools.egg-info/
 quant_cuda.egg-info/
 quip.egg-info/
+
+
+llama1-7b-samsum-seed42/

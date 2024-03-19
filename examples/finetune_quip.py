@@ -2,16 +2,17 @@ import os
 import torch
 import transformers
 from transformers import AutoTokenizer
+
 from llmtools.llms.autollm import AutoLLMForCausalLM
 from llmtools.engine.lora.config import FinetuneConfig
 from llmtools.data import TrainSAD
 from llmtools.engine.lora.peft import quant_peft
+from llmtools.engine.hf.trainer import Trainer
+from llmtools.engine.lora.peft_model import PeftModel, PeftModelForCausalLM
 
 from accelerate import Accelerator
 from accelerate import dispatch_model, infer_auto_device_map
 from accelerate.utils import get_balanced_memory
-
-from llmtools.engine.lora.peft_model import PeftModelForCausalLM
 
 
 # model config
@@ -95,7 +96,6 @@ if ddp:
 
 # create a new lora from config
 # model = quant_peft.get_peft_model(llm, lora_config)
-breakpoint()
 model = PeftModelForCausalLM(llm, lora_config, adapter_name="default")
 
 # model = accelerator.prepare(model)
@@ -159,7 +159,7 @@ training_arguments = transformers.TrainingArguments(
 )
 
 # start trainer
-trainer = transformers.Trainer(
+trainer = Trainer(
     model=model,
     train_dataset=data.train_data,
     eval_dataset=data.val_data,
@@ -176,8 +176,8 @@ model.config.use_cache = False
 checkpoint_dir = tune_config.lora_out_dir
 if os.path.exists(checkpoint_dir) and os.listdir(checkpoint_dir):
     breakpoint()
-    #trainer.train(resume_from_checkpoint=True)
-    model.load_adapter(model_id="/share/kuleshov/jy928/llmtools-pub/llama1-7b-samsum-seed42/checkpoint-10", adapter_name="default", resume_from_checkpoint=True, load_adapter=model.active_adapter, is_trainable=True)
+    trainer.train(resume_from_checkpoint=True)
+    #model.load_adapter(model_id="/share/kuleshov/jy928/llmtools-pub/llama1-7b-samsum-seed42/checkpoint-10", adapter_name="default", resume_from_checkpoint=True, load_adapter=model.active_adapter, is_trainable=True)
 else:
     trainer.train()
 

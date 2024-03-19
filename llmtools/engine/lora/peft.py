@@ -7,8 +7,8 @@ from llmtools.engine.lora.lora import ModuLoraModel
 from llmtools.engine.lora.lora import LoraLayer
 from llmtools.engine.lora.lora import ModuLoraConfig
 
-from llmtools.engine.lora.peft_model import PeftModel as ModuLoraPeftModel
-from llmtools.engine.lora.peft_model import PeftModelForCausalLM as ModuLoraPeftModelForCausalLM
+from llmtools.engine.lora.peft_model import PeftModel
+from llmtools.engine.lora.peft_model import PeftModelForCausalLM 
 
 # monkey patch peft to use QuantLoraModel
 quant_peft.tuners.lora.LoraModel = ModuLoraModel
@@ -22,7 +22,7 @@ quant_peft.peft_model.PEFT_TYPE_TO_MODEL_MAPPING[
 	quant_peft.utils.PeftType.LORA
 ] = ModuLoraModel
 
-# monkey patch peft to use set_peft_model_state_dict from LLM #
+#* monkey patch peft to use set_peft_model_state_dict from LLM *#
 # quant_peft.utils.save_and_load.set_peft_model_state_dict = set_peft_model_state_dict_modulora
-quant_peft.peft_model.PeftModel = ModuLoraPeftModel
-quant_peft.peft_model.PeftModelForCausalLM = ModuLoraPeftModelForCausalLM
+quant_peft.peft_model.PeftModel = PeftModel
+quant_peft.peft_model.PeftModelForCausalLM = PeftModelForCausalLM
