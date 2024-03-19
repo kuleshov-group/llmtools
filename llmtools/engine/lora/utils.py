@@ -18,6 +18,19 @@
 
 import torch
 
+import enum
+
+
+class PeftType(str, enum.Enum):
+    PROMPT_TUNING = "PROMPT_TUNING"
+    P_TUNING = "P_TUNING"
+    PREFIX_TUNING = "PREFIX_TUNING"
+    LORA = "LORA"
+    ADALORA = "ADALORA"
+    ADAPTION_PROMPT = "ADAPTION_PROMPT"
+    IA3 = "IA3"
+
+
 
 def prepare_model_for_quip_training(
         model,
@@ -75,3 +88,56 @@ def prepare_model_for_int4_training(
         setattr(model, output_embedding_layer_name, CastOutputToFloat(output_embedding_layer))
 
     return model
+
+
+def set_peft_model_state_dict(model, peft_model_state_dict, adapter_name="default"):
+    """
+    Set the state dict of the Peft model.
+
+    Args:
+        model ([`PeftModel`]): The Peft model.
+        peft_model_state_dict (`dict`): The state dict of the Peft model.
+    """
+    breakpoint()
+    config = model.peft_config[adapter_name]
+    state_dict = {}
+    if getattr(model, "modules_to_save", None) is not None:
+        for key, value in peft_model_state_dict.items():
+            if any(module_name in key for module_name in model.modules_to_save):
+                for module_name in model.modules_to_save:
+                    if module_name in key:
+                        key = key.replace(module_name, f"{module_name}.modules_to_save.{adapter_name}")
+                        break
+            state_dict[key] = value
+    else:
+        state_dict = peft_model_state_dict
+
+    if config.peft_type in (PeftType.LORA, PeftType.ADALORA, PeftType.IA3):
+        peft_model_state_dict = {}
+        parameter_prefix = "ia3_" if config.peft_type == PeftType.IA3 else "lora_"
+        for k, v in state_dict.items():
+            if parameter_prefix in k:
+                suffix = k.split(parameter_prefix)[1]
+                if "." in suffix:
+                    suffix_to_replace = ".".join(suffix.split(".")[1:])
+                    k = k.replace(suffix_to_replace, f"{adapter_name}.{suffix_to_replace}")
+                else:
+                    k = f"{k}.{adapter_name}"
+                peft_model_state_dict[k] = v
+            else:
+                peft_model_state_dict[k] = v
+        if config.peft_type == PeftType.ADALORA:
+            rank_pattern = config.rank_pattern
+            if rank_pattern is not None:
+                model.resize_modules_by_rank_pattern(rank_pattern, adapter_name)
+    elif config.is_prompt_learning or config.peft_type == PeftType.ADAPTION_PROMPT:
+        peft_model_state_dict = state_dict
+    else:
+        raise NotImplementedError
+
+    load_result = model.load_state_dict(peft_model_state_dict, strict=False)
+    if config.is_prompt_learning:
+        model.prompt_encoder[adapter_name].embedding.load_state_dict(
+            {"weight": peft_model_state_dict["prompt_embeddings"]}, strict=True
+        )
+    return load_result

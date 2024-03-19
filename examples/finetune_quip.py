@@ -11,6 +11,8 @@ from accelerate import Accelerator
 from accelerate import dispatch_model, infer_auto_device_map
 from accelerate.utils import get_balanced_memory
 
+from llmtools.engine.lora.peft_model import PeftModelForCausalLM
+
 
 # model config
 #model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama1-quip-7b-D4' # local dir.
@@ -73,7 +75,6 @@ tune_config = FinetuneConfig(
 )
 
 
-
 # set up lora config    
 lora_config = quant_peft.LoraConfig(
     task_type="CAUSAL_LM",
@@ -92,9 +93,11 @@ if ddp:
     device_map = {"": int(os.environ.get("LOCAL_RANK") or 0)}
     gradient_accumulation_steps = tune_config.gradient_accumulation_steps // world_size
 
-
 # create a new lora from config
-model = quant_peft.get_peft_model(llm, lora_config)
+# model = quant_peft.get_peft_model(llm, lora_config)
+breakpoint()
+model = PeftModelForCausalLM(llm, lora_config, adapter_name="default")
+
 # model = accelerator.prepare(model)
 if not ddp and torch.cuda.device_count() > 1:
     print("Enable Distributed Data Parallel")
@@ -172,10 +175,14 @@ model.config.use_cache = False
 # start training
 checkpoint_dir = tune_config.lora_out_dir
 if os.path.exists(checkpoint_dir) and os.listdir(checkpoint_dir):
-    trainer.train(resume_from_checkpoint=True)
+    breakpoint()
+    #trainer.train(resume_from_checkpoint=True)
+    model.load_adapter(model_id="/share/kuleshov/jy928/llmtools-pub/llama1-7b-samsum-seed42/checkpoint-10", adapter_name="default", resume_from_checkpoint=True, load_adapter=model.active_adapter, is_trainable=True)
 else:
     trainer.train()
 
 # Save Model
 model.save_pretrained(tune_config.lora_out_dir)
 
+
+#* Problem: missing keys and unexpected_keys needs to be matched together *#

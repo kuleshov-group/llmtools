@@ -1442,7 +1442,6 @@ class QuantLinear(torch.nn.Module, LoraLayer):
     #         torch.nn.init.zeros_(self.lora_B[adapter_name].weight)
 
 
-
 ##* Quip Implementation *##
 class QuipQuantLTLinear(QuipQuantLinear, LoraLayer):
     # Lora implemented in a dense layer
