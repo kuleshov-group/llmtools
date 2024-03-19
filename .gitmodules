@@ -1,4 +1,4 @@
-[submodule "quip"]
-	path = quip
-	url = https://github.com/oseyosey/two_bit_quant.git
-	branch = llmtool_dev_e8
+# [submodule "quip"]
+# 	path = quip
+# 	url = https://github.com/oseyosey/two_bit_quant.git
+# 	branch = llmtool_dev_e8
