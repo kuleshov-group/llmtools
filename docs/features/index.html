@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc-markdown-css-theme" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="@jez" />
+  <meta name="dcterms.date" content="2021-06-26" />
+  <title>Features</title>
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/skylighting-solarized-theme.css" />
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css" />
+</head>
+<body>
+
+<header>
+<h1 class="title">Features</h1>
+<blockquote class="metadata">
+<p class="subtitle">Documentation for how to make the most of this theme.</p>
+<p class="author">
+      <a href="https://github.com/jez"><span class="citation" data-cites="jez">@jez</span></a>
+  </p>
+<p class="date before-toc"><time datetime="2021-06-26">2021-06-26</time></p>
+</blockquote>
+</header>
+
+<nav id="TOC" role="doc-toc">
+    <a href="..">← Return home</a><br>
+    <strong>Contents</strong><label for="contents">⊕</label>
+  <input type="checkbox" id="contents">
+  <ul>
+  <li><a href="#document-metadata" id="toc-document-metadata">Document metadata</a></li>
+  <li><a href="#assorted-prose-elements" id="toc-assorted-prose-elements">Assorted prose elements</a></li>
+  <li><a href="#side-notes-and-margin-notes" id="toc-side-notes-and-margin-notes">Side notes and margin notes</a>
+  <ul>
+  <li><a href="#choosing-a-side-note-anchor-spot" id="toc-choosing-a-side-note-anchor-spot">Choosing a side note anchor spot</a></li>
+  </ul></li>
+  <li><a href="#code-blocks" id="toc-code-blocks">Code blocks</a>
+  <ul>
+  <li><a href="#numbered-and-highlighted-lines" id="toc-numbered-and-highlighted-lines">Numbered and highlighted lines</a>
+  <ul>
+  <li><a href="#line-highlight-limit" id="toc-line-highlight-limit">Line highlight limit</a></li>
+  </ul></li>
+  <li><a href="#tight-code-blocks" id="toc-tight-code-blocks">Tight code blocks</a></li>
+  </ul></li>
+  <li><a href="#math" id="toc-math">Math</a></li>
+  <li><a href="#images-tables-and-captioned-code-blocks" id="toc-images-tables-and-captioned-code-blocks">Images, tables, and captioned code blocks</a></li>
+  <li><a href="#wide-extra-wide-and-full-width" id="toc-wide-extra-wide-and-full-width">Wide, extra-wide, and full-width</a></li>
+  <li><a href="#colored-note-callouts" id="toc-colored-note-callouts">Colored note callouts</a></li>
+  <li><a href="#table-of-contents" id="toc-table-of-contents">Table of contents</a></li>
+  <li><a href="#tweaking-the-css-variables" id="toc-tweaking-the-css-variables">Tweaking the CSS variables</a></li>
+  <li><a href="#automatic-light-and-dark-theme" id="toc-automatic-light-and-dark-theme">Automatic light and dark theme</a></li>
+  <li><a href="#print-styles" id="toc-print-styles">Print styles</a></li>
+  </ul>
+</nav>
+
+<main>
+<p>This theme supports many Pandoc Markdown features. Some features work as expected out of the box, and some require a particular markup structure. This page documents those feature and the required document structure.</p>
+<p>You might also be interested in the <a href="../kitchen-sink/">Kitchen Sink</a> page, which is more comprehensive in terms of exercising edge cases, but has almost zero explanation of what is going on. There is also a <a href="../tufte/">Kitchen Sink Tufte</a> page which showcases one example of how to re-skin the theme using the existing customization features.</p>
+<h1 id="document-metadata">Document metadata</h1>
+<p>Pandoc allows setting <a href="https://pandoc.org/MANUAL.html#variables">variables</a> in the preamble of a Markdown document with a YAML metadata block, like this:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource yaml numberLines"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1"></a><span class="pp">---</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Features&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">date</span><span class="kw">:</span><span class="at"> 2021-06-26</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co"># ...</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="pp">---</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="at">... markdown content ...</span></span></code></pre></div>
+<p>This theme’s HTML template allows setting some, but not all, of the variables that Pandoc supports, including:</p>
+<ul>
+<li><code>title</code>
+<ul>
+<li>Required</li>
+</ul></li>
+<li><code>author</code>, <code>date</code></li>
+<li><code>pagetitle</code>, <code>author-meta</code>, <code>date-meta</code>
+<ul>
+<li>Optional, set automatically from <code>title</code>, <code>author</code>, and <code>date</code></li>
+</ul></li>
+<li><code>subtitle</code></li>
+<li><code>keywords</code></li>
+<li><code>lang</code></li>
+<li><code>dir</code>
+<ul>
+<li>Optional (text direction, like <code>ltr</code> or <code>rtl</code>)</li>
+</ul></li>
+<li><code>description-meta</code></li>
+<li><code>title-prefix</code>
+<ul>
+<li>Optional, only affects <code>&lt;title&gt;</code> tag</li>
+</ul></li>
+<li><code>header-includes</code>
+<ul>
+<li>Optional. A list of strings to inject at the end of the <code>&lt;head&gt;</code> tag</li>
+</ul></li>
+<li><code>include-before</code>, <code>include-after</code>
+<ul>
+<li>Optional. A list of strings to inject at the start or end (respectively) of the <code>&lt;body&gt;</code></li>
+</ul></li>
+</ul>
+<p>It also supports some extra variables:</p>
+<ul>
+<li><code>author-url</code>
+<ul>
+<li>Optional. Will render <code>author</code> wrapped in a link with this target if present.</li>
+</ul></li>
+<li><code>return-url</code>
+<ul>
+<li>Optional. Will render a “return” link at the top of the table of contents if present.</li>
+</ul></li>
+<li><code>return-text</code>
+<ul>
+<li>Optional. Text to use for the “return” link. Defaults to <code>← Return</code>.</li>
+</ul></li>
+</ul>
+<p>You can see all of these settings in action at the top of this page. For more information, refer to the <a href="https://pandoc.org/MANUAL.html#variables">Pandoc manual section for variables</a>.</p>
+<h1 id="assorted-prose-elements">Assorted prose elements</h1>
+<p>This theme of course supports the standard Markdown prose elements you’d expect, like paragraphs, <strong>bold text</strong>, <em>italic text</em>, and <a href="#">links</a>.</p>
+<p>Pandoc Markdown has special syntax for some some non-standard prose elements, including <span class="smallcaps">smallcaps</span>, <u>underline</u>, and <del>strikethrough</del>. Refer to the Pandoc manual for more information, but the basic syntax looks like</p>
+<pre><code>This text is [smallcaps]{.smallcaps}.
+This text is [underline]{.underline}.
+This text is ~~strikethrough~~.</code></pre>
+<blockquote>
+<p><em>This text is <span class="smallcaps">smallcaps</span>.</em><br />
+<em>This text is <u>underline</u>.</em><br />
+<em>This text is <del>strikethrough</del>.</em></p>
+</blockquote>
+<p>Pandoc Markdown also supports bulleted and numbered lists, as expected:</p>
+<ul>
+<li>Bullet item</li>
+<li>Another bullet</li>
+</ul>
+<ol type="1">
+<li>First bullet</li>
+<li>Second bullet</li>
+</ol>
+<p>But it also supports non-standard task lists:</p>
+<pre><code>- [x] Already done
+- [ ] Not done yet</code></pre>
+<blockquote>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" /><em>Already done</em></label></li>
+<li><label><input type="checkbox" /><em>Not done yet</em></label></li>
+</ul>
+</blockquote>
+<p>Pandoc renders task list checkboxes as disabled, so they can’t be clicked. This theme inserts a few lines of JavaScript to make them enabled in HTML but disabled with JavaScript because it is the easiest way to apply custom styles to checkboxes. If you prefer the <code>disabled</code> appearance or don’t want JavaScript, feel free to remove the <code>&lt;script&gt;</code> tag at the end of the theme template.</p>
+<h1 id="side-notes-and-margin-notes">Side notes and margin notes</h1>
+<p>Side notes and margin notes work very similarly to how they work in <a href="https://edwardtufte.github.io/tufte-css/">Tufte CSS</a>, but made easier to use in Markdown with the <a href="https://github.com/jez/pandoc-sidenote"><code>pandoc-sidenote</code></a> Pandoc filter.</p>
+<p>To get started, install <code>pandoc-sidenote</code> and pass <code>--filter pandoc-sidenote</code> when invoking Pandoc, like the <a href="https://github.com/jez/pandoc-markdown-css-theme/blob/27d0aa58bfc6eafe296e2cef1900a39c9c2507a7/tools/build.sh#L57">Makefile</a> for this project does:</p>
+<pre><code>pandoc --filter pandoc-sidenote [...]</code></pre>
+<p>With this filter active, the syntax for footnotes becomes the syntax for side notes and margin notes (specifically, it is no longer possible for the document to use footnotes).</p>
+<pre><code>For example this is a side note[^example-side-note]. Side notes
+are numbered, and the number shows at the anchor point in the
+body text at all screen widths.
+
+[^example-side-note]:
+  This is the text in the side note. It is smaller and only
+  supports inline elements, like **bold** or [links](#),
+  but not lists or code blocks.</code></pre>
+<blockquote>
+<p><em>For example this is a side note<span class="sidenote-wrapper"><label for="sn-0" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-0" class="margin-toggle"/><span class="sidenote">This is the text in the side note. It is smaller and only supports inline elements, like <strong>bold</strong> or <a href="#">links</a>, but not lists or code blocks.<br />
+<br />
+</span></span>. Side notes are numbered, and the number shows at the anchor point in the body text at all screen widths.</em></p>
+</blockquote>
+<pre><code>On the other hand, margin notes are not numbered. Instead,
+they hang to the left and are only vaguely connected to the
+text, like this.[^example-margin-note]
+
+[^example-margin-note]:
+  {-} `pandoc-sidenote` detects margin notes when the note
+  starts with the text `{-}`. This is inspired by the syntax
+  Pandoc uses for unnumbered headings.</code></pre>
+<blockquote>
+<p><em>On the other hand, margin notes are not numbered. Instead, they hang to the left and are only vaguely connected to the text, like this.<span class="sidenote-wrapper"><label for="sn-1" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="marginnote"><code>pandoc-sidenote</code> detects margin notes when the note starts with the text <code>{-}</code>. This is inspired by the syntax Pandoc uses for unnumbered headings.<br />
+<br />
+</span></span></em></p>
+</blockquote>
+<p>Side notes and margin notes are fully responsive. When there is no space to render the notes in the margin, they will be hidden by default, and the anchor point will leave a clickable link to expand the side note inline. Try viewing this page on a phone to see how that looks.</p>
+<h2 id="choosing-a-side-note-anchor-spot">Choosing a side note anchor spot</h2>
+<p>Side notes and margin notes look best when they anchor to text within the first ~500px of the text (this is where the first line will break on tablets). This ensures that the baseline of the sidenote and the baseline of the body text will align on the first line.</p>
+<p>For example, note the difference between the side note and margin note exaple above. The side note anchors to the first line of the paragraph, while the margin note anchors to the last line. This makes the side note even with its corresponding paragraph, but makes the margin note look like it’s hanging.</p>
+<p>Sometimes the prose dictates where the margin note must attach, making the problem unavoidable. But when there’s a choice of where to attach it, use this as a guide.</p>
+<h1 id="code-blocks">Code blocks</h1>
+<p>Pandoc Markdown supports a number of code block features. First, plain delimited code blocks with no syntax highlighting:</p>
+<pre><code>```
+This is a code block.
+```</code></pre>
+<pre><code>This is a code block.</code></pre>
+<p>As well as delimited code blocks with syntax highlighting:</p>
+<pre><code>```ruby
+def greet; &quot;Hello, world!&quot;; end
+```</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> greet; <span class="st">&quot;Hello, world!&quot;</span>; <span class="cf">end</span></span></code></pre></div>
+<h2 id="numbered-and-highlighted-lines">Numbered and highlighted lines</h2>
+<p>Pandoc Markdown also supports attaching line numbers to a code block, plain or with syntax highlighting using the <code>.numberLines</code> CSS class:</p>
+<pre><code>```{.ruby .numberLines}
+def greet; &quot;Hello, world!&quot;; end
+```</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource ruby numberLines"><code class="sourceCode ruby"><span id="cb12-1"><a href="#cb12-1"></a><span class="cf">def</span> greet; <span class="st">&quot;Hello, world!&quot;</span>; <span class="cf">end</span></span></code></pre></div>
+<p>The line numbers are clickable and all have HTML IDs attached to them, making them linkable.</p>
+<p>This theme extends Pandoc’s code blocks with line numbers by allowing individual lines to be highlighted. Emphasize specific lines in a code block by adding various <code>.hl-*</code> classes for the lines you’d like to highlight, like this:</p>
+<pre><code>```{.numberLines .hl-2 .hl-3}
+This is the first line.
+This line is highlighted.
+This line is also highlighted.
+This is another line.
+```</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource numberLines hl-2 hl-3"><code class="sourceCode"><span id="cb14-1"><a href="#cb14-1"></a>This is the first line.</span>
+<span id="cb14-2"><a href="#cb14-2"></a>This line is highlighted.</span>
+<span id="cb14-3"><a href="#cb14-3"></a>This line is also highlighted.</span>
+<span id="cb14-4"><a href="#cb14-4"></a>This is another line.</span></code></pre></div>
+<p>The <code>.numberLines</code> class is required for these line highlights to render correctly.</p>
+<h3 id="line-highlight-limit">Line highlight limit</h3>
+<p>A quick note on line highlights: this feature is implemented in CSS, and is currently limited to a max line highlight of the 40<sup>th</sup> line. More lines can always be specified by adding <a href="https://github.com/jez/pandoc-markdown-css-theme/blob/27d0aa58bfc6eafe296e2cef1900a39c9c2507a7/public/css/theme.css#L539-L578">more lines like this</a> using the <code>header-includes</code> variable:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">header-includes</span><span class="kw">:</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="st">&#39;&lt;style&gt;pre.hl-41 &gt; code.sourceCode &gt; span:nth-of-type(41)::after { content: &quot;&quot;; }&lt;/style&gt;&#39;</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span></code></pre></div>
+<h2 id="tight-code-blocks">Tight code blocks</h2>
+<p>Another feature unique to this theme is is <code>.tight-code</code>. Sometimes for drawing ASCII art it’s important that there be no gaps between lines, so that things like unicode box drawing characters attach:</p>
+<pre><code>```{.tight-code}
+One line of text
+Another line of text
+┌──┬──┐
+├──┼──┤
+└──┴──┘
+```</code></pre>
+<pre class="tight-code"><code>One line of text
+Another line of text
+┌──┬──┐
+├──┼──┤
+└──┴──┘</code></pre>
+<p>As you can see, the difference is striking. Text ends up looking crammed together, instead of following the normal rhythem of the rest of the document, but sometimes this can be a worthy tradeoff when it matters that code lines touch.</p>
+<h1 id="math">Math</h1>
+<p>Pandoc Markdown supports <a href="https://pandoc.org/MANUAL.html#math-input">a number of ways</a> to specify LaTeX math. This project’s <code>Makefile</code> defaults to <code>tex_math_single_backslash</code>, which allows multiple forms of math input:</p>
+<pre><code>This is inline: $a^2 + b^2 = c^2$.\
+So is this: \(F = ma\).\
+This is display math:
+
+$$x = \frac{ - b \pm \sqrt {b^2 - 4ac} }{2a}$$
+
+And so is this:
+
+\[\frac{
+  \Delta \, \Gamma, e : \forall (u :: \kappa). \tau \qquad \Delta \vdash c :: \kappa
+}{
+  \Delta \, \Gamma \vdash e[c] : [c/u]\tau
+}\]</code></pre>
+<p>This is inline: <span class="math inline">a^2 + b^2 = c^2</span>.<br />
+So is this: <span class="math inline">F = ma</span>.</p>
+<p>This is display math:</p>
+<p><span class="math display">x = \frac{ - b \pm \sqrt {b^2 - 4ac} }{2a}</span></p>
+<p>And so is this:</p>
+<p><span class="math display">\frac{
+  \Delta \, \Gamma, e : \forall (u :: \kappa). \tau \qquad \Delta \vdash c :: \kappa
+}{
+  \Delta \, \Gamma \vdash e[c] : [c/u]\tau
+}</span></p>
+<p>The math is rendered with <a href="https://katex.org/"><span class="math inline">\KaTeX</span></a>. If a page uses math, Pandoc will automatically include the necessary CSS and JavaScript files to render the math.</p>
+<h1 id="images-tables-and-captioned-code-blocks">Images, tables, and captioned code blocks</h1>
+<p>Pandoc Markdown has special syntax for images and tables, and their captions. For example:</p>
+<pre><code>![Sugarloaf Hill, San Mateo, CA, April 2021](../img/sugarloaf-hill-forest-green.jpg)</code></pre>
+<figure>
+<img src="../img/sugarloaf-hill-forest-green.jpg" alt="Sugarloaf Hill, San Mateo, CA, April 2021" />
+<figcaption aria-hidden="true">Sugarloaf Hill, San Mateo, CA, April 2021</figcaption>
+</figure>
+<p>Note how the image’s <code>alt</code> text became the caption. With tables, the syntax is slightly different:</p>
+<table>
+<caption>This is the caption.</caption>
+<thead>
+<tr class="header">
+<th><strong>Column 1</strong></th>
+<th><strong>Column 2</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>This is some text.</td>
+<td>This is some text.</td>
+</tr>
+<tr class="even">
+<td>This is some text.</td>
+<td>This is some text.</td>
+</tr>
+</tbody>
+</table>
+<p>On top of the syntax Pandoc Markdown provides, this theme supports attaching captions to code blocks by wrapping the code block in a <code>&lt;figure&gt;</code> tag.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode numberSource html numberLines hl-1 hl-8 hl-9"><code class="sourceCode html"><span id="cb20-1"><a href="#cb20-1"></a><span class="dt">&lt;</span><span class="kw">figure</span><span class="dt">&gt;</span></span>
+<span id="cb20-2"><a href="#cb20-2"></a>```ruby</span>
+<span id="cb20-3"><a href="#cb20-3"></a>source &#39;https://rubygems.org&#39;</span>
+<span id="cb20-4"><a href="#cb20-4"></a></span>
+<span id="cb20-5"><a href="#cb20-5"></a>gem &#39;sorbet&#39;</span>
+<span id="cb20-6"><a href="#cb20-6"></a>gem &#39;sorbet-runtime&#39;</span>
+<span id="cb20-7"><a href="#cb20-7"></a>```</span>
+<span id="cb20-8"><a href="#cb20-8"></a><span class="dt">&lt;</span><span class="kw">figcaption</span><span class="dt">&gt;</span>An example Gemfile<span class="dt">&lt;/</span><span class="kw">figcaption</span><span class="dt">&gt;</span></span>
+<span id="cb20-9"><a href="#cb20-9"></a><span class="dt">&lt;/</span><span class="kw">figure</span><span class="dt">&gt;</span></span></code></pre></div>
+<figure>
+<div class="sourceCode" id="cb21"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>source <span class="vs">&#39;https://rubygems.org&#39;</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>gem <span class="vs">&#39;sorbet&#39;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>gem <span class="vs">&#39;sorbet-runtime&#39;</span></span></code></pre></div>
+<figcaption>
+An example Gemfile
+</figcaption>
+</figure>
+<h1 id="wide-extra-wide-and-full-width">Wide, extra-wide, and full-width</h1>
+<p>As mentioned when discussing side notes, this theme aims to be fully responsive. Responsive means more than just making it work on mobile—it means making the most of the available space on both small and large screens.</p>
+<p>To help you make the most of the available space, this theme provides three utility classes to declare how much extra space to use up when available:</p>
+<ul>
+<li><code>.wide</code>
+<ul>
+<li>On smaller screens, sets <code>overflow-x: scroll</code>.</li>
+<li>Takes up to <code>--main-width</code> space,<span class="sidenote-wrapper"><label for="sn-2" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="marginnote">The <code>--main-width</code> CSS variable defaults to 745px.<br />
+<br />
+</span></span> potentially expanding into the margin to do so. For example: when the browser takes up half of a 1920x1080 screen.</li>
+</ul></li>
+<li><code>.wide.extra-wide</code>
+<ul>
+<li>From <code>.wide</code>: on smaller screens, sets <code>overflow-x: scroll</code>.</li>
+<li>Takes up to <code>1.5 * --main-width</code> space,<span class="sidenote-wrapper"><label for="sn-3" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="marginnote">This multiple is configurable with <code>--extra-wide-scale-factor</code>.<br />
+<br />
+</span></span> potentially expanding into the margin to do so.</li>
+<li>If the right margin is not collapsed, the content will expand equally into both margins and be centered.</li>
+</ul></li>
+<li><code>.wide.full-width</code>
+<ul>
+<li>From <code>.wide</code>: on smaller screens, sets <code>overflow-x: scroll</code>.</li>
+<li>Take up all available space, expanding into all margins.</li>
+</ul></li>
+</ul>
+<p>(Note that <code>extra-wide</code> and <code>full-width</code> only work in conjunction with <code>.wide</code>.)</p>
+<p>These classes work with images, tables, code blocks, and math. Here are some examples:</p>
+<div class="wide extra-wide">
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Column 1</strong></th>
+<th><strong>Column 2</strong></th>
+<th><strong>Column 3</strong></th>
+<th><strong>Column 4</strong></th>
+<th><strong>Column 5</strong></th>
+<th><strong>Column 6</strong></th>
+<th><strong>Column 7</strong></th>
+<th><strong>Column 8</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+</tr>
+<tr class="even">
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="wide full-width left-align-caption">
+<figure>
+<img src="../img/upper-crystal-springs-reservoir-facing-northwest.jpg" alt="Upper Crystal Springs Reservoir, near Belmont, CA" />
+<figcaption aria-hidden="true">Upper Crystal Springs Reservoir, near Belmont, CA</figcaption>
+</figure>
+</div>
+<figure class="wide extra-wide">
+<span class="math display">
+  \frac{\quad}{\Delta \, \Gamma , x \, : \, \tau \vdash x \, : \, \tau} \;
+  (16.2a)
+  \quad \frac{\Delta \vdash \tau_1 \, \textsf{type} \quad \Delta \, \Gamma , x \, : \, \tau_1 \vdash e \, : \, \tau_2}{\Delta \, \Gamma \vdash \texttt{lam}\{\tau_1\}(x.e) \, : \, \texttt{arr}(\tau_1; \tau_2)} \; (16.2b)
+  \quad \frac{\Delta \, \Gamma \vdash e_1 \, : \, \texttt{arr}(\tau_2 ; \tau) \quad \Delta \, \Gamma \vdash e_2 \, : \, \tau_2}{\Delta \, \Gamma \vdash \texttt{ap}(e_1 ; e_2) \, : \, \tau} \; (16.2c) \\
+   \, \\
+  \quad \frac{\Delta, t \, \textsf{type} \, \Gamma \vdash e \, : \, \tau}{\Delta \, \Gamma \vdash \texttt{Lam}(t.e) \, : \, \texttt{all}(t.\tau)} \; (16.2d)
+  \quad \frac{\Delta \, \Gamma \vdash e \, : \, \texttt{all}(t.\tau&#39;) \quad \Delta \vdash \tau \, \textsf{type}}{\Delta \, \Gamma \vdash \texttt{App}\{\tau\}(e) \, : \, [\tau / t]\tau&#39;} \; (16.2e)
+</span>
+<figcaption>
+Typing rules for System F, From PFPL Chapter 16
+</figcaption>
+</figure>
+<div class="wide">
+<div class="sourceCode" id="cb22"><pre class="sourceCode numberSource yaml numberLines hl-4"><code class="sourceCode yaml"><span id="cb22-1"><a href="#cb22-1"></a><span class="pp">---</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a><span class="co"># ...</span></span>
+<span id="cb22-3"><a href="#cb22-3"></a><span class="fu">header-includes</span><span class="kw">:</span></span>
+<span id="cb22-4"><a href="#cb22-4"></a><span class="kw">-</span><span class="at"> </span><span class="st">&#39;&lt;style&gt;pre.hl-41 &gt; code.sourceCode &gt; span:nth-of-type(41)::after { content: &quot;&quot;; }&lt;/style&gt;&#39;</span></span>
+<span id="cb22-5"><a href="#cb22-5"></a><span class="pp">---</span></span></code></pre></div>
+</div>
+<p>(There is currently a bug where using <code>.wide</code> with <code>.numberLines</code> code blocks causes the line numbers to be hidden. They are still highlightable and linkable.)</p>
+<p>There are two supported syntaxes for marking things wide:</p>
+<ul>
+<li><p>Using Pandoc’s <code>fenced_divs</code> feature.</p>
+<pre><code>:::{.wide}
+&lt;!-- ... content ... --&gt;
+:::</code></pre>
+<p>This is convenient when not using captions, or when using the special-purpose caption syntax for images and tables.</p></li>
+<li><p>Using a raw <code>&lt;figure&gt;</code> tag.</p>
+<pre><code>&lt;figure class=&quot;wide&quot;&gt;
+&lt;!-- ... content ... --&gt;
+&lt;figcaption&gt; ... &lt;/figcaption&gt;
+&lt;/figure&gt;</code></pre>
+<p>Code blocks and display-mode math don’t have special syntax for adding captions, so this is the only option then.</p></li>
+</ul>
+<p>On large screens, the captions will generally be center aligned. This can look strange, especially for captions whose text wraps onto multiple lines. To avoid centering captions, add the <code>.left-align-caption</code>.</p>
+<div class="note blue">
+<table>
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td>ℹ️ You probably want to wrap all math and tables in <code>.wide</code> unless they’re less than ~300px. It will never display wider than the main body, but the <code>overflow-x</code> property on <code>.wide</code> ensures that it scrolls just the figure, not the whole page body.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="colored-note-callouts">Colored note callouts</h1>
+<p>As you just saw, an extra feature of this theme is colored note callouts. The syntax takes advantage of Pandoc’s <code>fenced_divs</code> feature:</p>
+<pre><code>:::{.note .blue}
+|     |
+| --- |
+| ℹ️ This is a note. |
+:::</code></pre>
+<div class="note blue">
+<table>
+<tbody>
+<tr class="odd">
+<td>ℹ️ This is a note.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Right now, notes are implemented in terms of HTML tables. This may change in the future.</p>
+<p>There are five colors total. The other colors:</p>
+<div class="note red">
+<table>
+<tbody>
+<tr class="odd">
+<td>🛑 Don’t do it!</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="note yellow">
+<table>
+<tbody>
+<tr class="odd">
+<td>☢️ Warning!</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="note green">
+<table>
+<tbody>
+<tr class="odd">
+<td>✅ Nice job!</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="note purple">
+<table>
+<tbody>
+<tr class="odd">
+<td>🔮 Can you see the future?</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>In addition to full-width block callouts, there are also inline highlights, in the same colors: <mark class="red">red</mark>, <mark class="yellow">yellow</mark>, <mark class="green">green</mark>, <mark class="blue">blue</mark>, <mark class="purple">purple</mark>.</p>
+<p>These accent colors are configurable with CSS variables.</p>
+<h1 id="table-of-contents">Table of contents</h1>
+<p>As you might have noticed, there’s an autogenerated table of contents! On large screens, it floats to the right margin. On narrower screens, it collapses into the document header.</p>
+<p>This is powered by Pandoc’s built in <code>--toc</code> flag. See where this project passes it to the <code>pandoc</code> invocation <a href="https://github.com/jez/pandoc-markdown-css-theme/blob/27d0aa58bfc6eafe296e2cef1900a39c9c2507a7/tools/build.sh#L62">here</a>.</p>
+<h1 id="tweaking-the-css-variables">Tweaking the CSS variables</h1>
+<p>As mentioned multiple times above, this theme is very configurable. See <a href="https://github.com/jez/pandoc-markdown-css-theme/blob/27d0aa58bfc6eafe296e2cef1900a39c9c2507a7/public/css/theme.css#L2">theme.css</a> for the full list of CSS variables. They control things like</p>
+<ul>
+<li>Font colors</li>
+<li>Accent colors</li>
+<li>Table borders and header colors</li>
+<li>Font family</li>
+<li>Font sizes, including body copy, code, and headings</li>
+<li>Side note text sizes and alignment</li>
+<li>The main width, including at narrow screen sizes.</li>
+</ul>
+<p>As an example, see the <a href="../tufte/">Kitchen Sink Tufte</a> page, which tweaks these CSS variables to approximate the look of <a href="https://edwardtufte.github.io/tufte-css/">Tufte CSS</a>.</p>
+<p>It’s also easy to change the syntax theme used for code highlights, because it lives in a separate file. The default theme is Solarized Light, which can be found in <a href="https://github.com/jez/pandoc-markdown-css-theme/blob/27d0aa58bfc6eafe296e2cef1900a39c9c2507a7/public/css/skylighting-solarized-theme.css#L1">skylighting-solarized-theme.css</a>.</p>
+<h1 id="automatic-light-and-dark-theme">Automatic light and dark theme</h1>
+<p>Pages will automatically choose light mode or dark mode styles based on the user’s preferences, detected via CSS <code>@media</code> queries.<span class="sidenote-wrapper"><label for="sn-4" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-4" class="margin-toggle"/><span class="sidenote">At the moment, this means there is no way to programmatically toggle between light and dark mode except by toggling the OS or browser’s setting.<br />
+<br />
+</span></span></p>
+<p>You can also use the <code>.only-light-mode</code> and <code>.only-dark-mode</code> CSS classes to make something appear only in light or dark mode. One use case for this is with images. For example, here’s some Pandoc markdown using <a href="https://pandoc.org/MANUAL.html#extension-fenced_divs"><code>fenced_divs</code></a> that shows a light or dark mode version of an image:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode numberSource markdown numberLines hl-1 hl-5"><code class="sourceCode markdown"><span id="cb26-1"><a href="#cb26-1"></a>:::{.only-light-mode}</span>
+<span id="cb26-2"><a href="#cb26-2"></a><span class="al">![The light-mode version of the image](../img/light-desktop.png)</span></span>
+<span id="cb26-3"><a href="#cb26-3"></a>:::</span>
+<span id="cb26-4"><a href="#cb26-4"></a></span>
+<span id="cb26-5"><a href="#cb26-5"></a>:::{.only-dark-mode}</span>
+<span id="cb26-6"><a href="#cb26-6"></a><span class="al">![The dark-mode version of the image](../img/dark-desktop.png)</span></span>
+<span id="cb26-7"><a href="#cb26-7"></a>:::</span></code></pre></div>
+<p>Only one of those divs will be rendered, depending on which theme is active. You can see the result below, and you can toggle your light or dark mode theme to see how the image updates:</p>
+<div class="only-light-mode">
+<figure>
+<img src="../img/light-desktop.png" alt="The light-mode version of the image" />
+<figcaption aria-hidden="true">The light-mode version of the image</figcaption>
+</figure>
+</div>
+<div class="only-dark-mode">
+<figure>
+<img src="../img/dark-desktop.png" alt="The dark-mode version of the image" />
+<figcaption aria-hidden="true">The dark-mode version of the image</figcaption>
+</figure>
+</div>
+<h1 id="print-styles">Print styles</h1>
+<p>As a reminder, this theme has custom print styles for U.S. Letter size paper. The print styles look similar to a somewhat narrow desktop screen, with enough room for a right margin with sidenotes, but not quite enough width to support the full 745px that the main body would normally take up. There is no large left margin, so the table of contents is shown at the top of the page (expanded).</p>
+<p>If print styles matter to you, take care to make sure that things don’t wrap. Some things like tables or math that would normally overflow and scroll on a screen will be clipped when printed. Always test your content before publishing.</p>
+<p>Feel free to test on this page. The tables and math are wide enough to demonstrate the problems.</p>
+<p>Most browsers will offer the user a choice of whether to include background colors or not. Things like code block backgrounds and table header backgrounds won’t show up unless the browser’s “Print backgrounds” option (or equivalent) is checked.</p>
+</main>
+
+<footer>
+<p class="signoff">
+  <a href="..">← Return home</a>
+</p>
+</footer>
+<script>
+;(function() {
+  // Non-essential if user has JavaScript off. Just makes checkboxes look nicer.
+  var selector = '.task-list > li > input[type="checkbox"]';
+  var checkboxes = document.querySelectorAll(selector);
+  Array.from(checkboxes).forEach((checkbox) => {
+    var wasChecked = checkbox.checked;
+    checkbox.disabled = false;
+    checkbox.addEventListener('click', (ev) => {ev.target.checked = wasChecked});
+  });
+})();
+</script>
+</body>
+</html>

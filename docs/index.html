@@ -2,890 +2,430 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
 <head>
   <meta charset="utf-8" />
-  <meta name="generator" content="pandoc" />
+  <meta name="generator" content="pandoc-markdown-css-theme" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>QuIP#</title>
-  <style>
-    html {
-      font-family: cambria;
-      font-size: 16pt;
-      color: #1a1a1a;
-      background-color: #fdfdfd;
-    }
-    body {
-      margin: 0 auto;
-      max-width: 36em;
-      padding-left: 50px;
-      padding-right: 50px;
-      padding-top: 50px;
-      padding-bottom: 50px;
-      hyphens: auto;
-      overflow-wrap: break-word;
-      text-rendering: optimizeLegibility;
-      font-kerning: normal;
-    }
-    @media (max-width: 600px) {
-      body {
-        font-size: 0.9em;
-        padding: 12px;
-      }
-      h1 {
-        font-size: 1.8em;
-      }
-    }
-    @media print {
-      html {
-        background-color: white;
-      }
-      body {
-        background-color: transparent;
-        color: black;
-        font-size: 12pt;
-      }
-      p, h2, h3 {
-        orphans: 3;
-        widows: 3;
-      }
-      h2, h3, h4 {
-        page-break-after: avoid;
-      }
-    }
-    p {
-      margin: 1em 0;
-    }
-    a {
-      color: #1a1a1a;
-    }
-    a:visited {
-      color: #1a1a1a;
-    }
-    img {
-      max-width: 100%;
-    }
-    svg {
-      height: auto;
-      max-width: 100%;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      margin-top: 1.4em;
-    }
-    h5, h6 {
-      font-size: 1em;
-      font-style: italic;
-    }
-    h6 {
-      font-weight: normal;
-    }
-    ol, ul {
-      padding-left: 1.7em;
-      margin-top: 1em;
-    }
-    li > ol, li > ul {
-      margin-top: 0;
-    }
-    blockquote {
-      margin: 1em 0 1em 1.7em;
-      padding-left: 1em;
-      border-left: 2px solid #e6e6e6;
-      color: #606060;
-    }
-    code {
-      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
-      font-size: 85%;
-      margin: 0;
-      hyphens: manual;
-    }
-    pre {
-      margin: 1em 0;
-      overflow: auto;
-    }
-    pre code {
-      padding: 0;
-      overflow: visible;
-      overflow-wrap: normal;
-    }
-    .sourceCode {
-     background-color: transparent;
-     overflow: visible;
-    }
-    hr {
-      background-color: #1a1a1a;
-      border: none;
-      height: 1px;
-      margin: 1em 0;
-    }
-    table {
-      margin: 1em 0;
-      border-collapse: collapse;
-      width: 100%;
-      overflow-x: auto;
-      display: block;
-      font-variant-numeric: lining-nums tabular-nums;
-    }
-    table caption {
-      margin-bottom: 0.75em;
-    }
-    tbody {
-      margin-top: 0.5em;
-      border-top: 1px solid #1a1a1a;
-      border-bottom: 1px solid #1a1a1a;
-    }
-    th {
-      border-top: 1px solid #1a1a1a;
-      padding: 0.25em 0.5em 0.25em 0.5em;
-    }
-    td {
-      padding: 0.125em 0.5em 0.25em 0.5em;
-    }
-    header {
-      margin-bottom: 4em;
-      text-align: center;
-    }
-    #TOC li {
-      list-style: none;
-    }
-    #TOC ul {
-      padding-left: 1.3em;
-    }
-    #TOC > ul {
-      padding-left: 0;
-    }
-    #TOC a:not(:hover) {
-      text-decoration: none;
-    }
-    code{white-space: pre-wrap;}
-    span.smallcaps{font-variant: small-caps;}
-    div.columns{display: flex; gap: min(4vw, 1.5em);}
-    div.column{flex: auto; overflow-x: auto;}
-    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
-    ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
-      width: 0.8em;
-      margin: 0 0.8em 0.2em -1.6em;
-      vertical-align: middle;
-    }
-  </style>
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
-  type="text/javascript"></script>
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
+  <title>ModuLoRA: Finetuning 2-Bit LLMs on Consumer GPUs by Integrating with Modular Quantizers</title>
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/skylighting-solarized-theme.css" />
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css" />
+  <link rel="stylesheet" href="../public/css/tufte.css">
 </head>
 <body>
-<style>
-body { max-width: 800px !important; text-align: justify; }
-tbody {
-    border-top: none;
-    border-bottom: none;
-}
-header { height:0px;}
-tr:nth-child(2n) {
-  background-color: #EEEEEE;
-}
-th {
-  background-color: #EEEEEE;
-}
-</style>
-<h2
-id="this-blog-post-is-outdated.-refer-to-the-arxiv-instead-httpsarxiv.orgabs2402.04396.">This
-blog post is outdated. Refer to the arXiv instead: <a
-href="https://arxiv.org/abs/2402.04396">https://arxiv.org/abs/2402.04396</a>.</h2>
-<h2 id="quip-quip-with-lattice-codebooks">QuIP#: <a
-href="https://github.com/jerry-chee/QuIP">QuIP</a> with Lattice
-Codebooks</h2>
-<p><a href="https://tsengalb99.github.io">Albert Tseng*</a>, <a
-href="https://jerry-chee.github.io/">Jerry Chee*</a>, <a
-href="https://nalzok.github.io/">Qingyao Sun</a>, <a
-href="https://www.cs.cornell.edu/~kuleshov/">Volodymyr Kuleshov</a>, and
-<a href="https://www.cs.cornell.edu/~cdesa/">Chris De Sa</a></p>
-<hr />
-<p><img src="img/overview.svg" /></p>
-<p>Large language models (LLMs) exhibit amazing performance on a wide
-variety of tasks such as text modeling and code generation. However,
-they are also very large. For example Llama 2 70B has 70 billion
-parameters that require 140GB of memory to store in half precision. This
-presents many challenges, such as needing multiple GPUs just to serve a
-single LLM. To address these issues, researchers have developed
-compression methods that reduce the size of models without destroying
-performance.</p>
-<p>One class of methods, post-training quantization, compresses trained
-model weights into lower precision formats to reduce memory
-requirements. For example, quantizing a model from 16 bit to 2 bit
-precision would reduce the size of the model by 8x, meaning that even
-Llama 2 70B would fit on a single 24GB GPU. In this work, we introduce
-<strong>QuIP#</strong>, which combines lattice codebooks with
-incoherence processing to create state-of-the-art 2 bit quantized
-models. These two methods allow QuIP# to significantly close the gap
-between 2 bit quantized LLMs and unquantized 16 bit models.</p>
-<div style="margin-left: auto;
-            margin-right: auto;
-            width: 90%;">
-<table style="width:100%;">
-<caption>Quantization results on Llama 2 70B. QuIP# achieves near-native
-performance at 2 bits, outperforming all other presented
-baselines.</caption>
-<colgroup>
-<col style="width: 16%" />
-<col style="width: 16%" />
-<col style="width: 16%" />
-<col style="width: 16%" />
-<col style="width: 16%" />
-<col style="width: 16%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: center;">Method</th>
-<th style="text-align: center;">Precision</th>
-<th style="text-align: center;">Wiki <span
-class="math inline">\(\downarrow\)</span></th>
-<th style="text-align: center;">C4 <span
-class="math inline">\(\downarrow\)</span></th>
-<th style="text-align: center;">ArcE <span
-class="math inline">\(\uparrow\)</span></th>
-<th style="text-align: center;">PiQA <span
-class="math inline">\(\uparrow\)</span></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: center;">Native</td>
-<td style="text-align: center;">16 bit</td>
-<td style="text-align: center;">3.120</td>
-<td style="text-align: center;">5.533</td>
-<td style="text-align: center;">0.597</td>
-<td style="text-align: center;">0.809</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">OPTQ</td>
-<td style="text-align: center;">3 bit</td>
-<td style="text-align: center;">4.577</td>
-<td style="text-align: center;">6.838</td>
-<td style="text-align: center;">0.544</td>
-<td style="text-align: center;"><strong>0.786</strong></td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">OPTQ</td>
-<td style="text-align: center;">2 bit</td>
-<td style="text-align: center;">109.820</td>
-<td style="text-align: center;">62.692</td>
-<td style="text-align: center;">0.253</td>
-<td style="text-align: center;">0.505</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">QuIP</td>
-<td style="text-align: center;">2 bit</td>
-<td style="text-align: center;">5.574</td>
-<td style="text-align: center;">8.268</td>
-<td style="text-align: center;">0.544</td>
-<td style="text-align: center;">0.751</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;"><strong>QuIP#</strong></td>
-<td style="text-align: center;"><strong>2 bit</strong></td>
-<td style="text-align: center;"><strong>4.159</strong></td>
-<td style="text-align: center;"><strong>6.529</strong></td>
-<td style="text-align: center;"><strong>0.595</strong></td>
-<td style="text-align: center;">0.786</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div
-style="color:steelblue; margin-left: -14%; margin-right: auto; width: 115%">
-<table>
-<colgroup>
-<col style="width: 3%" />
-<col style="width: 96%" />
-</colgroup>
-<tbody>
-<tr class="odd">
-<td style="text-align: right;"><span
-style="font-size:72pt">☞</span></td>
-<td><strong>Our method, QuIP#, creates 2 bit LLMs that achieve
-near-native performance, a previously unseen result. We provide a <a
-href="https://huggingface.co/relaxml">full suite of 2 bit Llama 1 and 2
-models quantized using QuIP#</a>, as well as a full codebase that allows
-users to quantize and deploy their own models. We also provide CUDA
-kernels that accelerate inference for QuIP# models. Our code is
-available <a
-href="https://github.com/Cornell-RelaxML/quip-sharp">here</a>.</strong></td>
-</tr>
-</tbody>
-</table>
-</div>
-<h3 id="method-overview">Method Overview</h3>
-<p>QuIP# relies on two main components: <em>incoherence processing</em>
-and <em>lattice codebooks</em>. Incoherence processing in the context of
-model quantization was introduced in QuIP. While QuIP used a Kronecker
-product to perform incoherence processing, we introduce a Hadamard
-transform-based incoherence approach that is more amenable to fast GPU
-acceleration.</p>
-<p>Incoherence-processed weights are approximately Gaussian-distributed,
-which means that they are suitable for quantizing with symmetric and
-“round” codebooks. We introduce a new lattice codebook based on the
-<span class="math inline">\(E_8\)</span> lattice, which achieves the
-optimal 8 dimension unit ball packing density. Our codebooks are
-specifically designed to be hardware-friendly by exploiting symmetries
-in these lattices.</p>
-<h3 id="quantization-background">Quantization Background</h3>
-<p>In QuIP#, we follow existing state-of-the-art post training
-quantization methods and round weights to minimize the per-layer
-“adaptive rounding” proxy objective</p>
-<p><span class="math display">\[
-\ell(\hat W)
-  = E_x \left[ \| (\hat W - W)x \|^2 \right]
+
+<header>
+<h1 class="title">ModuLoRA: Finetuning 2-Bit LLMs on Consumer GPUs by Integrating with Modular Quantizers</h1>
+<blockquote class="metadata">
+</blockquote>
+</header>
+
+<nav id="TOC" role="doc-toc">
+    <strong>Contents</strong><label for="contents">⊕</label>
+  <input type="checkbox" id="contents">
+  <ul>
+  <li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+  <li><a href="#resources" id="toc-resources">Resources</a></li>
+  <li><a href="#method-overview" id="toc-method-overview">Method Overview</a>
+  <ul>
+  <li><a href="#quantization-x-lora" id="toc-quantization-x-lora">Quantization x LoRA</a></li>
+  <li><a href="#modularity" id="toc-modularity">Modularity</a></li>
+  <li><a href="#llmtools" id="toc-llmtools">LLMTools</a></li>
+  </ul></li>
+  <li><a href="#results" id="toc-results">Results</a>
+  <ul>
+  <li><a href="#natural-language-inference" id="toc-natural-language-inference">Natural Language Inference</a></li>
+  <li><a href="#memory-usage" id="toc-memory-usage">Memory Usage</a></li>
+  </ul></li>
+  <li><a href="#usage" id="toc-usage">Usage</a>
+  <ul>
+  <li><a href="#how-to-use-llmtools" id="toc-how-to-use-llmtools">How to Use LLMTools</a></li>
+  <li><a href="#advanced-usage" id="toc-advanced-usage">Advanced Usage</a>
+  <ul>
+  <li><a href="#enbaling-npp-training" id="toc-enbaling-npp-training">Enbaling NPP Training</a></li>
+  <li><a href="#enabling-ddp-training" id="toc-enabling-ddp-training">Enabling DDP Training</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#see-also" id="toc-see-also">See also</a></li>
+  <li><a href="#references" id="toc-references">References</a></li>
+  </ul>
+</nav>
+
+<main>
+<blockquote>
+<p><a href="https://oseyincs.io/">Junjie Oscar Yinn</a>, <a href="jd787">Jiahao Dong</a>, <a href="https://isjakewong.github.io/">Yingheng Wang</a>, <a href="https://www.cs.cornell.edu/~cdesa/">Chris De Sa</a>, and <a href="https://www.cs.cornell.edu/~kuleshov/">Volodymyr Kuleshov</a>. Date: 2024-03-20</p>
+</blockquote>
+<h1 id="introduction">Introduction</h1>
+<p>Finetuning LLMs on consumer GPUs poses significant challenges due to LLMs’ sheer size and memory requirement. To put this into perspective, finetuning Bloom-176B would require 72x 80GB A100 GPUs. Finetuning LLMs have shown to be an essential task for developing interactive agents with instruction following finetuning <a href="https://arxiv.org/pdf/2212.10560">(Wang et al. (2022))</a> and powerful AI systems through RLHF <a href="https://proceedings.neurips.cc/paper_files/paper/2022/file/b1efde53be364a73914f58805a001731-Paper-Conference.pdf">Ouyang et al. (2022)</a>. Thus, improving the memory-efficiency of LLM finetuning is an important step toward accessbile and practical LLMs application.</p>
+<p>One promising class of methods for memory-efficient finetuning is parameter efficient finetuning (PEFT), which usually invovles learning a small adapter that can be applied to the pre-trained model <a href="https://www.nature.com/articles/s42256-023-00626-4">(Ding et al., 2023)</a>. PEFT reduces the memory requirement for finetuning LLMs by freezing its pre-trained parameters and optimizing a set of new parameters that is a fraction of the pre-trained parameters.</p>
+<p>In this blogpost, we introduce <strong>ModuLoRA</strong>, a modular PEFT framework that integreates user-specified weight quantizer with finetuning via low-rank adapters (LoRAs). ModuLoRA allows 2-bit models to acheive near lossless downstream finetuning peformance compared to higher precision 4-bit, 8-bit, and even 16-bit models. Leveraging the transformers and peft libraries within the Hugging Face ecosystem, users can finetune and deploy 2/3/4-bit models easily. The abstract of the paper is as follows:</p>
+<blockquote>
+<p>We propose a memory-efficient finetuning algorithm for large language models (LLMs) that supports finetuning LLMs with 65B parameters in 2/3/4-bit precision on as little as one 24GB GPU. Our method, modular low-rank adaptation (ModuLoRA), integrates any user-specified weight quantizer with finetuning via low-rank adapters (LoRAs). Our approach relies on a simple quantization-agnostic backward pass that adaptively materializes lowprecision LLM weights from a custom black-box quantization module. This approach enables finetuning 2-bit and 3-bit LLMs for the first time—leveraging state-of-the-art 2-bit QuIP# quantization and 3-bit OPTQ quantization—outperforming finetuning that relies on less sophisticated 4-bit and 8-bit methods. In our experiments, ModuLoRA attains competitive performance on text classification, natural language inference, and instruction following tasks using significantly less memory than existing approaches, and we also surpass the state-of-the-art ROUGE score on a popular summarization task. We release ModuLoRA together with a series of low-precision models as part of LLMTools, a user-friendly library for quantizing, running, and finetuning LLMs on consumer GPUs.</p>
+</blockquote>
+<h1 id="resources">Resources</h1>
+<p>We provide several resources with this blogpost to get started with ModuLoRA:</p>
+<p><a href="">→ ModuLoRA Paper (TMLR with Featured Certificate)</a><br />
+<a href="">→ Codebase for Easy Usage and Replicating Paper’s Result</a><br />
+<a href="">→ Example Usage with Google Collab</a></p>
+<h1 id="method-overview">Method Overview</h1>
+<h2 id="quantization-x-lora">Quantization x LoRA</h2>
+<p>ModuLoRA relies on two components: quantization and low rank adapation (LoRA) of LLMs. Quantization methods reduce the number of bits required to store model weights. Recently, OPTQ demonstrated the feasibility of quantizing to billion-parameter LLMs. A <span class="math inline">x</span>-bit quantization method has the form <span class="math display">
+(\hat{W}_q, \mathbf{z}, \mathbf{s}) = \mathcal{Q}(\mathbf{W}) \quad \quad \hat{W} = \mathcal{D}(\hat{W}_q, \mathbf{z}, \mathbf{s}).
+</span></p>
+<p>Here, the quantization algorithm <span class="math inline">\mathcal{Q}</span> takes a weight matrix <span class="math inline">\mathbf{W} \in \mathbb{R}^{d \times d}</span> (or its subset) and outputs a quantized version <span class="math inline">\hat{W}_q \in \{0, 1, \ldots, 2^{b-1}\}^{d \times d}</span>, using <span class="math inline">x</span> bits to represent each entry of <span class="math inline">\mathbf{W}</span>, as well as zero and scale parameters <span class="math inline">\mathbf{z}, \mathbf{s} \in \mathbb{R}^d</span> (in full precision). The dequantization algorithm <span class="math inline">\mathcal{D}(\hat{W}_q, \mathbf{z}, \mathbf{s})</span> recovers an approximation <span class="math inline">\hat{W} \in \mathbb{R}^{d \times d}</span> by rescaling the quantized weights as <span class="math inline">\hat{W} = \mathbf{s} \odot \hat{W}_q + \mathbf{z}</span>, where <span class="math inline">\odot</span> denotes the Hadamard product. The operations <span class="math inline">\odot</span> and <span class="math inline">+</span>​ are defined to be compatible with numpy-style broadcasting.</p>
+<p>Currently, ModuLoRA incorporates two quantization modules–OPTQ and QuIP#–that enables low-precision finetuning with 0-degradation. Recently, Frantar et al. (2023) proposed OPTQ, a quantization algorithm that scales to modern LLMs. The method iteatively runs two steps over the weight columns: (1) quantize with nearest rounding and compute the error, (2) update the remaining weights with a scaled error.</p>
+<p>Following OPTQ, Chee et al. (2023) proposed QuIP, a quantization algorithm that makes two-bit LLM compression viable for the first time. The method follows a 2-step procedure: (1) an adaptive rounding procedure that minimizes a quadratic proxy objective, (2) an efficient pre- and post-processing procedure ensuring weight and Hessian incoherence through multiplication by random orthogonal matrices. Further, Tseng et al. (2023) proposed QuIP#, combining lattice codebooks with incoherence processing from QuIP to create state-of-the-art 2 bit quantized models. Both QuIP and QuIP# optimize weights through a per-layer “adaptive rounding” loss function, defined as: <span class="math display">
+\ell(\hat W_q)
+  = E_x \left[ \| (\hat W_q - \mathbf{W})x \|^2 \right]
   = \operatorname{tr}\left(
-    (\hat W - W) H (\hat W - W)^T
+    (\hat W_q - \mathbf{W}) H (\hat W_q - \mathbf{W})^T
    \right).
-\]</span></p>
-<p>Here, <span class="math inline">\(W \in \mathbb{R}^{m \times
-n}\)</span> is the original weight matrix in a given layer, <span
-class="math inline">\(\hat W = \mathbb{R}^{m \times n}\)</span> are the
-quantized weights, <span class="math inline">\(x \in
-\mathbb{R}^n\)</span> is an input vector drawn uniformly at random from
-a calibration set, and <span class="math inline">\(H\)</span> is the
-second moment matrix of these vectors, interpreted as a proxy Hessian.
-This intra-layer formulation makes quantization tracatable for large
-language models. The original QuIP paper forumlated a class of adaptive
-rounding methods that used linear feedback to minimize <span
-class="math inline">\(\ell\)</span>. Within this class, the LDLQ
-rounding algorithm was shown to be optimal; we use LDLQ in QuIP# as
-well.</p>
-<h3 id="incoherence-processing">Incoherence Processing</h3>
-<p>The main insight of QuIP is that incoherent weight and hessian
-matrices result in improved quantization performance. Informally, this
-means that weights that are even in magnitude with important rounding
-directions (the Hessians) that are not too large in any one coordinate
-are significantly easier to quantize without catastrophic error. In some
-sense, incoherence processing can be viewed as a form of outlier
-suppression across weight and activation spaces.</p>
-<div style="background-color: #EEEEEE;">
-<p><strong>Definition.</strong> <em>We say a symmetric Hessian matrix
-<span class="math inline">\(H \in \mathbb{R}^{n \times n}\)</span> is
-<span class="math inline">\(\mu\)</span>-incoherent if it has an
-eigendecomposition <span class="math inline">\(H = Q \Lambda
-Q^T\)</span> such that for all <span class="math inline">\(i\)</span>
-and <span class="math inline">\(j\)</span>, <span
-class="math inline">\(|Q_{ij}| = |e_i^T Q e_j| \leq \mu /
-\sqrt{n}\)</span>. By extension, we say a weight matrix <span
-class="math inline">\(W \in \mathbb{R}^{m \times n}\)</span> is <span
-class="math inline">\(\mu\)</span>-incoherent if for all <span
-class="math inline">\(i\)</span> and <span
-class="math inline">\(j\)</span>, <span class="math inline">\(|W_{ij}| =
-|e_i^T W e_j| \leq \mu \|W\|_F / \sqrt{mn}\)</span>.</em></p>
-</div>
-<p>Incoherence is an important property for quantizing models. In QuIP,
-the incoherence condition on <span class="math inline">\(H\)</span> is
-required to show that LDLQ achieves a superior proxy loss to nearest and
-stochastic rounding through a spectral bound on <span
-class="math inline">\(H\)</span>. Therefore, it is important to be able
-to incoherence-process weight and hessian matrices efficiently so that
-incoherence-processed models can be tractably deployed.</p>
-<p>One way to do this is by conjugating <span
-class="math inline">\(W\)</span> and <span
-class="math inline">\(H\)</span> by random orthogonal matrices. Let
-<span class="math inline">\(U \in \mathbb{R}^{m \times m}\)</span>, and
-<span class="math inline">\(V \in \mathbb{R}^{n \times n}\)</span> be
-two random orthogonal matrices. If we assign <span
-class="math inline">\(\tilde H \gets V H V^T\)</span> and <span
-class="math inline">\(\tilde W \gets U W V^T\)</span>, <span
-class="math inline">\(\tilde H\)</span> and <span
-class="math inline">\(\tilde W\)</span> become incoherence processed
-with high probability (see QuIP for proof). One can verify that this
-transformation preserves the proxy objective as <span
-class="math display">\[\operatorname{tr}(\tilde W \tilde H \tilde W^T) =
-\operatorname{tr}((U W V^T) (V H V^T) (V W^T U^T)) =
-\operatorname{tr}(WHW^T).\]</span></p>
-<h4 id="randomized-hadamard-transformation-rht">Randomized Hadamard
-Transformation (RHT)</h4>
-<p>To construct <span class="math inline">\(U\)</span> and <span
-class="math inline">\(V\)</span> from above, we use the RHT, which is
-amenable to fast GPU implementation. In fact, one of the CUDA sample
-kernels is the RHT. The RHT performs the multiplication <span
-class="math inline">\(x \in \mathbb{R}^n \to \mathbb{H}Sx\)</span>,
-where <span class="math inline">\(\mathbb{H}\)</span> is a <span
-class="math inline">\(n \times n\)</span> Hadamard matrix (scaled by a
-normalization factor) and <span class="math inline">\(S\)</span> is a
-<span class="math inline">\(n\)</span> dimensional random sign vector.
-The RHT concentrates the entries of <span
-class="math inline">\(x\)</span> and thus results in incoherent matrices
-through an <a
-href="http://www.cs.cmu.edu/afs/cs/user/dwoodruf/www/teaching/15859-fall20/lecture_2.1.pdf">application
-of the Azuma-Hoeffding inequality</a>. Note that the Hadamard transform
-can be computed more efficiently than a matrix multiplication via the
-fast Walsh-Hadamard transform, which we employ directly for powers of 2.
-To handle non power-of-two values of <span
-class="math inline">\(n\)</span>, we perform the following
-algorithm:</p>
-<ol type="1">
-<li>Let <span class="math inline">\(p\)</span> be the remaining
-dimension and reshape <span class="math inline">\(Sx\)</span> into a
-<span class="math inline">\(n/p \times p\)</span> matrix.</li>
-<li>Perform the fast Walsh-Hadamard transform on <span
-class="math inline">\(Sx\)</span> associated with dimension <span
-class="math inline">\(n/p\)</span>.</li>
-<li>Let <span class="math inline">\(\mathbb{H}&#39;\)</span> be a <span
-class="math inline">\(p \times p\)</span> scaled Hadamard matrix. Apply
-this Hadamard transform to <span class="math inline">\(Sx\)</span> on
-the right, and reshape back.</li>
-</ol>
-<p>The only consequence of performing RHT is needing to store two sign
-vectors per layer: <span class="math inline">\(S_U\)</span> and <span
-class="math inline">\(S_V\)</span>. Since large language models have
-large weight and Hessian matrices, this only increases the number of
-bits per weight in practice by less than 0.01, or a negligible
-amount.</p>
-<h3 id="lattice-codebooks">Lattice Codebooks</h3>
-<p>Incoherence processed weights are approximately Gaussian-distributed,
-meaning that they are symmetric and “round.” To take advantage of this
-“roundness,” we can use <span class="math inline">\(n\)</span>
-dimensional codebooks that quantize <span
-class="math inline">\(n\)</span> weights at once. Specifically, to
-quantize <span class="math inline">\(x \in \mathbb{R}^n\)</span> to a
-<span class="math inline">\(n\)</span> dimensional codebook <span
-class="math inline">\(C \in \mathbb{R}^{m \times n}\)</span>, we round
-<span class="math inline">\(x\)</span> to its nearest distance-wise
-entry in <span class="math inline">\(C\)</span>. This requires <span
-class="math inline">\(\log_2m\)</span> bits to represent which index in
-<span class="math inline">\(C\)</span> to store, and results in <span
-class="math inline">\(k = \frac{\log_2m}{n}\)</span> bits per
-weight.</p>
-<p>Increasing <span class="math inline">\(n\)</span> results in a
-“rounder” codebook that reduces quantization error. However, note that
-the number of bits per weight is determined by <em>both</em> the number
-of entries in <span class="math inline">\(C\)</span> (m) as well as the
-dimension of <span class="math inline">\(C\)</span> (n). To maintain a
-set number of bits per weight, a linear increase in <span
-class="math inline">\(n\)</span> requires an exponential increase in
-<span class="math inline">\(m\)</span>. For example, a naively designed
-16-dimensional codebook requires <span
-class="math inline">\(2^{32}\)</span> entries to achieve 2 bits per
-weight, but performing lookups into a size <span
-class="math inline">\(2^{32}\)</span> codebook is intractable. Thus, it
-is important to design codebooks that both have relatively large <span
-class="math inline">\(n\)</span> while being compressible so the actual
-lookup happens with less than <span
-class="math inline">\(2^{nk}\)</span> entries.</p>
-<p>Geometric lattices are suitable bases for such codebooks as most
-lattices have inherent symmetries and certain lattices achieve optimal
-bin packing densities. For example, our E8P codebook based on the <span
-class="math inline">\(E_8\)</span> lattice has <span
-class="math inline">\(2^{16}\)</span> entries but only requires looking
-up into a size <span class="math inline">\(2^8\)</span> codebook due to
-symmetries inherent to the <span class="math inline">\(E_8\)</span>
-lattice itself – more on this later. In QuIP#, we present the E8P
-codebook based on the 8-dimensional <span
-class="math inline">\(E_8\)</span> lattice. This lattice achieves the 8
-dimensional kissing number, or the maximum number of unit balls touching
-a central unit ball in 8 dimensions. Interestingly, Maryna Viazovska
-recently won the Fields Medal in 2022 “for the proof that the <span
-class="math inline">\(E_8\)</span> lattice provides the densest packing
-of identical spheres in 8 dimensions.”</p>
-<figure>
-<img src="img/kissing2d.png"
-alt="The 2D kissing number is 6, which is achieved by this packing configuration. Image from Wikipedia." />
-<figcaption aria-hidden="true">The 2D kissing number is 6, which is
-achieved by this packing configuration. Image from
-Wikipedia.</figcaption>
-</figure>
-<h4 id="e8p-codebook">E8P Codebook</h4>
-<p>Our E8P codebook is a version of the <span
-class="math inline">\(E_8\)</span> lattice intersected with a ball,
-padded (hence the P in E8P) to reach <span
-class="math inline">\(2^{16}\)</span> entries. This results in <span
-class="math inline">\(k = 16/8 = 2\)</span> bits per weight. The <span
-class="math inline">\(E_8\)</span> lattice is composed of 8 dimensional
-all-integer or all-half integer vectors whose sum is an even number. In
-set-builder notation, <span class="math display">\[E_8 = \left\{x \mid x
-\in \left(\mathbb{Z}^8 \cup \left(\mathbb{Z}+\frac{1}{2}\right)^8\right)
-\land \sum_i x_i \equiv 0 \pmod 2\right\}.\]</span> Note that <span
-class="math inline">\(E_8 + \frac{1}{4}\)</span> has the same packing
-density of <span class="math inline">\(E_8\)</span> and is equivalent to
-<span class="math inline">\(D_8 + \frac{1}{2} \pm \frac{1}{4}\)</span>,
-where <span class="math inline">\(D_8\)</span> is the set of 8
-dimensional all-integer vectors with even sum. Denote <span
-class="math inline">\(D_8 + \frac{1}{2}\)</span> as <span
-class="math inline">\(\hat{D_8}\)</span>; all elements in <span
-class="math inline">\(\hat{D_8}\)</span> also have even sum parity.</p>
-<p>Now, note that if we flip an even number of signs of an element in
-<span class="math inline">\(\hat{D_8}\)</span>, we get another element
-in <span class="math inline">\(\hat{D_8}\)</span>, whereas flipping an
-odd number of signs results in something not in <span
-class="math inline">\(\hat{D_8}\)</span>. This is due to <span
-class="math inline">\(\hat{D_8}\)</span> being a half integer grid;
-flipping a single half integer results in changing the sum parity. Since
-<span class="math inline">\(\hat{D_8}\)</span> has 8 dimensions, there
-are <span class="math inline">\(2^8/2 = 128\)</span> possible “even sign
-flip” patterns to stay within <span
-class="math inline">\(\hat{D_8}\)</span>. Conversely, there are also 128
-“odd sign flip” patterns.</p>
-<p>If we start from some “source codebook” <span
-class="math inline">\(S\)</span> that is a subset of <span
-class="math inline">\(|\hat{D_8}|\)</span>, where <span
-class="math inline">\(|\cdot|\)</span> denotes the elementwise absolute
-value, we can use 128 odd or even sign flips to generate a subset of
-<span class="math inline">\(\hat{D_8}\)</span>. Each entry in <span
-class="math inline">\(S\)</span> is either an odd or even number of
-flips away from an entry in <span
-class="math inline">\(\hat{D_8}\)</span>, but not both. Thus, given an
-entry <span class="math inline">\(s \in S\)</span> and 7 out of the 8
-sign flips, we can infer the last one from the parity of the 7 sign
-flips and <span class="math inline">\(s\)</span>. This lets us use the
-following bit pattern to store a 16-bit codeword in <span
-class="math inline">\(E_8 + \frac{1}{4}\)</span>: 8 bits for the entry
-index in <span class="math inline">\(S\)</span>, 7 bits for the sign
-flips of the right 7 dimensions of the entry in <span
-class="math inline">\(S\)</span>, and 1 bit to add or subtract <span
-class="math inline">\(\frac{1}{4}\)</span>.</p>
-<p>For example, if we had the codeword <code>0001010110010111</code>,
-the first 8 bits <code>00010101</code> = 21 would indicate that we start
-with the 21st entry in <span class="math inline">\(S\)</span>. In this
-example, let this be the vector</p>
-<p><span class="math display">\[\left\{\frac{1}{2}, \frac{1}{2},
-\frac{1}{2}, \frac{3}{2}, \frac{1}{2}, \frac{1}{2}, \frac{1}{2},
-\frac{1}{2}\right\},\]</span></p>
-<p>which is not in <span class="math inline">\(\hat{D_8}\)</span>. Thus,
-<span class="math inline">\(s\)</span> requires an odd number of sign
-flips to get into <span class="math inline">\(\hat{D_8}\)</span>. Then,
-the next 7 bits <code>1001011</code> would indicate that we need to
-negate the 1st, 2nd, 4th, and 7th from right bits. Since we need an odd
-number of sign flips, the 8th from right bit is also a sign flip. The
-sign-decoded vector is then</p>
-<p><span class="math display">\[\left\{-\frac{1}{2}, -\frac{1}{2},
-\frac{1}{2}, \frac{3}{2}, -\frac{1}{2}, \frac{1}{2}, -\frac{1}{2},
--\frac{1}{2}\right\},\]</span></p>
-<p>which we can verify is in <span class="math inline">\(E_8\)</span>.
-Finally, the last bit <code>1</code> indicates that we need to add <span
-class="math inline">\(\frac{1}{4}\)</span>, so the final decoded vector
-is</p>
-<p><span class="math display">\[\left\{-\frac{1}{4}, -\frac{3}{4},
-\frac{3}{4}, \frac{7}{4}, -\frac{1}{4}, \frac{3}{4}, -\frac{1}{4},
--\frac{1}{4}\right\},\]</span></p>
-<p>which is in <span class="math inline">\(E_8 + \frac{1}{4}\)</span> as
-desired.</p>
-<p>Putting this all together, this lets us decode a size <span
-class="math inline">\(2^{16}\)</span> codebook by looking up into only a
-size <span class="math inline">\(2^8\)</span> codebook (namely <span
-class="math inline">\(S\)</span>) and performing some operations. On
-hardware, this means that we can store the smaller <span
-class="math inline">\(2^8\)</span> codebook in local caches, avoiding
-performance killing memory accesses that the larger <span
-class="math inline">\(2^{16}\)</span> codebook would require. The
-question remains then of how to choose <span
-class="math inline">\(S\)</span>. In our implementation, we set <span
-class="math inline">\(S\)</span> to be the 227 elements of <span
-class="math inline">\(|\hat{D_8}|\)</span> with norm <span
-class="math inline">\(\le \sqrt{10}\)</span> plus 29 elements from <span
-class="math inline">\(|\hat{D_8}|\)</span> that have norm <span
-class="math inline">\(\sqrt{12}\)</span>. The exact elements chosen can
-be found in our code.</p>
-<h4 id="residual-vector-quantization">Residual Vector Quantization</h4>
-<p>The <span class="math inline">\(E_8\)</span> lattice works well for
-low bitrates, but quickly becomes intractable at higher bitrates. For
-example, a 4 bit <span class="math inline">\(E_8\)</span>-based codebook
-would have size <span class="math inline">\(2^{4*8} = 2^{32}\)</span>.
-Projecting onto a size <span class="math inline">\(2^{32}\)</span>
-codebook is intractable, and even using a “smarter” packing like E8P
-would still require projecting onto <span
-class="math inline">\(2^{24}\)</span> elements. To deal with this issue,
-we use residual vector quantization (RVQ) to get the benefits of lattice
-codebooks and QuIP# at higher bitrates. RVQ quantizes a vector <span
-class="math inline">\(x\)</span> to <span
-class="math inline">\(p\)</span> bits with a set <span
-class="math inline">\(q\)</span> of <span
-class="math inline">\(q_i\)</span> bit codebooks (denoted <span
-class="math inline">\(RVQ(x, p, q)\)</span> where <span
-class="math inline">\(p = \sum_{0 \le i &lt; |q|} q_i\)</span>) by
-repeatedly quantizing the quantization residual. That is, <span
-class="math inline">\(RVQ(x, p, q) = \sum_{0 \le i &lt; |q|}
-\delta_i\)</span> where <span class="math inline">\(\delta_i =
-Q_{q_i}\left(\frac{x - \sum_{0 \le j &lt; i}\delta_j}{s_i} \right)
-s_i\)</span>, <span class="math inline">\(Q_{q_i}(\cdot)\)</span>
-denotes quantizing to a <span class="math inline">\(q_i\)</span> bit
-codebook, and <span class="math inline">\(s_i \in \mathbb{R}\)</span>.
-Using RVQ, we can quantize to 4 bits by quantizing with the 2 bit E8P
-codebook twice. We can also quantize to 3 bits by using the 2 bit E8P
-codebook and a 1 bit <span class="math inline">\(E_8\)</span> codebook
-(elements of <span class="math inline">\(E_8\)</span> with norm <span
-class="math inline">\(\le 2\)</span> and 15 elements of <span
-class="math inline">\(E_8\)</span> with norm 4). We present results for
-these 3 and 4 bit models under “E8P RVQ.”</p>
-<h4 id="codebook-errors">Codebook Errors</h4>
-<p>To show the optimality of our lattice codebooks, we plotted the
-minimum achievable elementwise MSE of quantizing a <span
-class="math inline">\(n\)</span>-dimensional multivariate Gaussian to
-various <span class="math inline">\(k\)</span> bit codebooks. To create
-each codebook, we intersected a ball with the base lattice and increased
-the radius of the ball to get more bits. The half integer codebooks are
-formed from the <span class="math inline">\(n\)</span>-dimensional half
-integer grids.</p>
-<p>Specifically, each point in the graph below plots <span
-class="math inline">\((k, y)\)</span> where</p>
-<p><span class="math display">\[y = \min_{s \in \mathbb{R}^+}
-\frac{1}{n}\left\|\mbox{quantize}\left(\frac{\mathcal{N}(0_n, I_n)}{s},
-\mbox{codebook}\right)s - \mathcal{N}(0_n, I_n)\right\|^2\]</span></p>
-<figure>
-<img src="img/lattice_err.png" title="Lattice Errors"
-alt="Lowest element-wise mean squared error (MSE) achievable for quantizing a multivariate Gaussian to various codebooks. The E_8 lattice achieves the densest unit-sphere packing in 8 dimensions and our derivative codebooks have the lowest MSE." />
-<figcaption aria-hidden="true">Lowest element-wise mean squared error
-(MSE) achievable for quantizing a multivariate Gaussian to various
-codebooks. The <span class="math inline">\(E_8\)</span> lattice achieves
-the <a href="https://en.wikipedia.org/wiki/Kissing_number">densest
-unit-sphere packing in 8 dimensions</a> and our derivative codebooks
-have the lowest MSE.</figcaption>
-</figure>
-<p>The <span class="math inline">\(E_8\)</span>-based codebooks achieves
-lower MSEs than all other codebooks, including those based on the <span
-class="math inline">\(D_4\)</span> lattice that achieves the 4
-dimensional kissing number. This figure also shows the importance of
-having a large number of columns <span class="math inline">\(n\)</span>.
-Increasing the number of columns decreases the error for the half
-integer grid, as the resulting codebook is more “round.” Since the E8P
-codebook is actually the union of two shifted codebooks, each of which
-is a ball intersected with <span
-class="math inline">\(\hat{D_8}\)</span>, it is not perfectly round.
-This is reflected in the MSE plot, where it sits slightly above the
-<span class="math inline">\(E_8\)</span> line. However, there does not
-exist a <span class="math inline">\(E_8\)</span> codebook with exactly 2
-bits, so E8P is still practically superior.</p>
-<h3 id="results">Results</h3>
-<p>Here, we present an overview of quantization results using QuIP# on
-Llama 1 and 2 models. Full results are available <a
-href="https://docs.google.com/spreadsheets/d/18woLrIBdVGUr9CuFDbK9pl_6QzEBl09hfnoe4Qkg7Hg/edit?usp=sharing">here</a>.</p>
-<h4 id="quip-2-bit">QuIP 2 Bit</h4>
-<p>All models were quantized using the Hadamard transform for
-incoherence processing and a weight scale factor of roughly 0.9 times
-the optimal scale for a multivariate Gaussian to compensate for
-inter-layer interactions. Furthermore, all Llama 2 models were evaluated
-using a context lenth of 4096 and all Llama 1 models were evaluated with
-context length 2048; these numbers match the context length the models
-were trained with. These and other models can be found in our <a
-href="https://huggingface.co/relaxml">Hugging Face repository</a>.</p>
-<p>The table below contains results for all Llama 1 and 2 models when
-quantized to 2 bits using the E8P codebook. QuIP# achieves excellent
-performance across all model sizes on both language modeling and zero
-shot tasks. Furthermore, on the zero-shot tasks (ArcC, ArcE, BoolQ,
-PiQA, WinoGrande), QuIP# models achieve near-native performance with
-minimal degradation.</p>
-<div style="margin-left: -1%;
-            margin-right: auto;
-            width: 102%;">
+</span> where <span class="math inline">x \in \mathbb{R}^n</span> is the input vector drawn from a calibration set uniformly and <span class="math inline">H</span>​ acts as the second-moment matrix for these vectors, analogous to a Hessian proxy.</p>
+<p>For more details about the incorporated quantization module, please refer to the original<a href="https://arxiv.org/html/2402.04396v1">Quip#</a> and <a href="https://openreview.net/pdf?id=tcbBPnfwxS">OPTQ</a> paper.</p>
+<p>The LoRA algorithm by <a href="https://arxiv.org/pdf/2106.09685">Hu et al. (2021)</a> decomposes the weights <span class="math inline">W</span> into a sum of frozen base model weights <span class="math inline">W_0 \in \mathbb{R}^{d \times d}</span> and a small additive low-rank adapter <span class="math inline">AB^T</span> consisting of the product of two rectangular matrices <span class="math inline">A, B \in \mathbb{R}^{d \times r}</span>, where <span class="math inline">r &gt; 0</span> indicates the rank<span class="sidenote-wrapper"><label for="sn-0" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-0" class="margin-toggle"/><span class="sidenote">For simplicity here we consider square weight matrices <span class="math inline">W</span>; the rectangular case is a straightforward generalization.<br />
+<br />
+</span></span>:</p>
+<p><span class="math display">
+W = W_0 + AB^T
+</span></p>
+<p>where matrix <span class="math inline">A</span> is being initialized to Gaussian noise and <span class="math inline">B</span> to 0 (s.t. <span class="math inline">AB=0</span> during the start of the training). This way, LoRA reparameterizes the foward pass of the linear layer as <span class="math display"> X(W) = X(W_0 + AB^T) </span>, where <span class="math inline">X</span> is the previous layer’s activation, and only <span class="math inline">A</span> and <span class="math inline">B</span> received weights updates during finetuning. Unlike full finetuning methods, LoRA is very memory efficient in model finetuning, as it doesn’t require extra GPU memory for gradient and optimizer state storage.</p>
+<h2 id="modularity">Modularity</h2>
+<p>In concurrent work, Dettmers et al. (2023) proposed QLoRA, an approach for tuning quantized 4-bit LLMs based on LoRA. The method uses a novel quantization data type 4-bit NormalFloat to achieve competitive results with full finetuning. Subsequent work such as LP-LoRA follows QLoRA’s quantization scheme and proposes a dynamic method to configure quantization parameters <a href="https://arxiv.org/html/2311.12023v2">(Guo et al., 2023)</a>. However, these approaches predefine a quantization scheme that makes them challenging to scale as more advanced quantization scheme are being developed and used.</p>
+<p>In our work, we explore the use of modular quantizer by decomposing quantization finetuning tasks into a more general form that may be handled by our quantization-agnostic forward/backward pass. Our quantization-agnostic module compose an simple but efficient backward pass for different quantization scheme. Crucially, ModuLoRA does not specificy a particular quantization scheme; rather, it incorporates a quantization-agnostic backward pass that enables flexible finetuning in desired precision. These advantages make ModuLoRA an easy-to-use, performant, and modular PEFT framework.</p>
+<h2 id="llmtools">LLMTools</h2>
+<p>We implement ModuLoRA as part of LLMTools, a compact, user friendly library that enables users to finetune and perform inference on the largest LLMs on consumer hardware. The LLMTools library enables finetuning LLMs in 2-bit, 3-bit, and 4-bit precision using the ModuLoRA algorithm. It also provides an easy-to-use Python API for quantization, inference, and finetuning, as well as modular support for multiple quantizers, LLMs (including LLaMA1, LLaMA2, BLOOM, and OPT), and optimization algorithms (including all that are compatible with the Hugging Face Trainer class). Lastly, LLMTools supports easily loading datasets and sharing models via the HuggingFace Hub.</p>
+<p>Please see <a href="#%20Usage">usage</a> for example usage of LLMTools.</p>
+<h1 id="results">Results</h1>
+<p>Here, we present some ModuLoRA results on a popular natural langauge inference benchmark. More experiment results can be found in the <a href="https://arxiv.org/pdf/2309.16119">paper</a>.</p>
+<h2 id="natural-language-inference">Natural Language Inference</h2>
+<p>We finetune 7B to 65B LLaMA models on the Multi-Genre Natural Language Inference Corpus (MNLI) <a href="https://arxiv.org/pdf/1704.05426">(Williams et al., 2018)</a> and evaluate on the matched test sets (in-domain examples), reporting accuracy.</p>
+<p><em>Models.</em> We evaluate ModuLoRA and on the LLaMA-1 family of models. We quantize the models to 3 bits and 4 bits using OPTQ as in [4] with calibration 128 samples from C4 [5]. We quantize the models to 2 bits using QuIP# as in [6, 7] with <span class="math inline">E_8</span> lattice codebooks.</p>
+<p><em>Baseline.</em> We use LoRA (as implemented in the PEFT library (Mangrulkar et al., 2022)) to finetune models quantized in 8 bits using the BitsAndBytes library (Dettmers et al., 2022); we also compare to full-precision results from the literature. In concurrent work, Dettmers et al. (2023) proposed QLoRA, a related 4-bit finetuning algorithm implemented in the BitsAndBytes library.</p>
+<p><em>Training.</em> We finetune all models on NVIDIA TITAN, 3090, and A6000 GPUs (depending on the model) with a LoRA rank of r = 8 and alpha of a = 32, and report results from 3 random seeds. We set up the training procedure following LoRA paper, with slight variation to accommodate our particular language models.</p>
+<p>Our 2-bit and 3-bit 65B LLaMA model matches the performance of a full-precision GPT-3+LoRA baseline. <strong>Notably, 2-bit 65B models finetuned with QuIP# outperforms the rest of 65B models with higher precisions.</strong> We also find that 4-bit models from LLMTools outperform 8-bit models from the Bits&amp;Bytes library for the entire model size range. 2-bit, 3-bit and 4-bit ModuLoRA models either match or outperform their 4-bit QLoRA counterparts, often using less memory because of lower precision models.</p>
+<div class="wide extra-wide">
 <table>
-<caption>QuIP# results across all Llama 1 and 2 models. QuIP# achieves
-near-native performance on language modeling (C4, Wiki, lower is better)
-and zero shot (ArcC, ArcE, BoolQ, PiQA, WinoGrande, higher is better)
-tasks.</caption>
 <colgroup>
-<col style="width: 6%" />
+<col style="width: 18%" />
+<col style="width: 24%" />
+<col style="width: 11%" />
+<col style="width: 25%" />
 <col style="width: 19%" />
-<col style="width: 8%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 10%" />
-<col style="width: 9%" />
-<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: center;">Model</th>
-<th style="text-align: center;">Method</th>
-<th style="text-align: center;">C4</th>
-<th style="text-align: center;">Wiki</th>
-<th style="text-align: center;">ArcC</th>
-<th style="text-align: center;">ArcE</th>
-<th style="text-align: center;">BoolQ</th>
-<th style="text-align: center;">PiQA</th>
-<th style="text-align: center;">WinoGrande</th>
+<th>MNLI-m Baselines</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: center;">2-70B</td>
-<td style="text-align: center;">fp16</td>
-<td style="text-align: center;">5.533</td>
-<td style="text-align: center;">3.120</td>
-<td style="text-align: center;">0.480</td>
-<td style="text-align: center;">0.597</td>
-<td style="text-align: center;">0.766</td>
-<td style="text-align: center;">0.809</td>
-<td style="text-align: center;">0.768</td>
+<td><strong>Models</strong></td>
+<td>Finetuning Adaptation</td>
+<td>Model Size</td>
+<td># Trainable Parameters</td>
+<td>MNLI-m (accuracy)</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">2-70B</td>
-<td style="text-align: center;">QuIP# 2 bit</td>
-<td style="text-align: center;">6.529</td>
-<td style="text-align: center;">4.158</td>
-<td style="text-align: center;">0.472</td>
-<td style="text-align: center;">0.595</td>
-<td style="text-align: center;">0.791</td>
-<td style="text-align: center;">0.786</td>
-<td style="text-align: center;">0.742</td>
+<td>GPT-3</td>
+<td>Full Finetuning</td>
+<td>175B</td>
+<td>175,255.8M</td>
+<td>89.5 ± 0.1</td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">2-13B</td>
-<td style="text-align: center;">fp16</td>
-<td style="text-align: center;">6.520</td>
-<td style="text-align: center;">4.574</td>
-<td style="text-align: center;">0.443</td>
-<td style="text-align: center;">0.580</td>
-<td style="text-align: center;">0.690</td>
-<td style="text-align: center;">0.790</td>
-<td style="text-align: center;">0.699</td>
+<td>GPT-3</td>
+<td>Adapter</td>
+<td>175B</td>
+<td>40.1M</td>
+<td>91.5 ± 0.1</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">2-13B</td>
-<td style="text-align: center;">QuIP# 2 bit</td>
-<td style="text-align: center;">8.755</td>
-<td style="text-align: center;">6.058</td>
-<td style="text-align: center;">0.371</td>
-<td style="text-align: center;">0.501</td>
-<td style="text-align: center;">0.665</td>
-<td style="text-align: center;">0.757</td>
-<td style="text-align: center;">0.636</td>
+<td>GPT-3</td>
+<td>LoRA</td>
+<td>175B</td>
+<td>4.7M</td>
+<td>91.7 ± 0.1</td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">2-7B</td>
-<td style="text-align: center;">fp16</td>
-<td style="text-align: center;">7.036</td>
-<td style="text-align: center;">5.116</td>
-<td style="text-align: center;">0.406</td>
-<td style="text-align: center;">0.535</td>
-<td style="text-align: center;">0.710</td>
-<td style="text-align: center;">0.769</td>
-<td style="text-align: center;">0.670</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">2-7B</td>
-<td style="text-align: center;">QuIP# 2 bit</td>
-<td style="text-align: center;">12.062</td>
-<td style="text-align: center;">8.224</td>
-<td style="text-align: center;">0.325</td>
-<td style="text-align: center;">0.428</td>
-<td style="text-align: center;">0.623</td>
-<td style="text-align: center;">0.712</td>
-<td style="text-align: center;">0.624</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">1-65b</td>
-<td style="text-align: center;">fp16</td>
-<td style="text-align: center;">5.811</td>
-<td style="text-align: center;">3.532</td>
-<td style="text-align: center;">0.463</td>
-<td style="text-align: center;">0.588</td>
-<td style="text-align: center;">0.823</td>
-<td style="text-align: center;">0.809</td>
-<td style="text-align: center;">0.771</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">1-65b</td>
-<td style="text-align: center;">QuIP# 2 bit</td>
-<td style="text-align: center;">6.744</td>
-<td style="text-align: center;">4.566</td>
-<td style="text-align: center;">0.436</td>
-<td style="text-align: center;">0.569</td>
-<td style="text-align: center;">0.817</td>
-<td style="text-align: center;">0.805</td>
-<td style="text-align: center;">0.736</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">1-30B</td>
-<td style="text-align: center;">fp16</td>
-<td style="text-align: center;">6.130</td>
-<td style="text-align: center;">4.101</td>
-<td style="text-align: center;">0.453</td>
-<td style="text-align: center;">0.590</td>
-<td style="text-align: center;">0.684</td>
-<td style="text-align: center;">0.801</td>
-<td style="text-align: center;">0.728</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">1-30B</td>
-<td style="text-align: center;">QuIP# 2 bit</td>
-<td style="text-align: center;">7.471</td>
-<td style="text-align: center;">5.317</td>
-<td style="text-align: center;">0.429</td>
-<td style="text-align: center;">0.545</td>
-<td style="text-align: center;">0.669</td>
-<td style="text-align: center;">0.779</td>
-<td style="text-align: center;">0.718</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">1-13B</td>
-<td style="text-align: center;">fp16</td>
-<td style="text-align: center;">6.798</td>
-<td style="text-align: center;">5.091</td>
-<td style="text-align: center;">0.444</td>
-<td style="text-align: center;">0.599</td>
-<td style="text-align: center;">0.684</td>
-<td style="text-align: center;">0.792</td>
-<td style="text-align: center;">0.701</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">1-13B</td>
-<td style="text-align: center;">QuIP# 2 bit</td>
-<td style="text-align: center;">8.425</td>
-<td style="text-align: center;">6.381</td>
-<td style="text-align: center;">0.387</td>
-<td style="text-align: center;">0.536</td>
-<td style="text-align: center;">0.647</td>
-<td style="text-align: center;">0.750</td>
-<td style="text-align: center;">0.669</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">1-7B</td>
-<td style="text-align: center;">fp16</td>
-<td style="text-align: center;">7.343</td>
-<td style="text-align: center;">5.677</td>
-<td style="text-align: center;">0.415</td>
-<td style="text-align: center;">0.525</td>
-<td style="text-align: center;">0.731</td>
-<td style="text-align: center;">0.774</td>
-<td style="text-align: center;">0.670</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">1-7B</td>
-<td style="text-align: center;">QuIP# 2 bit</td>
-<td style="text-align: center;">10.970</td>
-<td style="text-align: center;">8.286</td>
-<td style="text-align: center;">0.352</td>
-<td style="text-align: center;">0.464</td>
-<td style="text-align: center;">0.647</td>
-<td style="text-align: center;">0.720</td>
-<td style="text-align: center;">0.624</td>
+<td>T5</td>
+<td>Full Finetuning</td>
+<td>11B</td>
+<td>11,307.4M</td>
+<td><strong>92.2 ± 0.1</strong></td>
 </tr>
 </tbody>
 </table>
 </div>
-<h4 id="quip-3-and-4-bit">QuIP 3 and 4 Bit</h4>
-<p>Using residual vector quantization (RVQ) allows us to get the
-benefits of vector quantization and lattice codebooks at higher
-bitrates. The charts below plot the perplexity gap of QuIP#, AWQ, and
-OmniQuant models at 3 and 4 bits to a FP16 baseline. We report numbers
-without grouping (W3A16) since grouping adds bits. For example, a
-groupsize of 128 adds <span class="math inline">\(\frac{16}{128} =
-\frac{1}{8}\)</span> bit per weight, which is a significant difference.
-AWQ and OmniQuant numbers are from the <a
-href="https://arxiv.org/abs/2308.13137">OmniQuant paper</a>. At both bit
-levels, QuIP# significantly closes the gap to FP16, outperforming AWQ
-and OmniQuant. QuIP# 3 bit approaches AWQ 4 bit and in some cases even
-outperforms AWQ 4 bit.</p>
-<div style="margin-left: -5%;
-            margin-right: auto;
-            width: 110%;">
-<figure>
-<img src="img/34bit.svg"
-alt="Perplexity gap to FP16, capped at 1. QuIP# significantly outperforms AWQ and OmniQuant at 3 (blue) and 4 (red) bits. QuIP# 3 bit models approach AWQ 4 bit models and in some cases outperform AWQ 4 bit models." />
-<figcaption aria-hidden="true">Perplexity gap to FP16, capped at 1.
-QuIP# significantly outperforms AWQ and OmniQuant at 3 (blue) and 4
-(red) bits. QuIP# 3 bit models approach AWQ 4 bit models and in some
-cases outperform AWQ 4 bit models.</figcaption>
-</figure>
+<div class="wide extra-wide">
+<table style="width:100%;">
+<caption>Natural language inference on the MNLI-m dataset evaluated using classification accuracy (%). Our LLaMA-65B-2bit model approaches state-of-the-art scores using significantly less memory.</caption>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 16%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>MNLI-m Results</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>LLaMA Finetuning</strong></td>
+<td><strong>Quantizer</strong></td>
+<td><strong>7B</strong></td>
+<td><strong>13B</strong></td>
+<td><strong>30B</strong></td>
+<td><strong>65B</strong></td>
+</tr>
+<tr class="even">
+<td>LLMTools (2-bit)</td>
+<td>QuIP#(<span class="math inline">E_8</span>)</td>
+<td>88.50 ± 0.3</td>
+<td>89.72 ± 0.3</td>
+<td>91.30 ± 0.3</td>
+<td><strong>91.85 ± 0.3</strong></td>
+</tr>
+<tr class="odd">
+<td>LLMTools (3-bit)</td>
+<td>OPTQ</td>
+<td>88.98 ± 0.2</td>
+<td>90.20 ± 0.2</td>
+<td>91.09 ± 0.2</td>
+<td>91.42 ± 0.1</td>
+</tr>
+<tr class="even">
+<td>LLMTools (4-bit)</td>
+<td>OPTQ</td>
+<td>89.31 ± 0.2</td>
+<td>90.41 ± 0.2</td>
+<td>91.31 ± 0.1</td>
+<td>91.59 ± 0.2</td>
+</tr>
+<tr class="odd">
+<td>Bits&amp;Bytes (4-bit)</td>
+<td>QLoRA</td>
+<td>89.28 ± 0.2</td>
+<td>89.67 ± 0.2</td>
+<td>91.22 ± 0.1</td>
+<td>91.36 ± 0.2</td>
+</tr>
+<tr class="even">
+<td>Bits&amp;Bytes (8-bit)</td>
+<td>LLM.int8()</td>
+<td>88.95 ± 0.1</td>
+<td>90.08 ± 0.1</td>
+<td>91.15 ± 0.1</td>
+<td>91.55 ± 0.1</td>
+</tr>
+</tbody>
+</table>
 </div>
+<p><label for="mn-demo" class="margin-toggle">⊕</label> <input type="checkbox" id="mn-demo" class="margin-toggle"/> <span class="marginnote"> MNLI-m acuracy gap to 8-bit BitsBytes. Notably, 2-bit LLMTools outperforms 8-bit BitBytes for larger models, 30B and 65B respectively. 4-bit models from LLMTools outperform 8-bit models from the BitsBytes library for the entire model size range. </span></p>
+<figure>
+<img src="../public/img/Accuracy-Gap-MNLI-M.png" alt="Accuracy Gap MNLI-M" />
+<figcaption aria-hidden="true">Accuracy Gap MNLI-M</figcaption>
+</figure>
+<!-- 
+<img src="/Users/osie/Desktop/Accuracy Gap MNLI-M.png" alt="Accuracy Gap MNLI-M" style="zoom:50%;" /> -->
+<h2 id="memory-usage">Memory Usage</h2>
+<p>We show the memory required to perform finetuning on MNLI-M for different LLaMA model sizes in table down below. ModuLoRA significantly minimizes the memory requirements for finetuning on these models. We plot the memory requirements in figure as shown below for better visualization. As the model size increases to 65B, ModuLoRA uses only about 6% of the memory to run memory-efficient finetuning method LoRA. As the table and figure illustrates, with ModuLoRA it’s possible to not only run inference but also finetune 65B model on a single 24GB GPU. To produce this table, we run our quantizer-agnostic forward/backward passes for the entire LLaMA model size range with batch size 1 and maximum sequence length 128 on MNLI-m.</p>
+<table>
+<caption>Memory requirements to finetune LLaMA models on MNLI-M with batch size 1 and maximum sequence length 128.For comparison we include the memory requirements to finetune on LoRA and QLoRA.</caption>
+<thead>
+<tr class="header">
+<th>Memory Usage on MNLI-m</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>LLaMA Finetuning</strong></td>
+<td><strong>7B</strong></td>
+<td><strong>13B</strong></td>
+<td><strong>30B</strong></td>
+<td><strong>65B</strong></td>
+</tr>
+<tr class="even">
+<td>LLMTools (2-bit)</td>
+<td>3.2 GB</td>
+<td>5.4 GB</td>
+<td>11.4 GB</td>
+<td>21.8 GB</td>
+</tr>
+<tr class="odd">
+<td>QLoRA (4-bit)</td>
+<td>5.2 GB</td>
+<td>8.6 GB</td>
+<td>19.5 GB</td>
+<td>36.7 GB</td>
+</tr>
+<tr class="even">
+<td>Full Precision (LoRA)</td>
+<td>38.4 GB</td>
+<td>73.9 GB</td>
+<td>183.3 GB</td>
+<td>360.4 GB</td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img src="../public/img/Memory-Requirement-MNLI-M.png" style="width: 70%; margin: auto;" alt="Visualization of Memory Requirements for MNLI-M" />
+<figcaption aria-hidden="true">Visualization of Memory Requirements for MNLI-M</figcaption>
+</figure>
+<h1 id="usage">Usage</h1>
+<p>In this section we introduce the transformers and peft integration of ModuLoRA and show how to use it with the latest QuIP# quantization module. LLMTools comes with a patched version of the PEFT library that can be used to finetune the quantized models using the ModuLoRA method.</p>
+<p>As a quickstart, we provide a detailed installation for our ModuLoRA library <a href="https://github.com/kuleshov-group/llmtools">LLMTools</a>.</p>
+<h2 id="how-to-use-llmtools">How to Use LLMTools</h2>
+<p>To load a model that is being quantized in QuIP# is simply to pass the argument <code>load_in_quip=True</code> when calling the <code>from_pretrained</code> method by providing a device map (device map are defaulted to “auto” for automatic inference on devices).</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource python numberLines"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">from</span> llmtools.llms.autollm <span class="im">import</span> AutoLLMForCausalLM</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">from</span> transformers <span class="im">import</span> AutoTokenizer</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a>model_name <span class="op">=</span> <span class="st">&quot;relaxml/Llama-1-65b-E8P-2Bit&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a></span>
+<span id="cb1-6"><a href="#cb1-6"></a>llm, config <span class="op">=</span> AutoModelForCausalLM.from_pretrained(model_name, load_in_quip<span class="op">=</span><span class="va">True</span>, device_map<span class="op">=</span><span class="st">&quot;auto&quot;</span>)</span>
+<span id="cb1-7"><a href="#cb1-7"></a>llm.<span class="bu">eval</span>()</span>
+<span id="cb1-8"><a href="#cb1-8"></a></span>
+<span id="cb1-9"><a href="#cb1-9"></a>tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(model_name, device_map<span class="op">=</span>”auto“, use_fast<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb1-10"><a href="#cb1-10"></a>tokenizer.pad_token <span class="op">=</span> tokenizer.eos_token</span>
+<span id="cb1-11"><a href="#cb1-11"></a>...</span></code></pre></div>
+<p>The quantized QuIP# models are avaliable on HF Hub. See the complete model zoo <a href="https://github.com/Cornell-RelaxML/quip-sharp">here</a>. To use them, pass the given HF repo_id to <code>--hf_path</code>. Currently, LLMTools supports 2 and 4 bit models inference/finetuning.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource python numberLines"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="im">from</span> llmtools.engine.lora.config <span class="im">import</span> FinetuneConfig</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="im">from</span> llmtools.engine.lora.peft <span class="im">import</span> quant_peft</span>
+<span id="cb2-3"><a href="#cb2-3"></a></span>
+<span id="cb2-4"><a href="#cb2-4"></a>tune_config <span class="op">=</span> FinetuneConfig(</span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="co"># ... set up finetuning config</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>)</span>
+<span id="cb2-7"><a href="#cb2-7"></a></span>
+<span id="cb2-8"><a href="#cb2-8"></a></span>
+<span id="cb2-9"><a href="#cb2-9"></a>lora_config <span class="op">=</span> quant_peft.LoraConfig(</span>
+<span id="cb2-10"><a href="#cb2-10"></a>    <span class="co"># ... create a lora config object</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a>)</span>
+<span id="cb2-12"><a href="#cb2-12"></a>model <span class="op">=</span> quant_peft.get_peft_model(llm, lora_config)</span></code></pre></div>
+<p>You can configure your hyperparameters for finetuning in the Finetuning config. Similarly, you can control how LoRA is applied to the base model through the Lora config. For more information about setting up LoRA, visit the official HF <a href="https://huggingface.co/docs/peft/main/en/conceptual_guides/lora">LoRA documentation</a>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python numberLines"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="im">from</span> transformers <span class="im">import</span> TrainingArguments</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="im">from</span> llmtools.engine.hf.trainer <span class="im">import</span> Trainer</span>
+<span id="cb3-3"><a href="#cb3-3"></a></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co"># load your desired data</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>data <span class="op">=</span> <span class="co"># ... load the data</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="co"># training args</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a>training_arguments <span class="op">=</span> TrainingArguments(</span>
+<span id="cb3-9"><a href="#cb3-9"></a>    <span class="co"># ... set up batch size, etc., in the usual way</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a>)</span>
+<span id="cb3-11"><a href="#cb3-11"></a></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="co"># start trainer</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a>trainer <span class="op">=</span> Trainer(</span>
+<span id="cb3-14"><a href="#cb3-14"></a>    model<span class="op">=</span>model,</span>
+<span id="cb3-15"><a href="#cb3-15"></a>    train_dataset<span class="op">=</span>data.train_data,</span>
+<span id="cb3-16"><a href="#cb3-16"></a>    eval_dataset<span class="op">=</span>data.val_data,</span>
+<span id="cb3-17"><a href="#cb3-17"></a>    args<span class="op">=</span>training_arguments,</span>
+<span id="cb3-18"><a href="#cb3-18"></a>    data_collator<span class="op">=</span>transformers.DataCollatorForLanguageModeling(</span>
+<span id="cb3-19"><a href="#cb3-19"></a>        tokenizer, mlm<span class="op">=</span><span class="va">False</span></span>
+<span id="cb3-20"><a href="#cb3-20"></a>    ),</span>
+<span id="cb3-21"><a href="#cb3-21"></a>)</span>
+<span id="cb3-22"><a href="#cb3-22"></a></span>
+<span id="cb3-23"><a href="#cb3-23"></a><span class="co"># start training</span></span>
+<span id="cb3-24"><a href="#cb3-24"></a>trainer.train()</span>
+<span id="cb3-25"><a href="#cb3-25"></a></span>
+<span id="cb3-26"><a href="#cb3-26"></a></span>
+<span id="cb3-27"><a href="#cb3-27"></a><span class="co"># Save Model</span></span>
+<span id="cb3-28"><a href="#cb3-28"></a>model.save_pretrained(tune_config.lora_out_dir)</span></code></pre></div>
+<p>Once you prepared your ModuLoRA model, you can use the HF Trainers and TrainingArguments to start your training.</p>
+<p>For more examples of how to perform model quantization, inference, and finetuning take a look at the <code>examples</code> folder in the <a href="https://github.com/kuleshov-group/llmtools">LLMTools repo</a>.</p>
+<h2 id="advanced-usage">Advanced Usage</h2>
+<p>You can also finetune the quantized models with as many GPUs as you want. We provide two ways of parallelism to scale up your training.</p>
+<h3 id="enbaling-npp-training">Enbaling NPP Training</h3>
+<p><br/> The LLMTools library supports naive pipeline parallelism (NPP) training for our incorporated quantized models. NPP is a straightforward method for distributing a model across multiple GPUs. By loading both the model and its adapters onto several GPUs, NPP enables the basic communication of activations and gradients across GPUs. This approach essentially evenly fits the model across all available GPUs.</p>
+<p><strong>How To Use NPP</strong></p>
+<p>Check out this example on how to launch NPP training.</p>
+<p>You need to set up your device map such that the process will dispatch model’s module correctly on multiple GPUs.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python numberLines"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>num_of_gpus <span class="op">=</span> torch.cuda.device_count()</span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="cf">if</span> num_of_gpus <span class="op">&gt;</span> <span class="dv">1</span>:</span>
+<span id="cb4-3"><a href="#cb4-3"></a>    <span class="bu">print</span>(<span class="st">&quot;Enabling Naive Pipeline Parallel&quot;</span>)</span>
+<span id="cb4-4"><a href="#cb4-4"></a>    max_memory <span class="op">=</span> get_balanced_memory(</span>
+<span id="cb4-5"><a href="#cb4-5"></a>        model,</span>
+<span id="cb4-6"><a href="#cb4-6"></a>        max_memory<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb4-7"><a href="#cb4-7"></a>        no_split_module_classes<span class="op">=</span>[<span class="st">&quot;LlamaDecoderLayer&quot;</span>, <span class="st">&quot;LlamaMLP&quot;</span>],</span>
+<span id="cb4-8"><a href="#cb4-8"></a>        dtype<span class="op">=</span><span class="st">&#39;float16&#39;</span>,</span>
+<span id="cb4-9"><a href="#cb4-9"></a>        low_zero<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb4-10"><a href="#cb4-10"></a>    )</span>
+<span id="cb4-11"><a href="#cb4-11"></a></span>
+<span id="cb4-12"><a href="#cb4-12"></a>    device_map <span class="op">=</span> infer_auto_device_map(</span>
+<span id="cb4-13"><a href="#cb4-13"></a>        model,</span>
+<span id="cb4-14"><a href="#cb4-14"></a>        max_memory<span class="op">=</span>max_memory,</span>
+<span id="cb4-15"><a href="#cb4-15"></a>        no_split_module_classes<span class="op">=</span>[<span class="st">&quot;LlamaDecoderLayer&quot;</span>, <span class="st">&quot;LlamaMLP&quot;</span>],</span>
+<span id="cb4-16"><a href="#cb4-16"></a>        dtype<span class="op">=</span><span class="st">&#39;float16&#39;</span></span>
+<span id="cb4-17"><a href="#cb4-17"></a>    )</span>
+<span id="cb4-18"><a href="#cb4-18"></a></span>
+<span id="cb4-19"><a href="#cb4-19"></a>    model <span class="op">=</span> dispatch_model(model, device_map<span class="op">=</span>device_map)</span></code></pre></div>
+<h3 id="enabling-ddp-training">Enabling DDP Training</h3>
+<p><br/> The LLMTools library also supportsData Distributed Parallel (DDP) Training. DDP duplicates the model from GPU 0 to all other GPUs. For every batch, each GPU processes its own mini-batch of data independently. During the backward pass, after local gradients have been calculated, they are averaged across all participating processes, facilitating efficient parallel processing and synchronization among the GPUs.</p>
+<p>Note that DDP should work <strong>if and only if</strong> the training setup (meaning model weights, gradients + intermediate hidden states) can entirely fit a single GPU.</p>
+<p><strong>How To Use DDP</strong></p>
+<p>Check out this example on how to launch DDP training.</p>
+<p>You need to set up device_map such that each working process will load the entire model on the correct GPU. You can set up the device_map as followed:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python numberLines"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a>device_index <span class="op">=</span> Accelerator().process_index</span>
+<span id="cb5-2"><a href="#cb5-2"></a>device_map <span class="op">=</span> {<span class="st">&quot;&quot;</span>: device_index}</span></code></pre></div>
+<p>If used, gradient accumulation step should be evently split on multiple GPUs:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python numberLines"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a>world_size <span class="op">=</span> <span class="bu">int</span>(os.environ.get(<span class="st">&quot;WORLD_SIZE&quot;</span>, <span class="dv">1</span>))</span>
+<span id="cb6-2"><a href="#cb6-2"></a>ddp <span class="op">=</span> world_size <span class="op">!=</span> <span class="dv">1</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="cf">if</span> ddp:</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    num_of_gpus <span class="op">=</span> torch.cuda.device_count()</span>
+<span id="cb6-5"><a href="#cb6-5"></a>    device_map <span class="op">=</span> {<span class="st">&quot;&quot;</span>: <span class="bu">int</span>(os.environ.get(<span class="st">&quot;LOCAL_RANK&quot;</span>) <span class="kw">or</span> <span class="dv">0</span>)}</span>
+<span id="cb6-6"><a href="#cb6-6"></a>    gradient_accumulation_steps <span class="op">=</span> tune_config.batch_size <span class="op">//</span> (tune_config.mbatch_size<span class="op">*</span>num_of_gpus)</span>
+<span id="cb6-7"><a href="#cb6-7"></a>    <span class="bu">print</span>(<span class="st">&quot;gradient_accumulation_steps: &quot;</span>, gradient_accumulation_steps)</span></code></pre></div>
+<p>You can launch ModuLoRA Finetuning with DDP training by using:</p>
+<pre><code>accelerate launch {script_name.py} --arg1 --arg2 ...</code></pre>
+<p>For more information on how to use accelerate, please see the official <a href="https://huggingface.co/docs/accelerate/en/basic_tutorials/launch">accelerate doc</a> in HuggingFace.</p>
+<h1 id="see-also">See also</h1>
+<a href="https://github.com/kuleshov-group/llmtools/" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+<style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+<h1 id="references">References</h1>
+<p class="signoff">
+<a href="/">↑ Back to the top</a>
+</p>
+</main>
+
+<script>
+;(function() {
+  // Non-essential if user has JavaScript off. Just makes checkboxes look nicer.
+  var selector = '.task-list > li > input[type="checkbox"]';
+  var checkboxes = document.querySelectorAll(selector);
+  Array.from(checkboxes).forEach((checkbox) => {
+    var wasChecked = checkbox.checked;
+    checkbox.disabled = false;
+    checkbox.addEventListener('click', (ev) => {ev.target.checked = wasChecked});
+  });
+})();
+</script>
 </body>
 </html>
