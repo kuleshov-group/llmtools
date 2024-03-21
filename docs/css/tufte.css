@@ -59,7 +59,8 @@
 :root {
   /* --- Colors --- */
 
-  --background-color: #fffff8;
+  /* --background-color: #fffff8; */
+  --background-color: #fff
 
   --color-text: #111;
   --color-text-secondary: #111;

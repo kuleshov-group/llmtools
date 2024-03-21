@@ -1,0 +1,67 @@
+pre, pre.numberSource {
+  background-color: #f7f9fa;
+  border: 1px solid var(--color-border);
+  --color-code-highlight-bg: #e6e8eb;
+}
+pre code { color: var(--color-text); }
+pre.numberSource > code.sourceCode > span > a:first-child::before {
+  color: #c1c7cd;
+}
+code {
+  --paper-code-red: #c82829;
+  --paper-code-orange: #ff5600;
+  --paper-code-green: #718c00;
+  --paper-code-blue: #21439c;
+  --paper-code-cyan: #45899d;
+  --paper-code-magenta: #a535ae;
+  --paper-code-gray: #637282;
+}
+code span.im { color: var(--color-text);         font-weight: normal; font-style: normal; } /* Import */
+code span.bu { color: var(--color-text);         font-weight: normal; font-style: normal; } /* BuiltIn */
+code span.ex { color: var(--color-text);         font-weight: normal; font-style: normal; } /* Extension */
+code span.at { color: var(--color-text);         font-weight: normal; font-style: normal; } /* Attribute */
+code span.kw { color: var(--paper-code-orange);  font-weight: normal; font-style: normal; } /* Keyword */
+code span.dt { color: var(--paper-code-green);   font-weight: normal; font-style: normal; } /* DataType */
+code span.dv { color: var(--paper-code-blue);    font-weight: normal; font-style: normal; } /* DecVal */
+code span.bn { color: var(--paper-code-magenta); font-weight: normal; font-style: normal; } /* BaseN */
+code span.fl { color: var(--paper-code-magenta); font-weight: normal; font-style: normal; } /* Float */
+code span.ch { color: var(--paper-code-magenta); font-weight: normal; font-style: normal; } /* Char */
+code span.st { color: var(--paper-code-green);   font-weight: normal; font-style: normal; } /* String */
+code span.vs { color: var(--paper-code-green);   font-weight: normal; font-style: normal; } /* VerbatimString */
+code span.co { color: var(--paper-code-gray);    font-weight: normal; font-style: normal; } /* Comment */
+code span.ot { color: var(--paper-code-blue);    font-weight: normal; font-style: normal; } /* Other */
+code span.al { color: var(--paper-code-red);     font-weight: normal; font-style: normal; } /* Alert */
+code span.fu { color: var(--paper-code-blue);    font-weight: normal; font-style: normal; } /* Function */
+code span.er { color: var(--paper-code-red);     font-weight: normal; font-style: normal; } /* Error */
+code span.wa { color: var(--paper-code-orange);  font-weight: normal; font-style: italic; } /* Warning */
+code span.cn { color: var(--paper-code-magenta); font-weight: normal; font-style: normal; } /* Constant */
+code span.sc { color: var(--paper-code-red);     font-weight: normal; font-style: normal; } /* SpecialChar */
+code span.ss { color: var(--paper-code-red);     font-weight: normal; font-style: normal; } /* SpecialString */
+code span.va { color: var(--paper-code-blue);    font-weight: normal; font-style: normal; } /* Variable */
+code span.cf { color: var(--paper-code-orange);  font-weight: normal; font-style: normal; } /* ControlFlow */
+code span.op { color: var(--paper-code-orange);  font-weight: normal; font-style: normal; } /* Operator */
+code span.pp { color: var(--paper-code-cyan);    font-weight: normal; font-style: normal; } /* Preprocessor */
+code span.do { color: var(--paper-code-gray);    font-weight: normal; font-style: italic; } /* Documentation */
+code span.an { color: var(--paper-code-gray);    font-weight: normal; font-style: italic; } /* Annotation */
+code span.cv { color: var(--paper-code-gray);    font-weight: normal; font-style: italic; } /* CommentVar */
+code span.in { color: var(--paper-code-gray);    font-weight: normal; font-style: italic; } /* Information */
+a.sourceLine::before { text-decoration: none; }
+
+@media (prefers-color-scheme: dark) {
+  pre, pre.numberSource {
+    background-color: #242121;
+    --color-code-highlight-bg: #322f2f;
+  }
+  pre.numberSource > code.sourceCode > span > a:first-child::before {
+    color: #524f4d;
+  }
+  code {
+    --paper-code-red: #9b0032;
+    --paper-code-orange: #fa551e;
+    --paper-code-green: #b4dc19;
+    --paper-code-blue: #14c8eb;
+    --paper-code-cyan: #14c8eb;
+    --paper-code-magenta: #78286e;
+    --paper-code-gray: #9d9b99;
+  }
+}

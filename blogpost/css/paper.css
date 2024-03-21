@@ -1,0 +1,139 @@
+/* ----- @font-face rules ---------------------------------------------- {{{ */
+
+@font-face {
+    font-family: 'AtlasGrotesk-editor';
+    src: url('../fonts/atlas-grotesk/AtlasGrotesk-Regular-190618-Web.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'AtlasGrotesk-editor';
+    src: url('../fonts/atlas-grotesk/AtlasGrotesk-RegularItalic-190618-Web.woff2') format('woff2');
+    font-weight: normal;
+    font-style: italic
+}
+
+@font-face {
+    font-family: 'AtlasGrotesk-editor';
+    src: url('../fonts/atlas-grotesk/AtlasGrotesk-Medium-190618-Web.woff2') format('woff2');
+    font-weight: bold;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'AtlasGrotesk-editor';
+    src: url('../fonts/atlas-grotesk/AtlasGrotesk-MediumItalic-190618-Web.woff2') format('woff2');
+    font-weight: bold;
+    font-style: italic
+}
+
+@font-face {
+    font-family: 'AtlasGrotesk-editor-heading';
+    src: url('../fonts/atlas-grotesk/AtlasGrotesk-Semi-190618-Web.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'AtlasGrotesk-editor-heading';
+    src: url('../fonts/atlas-grotesk/AtlasGrotesk-SemiItalic-190618-Web.woff2') format('woff2');
+    font-weight: normal;
+    font-style: italic
+}
+
+@font-face {
+    font-family: 'AtlasGrotesk-editor-heading';
+    src: url('../fonts/atlas-grotesk/AtlasGrotesk-Bold-190618-Web.woff2') format('woff2');
+    font-weight: bold;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'AtlasGrotesk-editor-heading';
+    src: url('../fonts/atlas-grotesk/AtlasGrotesk-BoldItalic-190618-Web.woff2') format('woff2');
+    font-weight: bold;
+    font-style: italic
+}
+
+@font-face {
+    font-family: 'SourceCodePro';
+    src: url('../fonts/source-code-pro/SourceCodePro-Regular-2030.otf.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'SourceCodePro';
+    src: url('../fonts/source-code-pro/SourceCodePro-It-1050.otf.woff2') format('woff2');
+    font-weight: normal;
+    font-style: italic
+}
+
+@font-face {
+    font-family: 'SourceCodePro';
+    src: url('../fonts/source-code-pro/SourceCodePro-Bold-2030.otf.woff2') format('woff2');
+    font-weight: bold;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'SourceCodePro';
+    src: url('../fonts/source-code-pro/SourceCodePro-BoldIt-1050.otf.woff2') format('woff2');
+    font-weight: bold;
+    font-style: italic
+}
+
+/* }}} */
+
+:root {
+  --highlight-red: #ffbfb5;
+  --highlight-yellow: #fcebc1;
+  --highlight-green: #b5dcaf;
+  --highlight-blue: #d6e8fa;
+  --highlight-purple: #d8c3ff;
+
+  --color-inline-code-bg: #f7f9fa;
+
+  --color-border: #e6e8eb;
+  --color-border-heavy: #c1c7cd;
+
+  --font-family-prose: 'AtlasGrotesk-editor',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Open Sans","Helvetica Neue",sans-serif;
+  --font-family-heading: 'AtlasGrotesk-editor-heading',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Open Sans","Helvetica Neue",sans-serif;
+  --font-family-code: SourceCodePro, Menlo, monospace;
+
+  --font-size: 16px;
+  --inline-code-font-size: 15px;
+
+  --side-note-baseline-offset: 5px;
+  --side-note-text-indent: -8px;
+
+  --heading-font-weight: 400;
+
+  --title-font-size: 40px;
+
+  --h1-font-size: 30px;
+
+  --h2-font-size: 21px;
+
+  --ul-indent-size: 24px;
+
+  --task-list-margin-right: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --highlight-red: #644744;
+    --highlight-yellow: #5c4e24;
+    --highlight-green: #495315;
+    --highlight-blue: #4b5058;
+    --highlight-purple: #544a60;
+
+    --color-inline-code-bg: #242121;
+
+    --color-border: #393635;
+    --color-border-heavy: #524f4d;
+
+    --color-table-heading: #242121;
+  }
+}

@@ -969,7 +969,7 @@ nav#TOC > input:checked + ul {
 
   .wide.extra-wide {
     margin-left: calc((1 - var(--extra-wide-scale-factor)) / 2 * 100%);
-    width: calc(var(--extra-wide-scale-factor) * 100%);
+    width: calc(var(--extra-wide-scale-factor) * 75%);
   }
 
   .wide.full-width {
