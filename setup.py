@@ -10,11 +10,11 @@ setup(
     }
 )
 
-
 setup(
     name='quip',
     version='0.1.0',
-    packages=find_packages(),
+    packages=find_packages(where='third-party'),
+    package_dir={'': 'third-party'}, 
 )
 
 setup(

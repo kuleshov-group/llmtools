@@ -16,7 +16,7 @@ from accelerate.utils import get_balanced_memory
 
 
 # model config
-model_name = 'relaxml/Llama-1-7b-E8P-2Bit' # HF dir.
+model_name = 'relaxml/Llama-1-13b-E8P-2Bit' # HF dir.
 # model_name = 'relaxml/Llama-1-7b-E8PRVQ-4Bit' # HF dir-4bit
 
 device_map = "auto"
@@ -49,7 +49,7 @@ logging_steps=1
 
 data_type = 'alpaca'
 dataset = None # will load alpaca from HF
-adapter_path = './llama1-7b-samsum-seed42'
+adapter_path = './llama1-13b-samsum-seed42'
 
 # set up finetuning config
 tune_config = FinetuneConfig(
