@@ -8,8 +8,8 @@ LLMTools is a user-friendly library for running and finetuning LLMs in low-resou
 
 LLMTools is a research project at Cornell University, and is based on the following publications.
 
-> - Junjie Yin, Jiahao Dong, Yingheng Wang, Christopher De Sa, Volodymyr Kuleshov ModuLoRA: Finetuning 2-Bit LLMs on Consumer GPUs by Integrating with Modular Quantizers. TMLR 2023, **Featured Certificte**. [LINK] (https://arxiv.org/pdf/2309.16119)
-> - Jerry Chee, Yaohui Cai, Volodymyr Kuleshov, Christopher De Sa. QuIP: 2-Bit Quantization of Large Language Models with Guarantees. NeurIPS 2023, **Spotlight**.[LINK](https://arxiv.org/abs/2307.13304)
+> - Junjie Yin, Jiahao Dong, Yingheng Wang, Christopher De Sa, Volodymyr Kuleshov ModuLoRA: Finetuning 2-Bit LLMs on Consumer GPUs by Integrating with Modular Quantizers. TMLR 2023, **Featured Certificte**. [LINK](https://arxiv.org/pdf/2309.16119)
+> - Jerry Chee, Yaohui Cai, Volodymyr Kuleshov, Christopher De Sa. QuIP: 2-Bit Quantization of Large Language Models with Guarantees. NeurIPS 2023, **Spotlight**. [LINK](https://arxiv.org/abs/2307.13304)
 > - Tseng, Albert, Jerry Chee, Qiyao Sun, Volodymyr Kuleshov, Christopher De Sa. "Quip#: Even better LLM quantization with hadamard incoherence and lattice codebooks." arXiv preprint arXiv:2402.04396 (2024). [LINK](https://arxiv.org/html/2402.04396v1)
 
 LLMTools implements low precision LoRA, a new memory-efficient finetuning algorithm that integrates with an *arbitrary* quantization module. When using the state-of-the-art QUIP# quantizer, LP-LoRA can finetune 2-bit LLMs for the first time (see [results](#benchmark) below).
@@ -109,7 +109,7 @@ For more examples of how to perform model quantization, inference, and finetunin
 
 ### Requirements
 
-LLMTools requires a UNIX environment supporting Python (3.9) and PyTorch (we tested with 1.13.1+cu116). See `requirements.txt` for details.
+LLMTools requires a UNIX environment supporting Python (3.9) and PyTorch (we tested with 2.1.1 with 12.1 Cuda). See `requirements.txt` for details.
 
 To ensure maximum reproducibility, consider creating a new conda environment:
 ```python
@@ -300,7 +300,7 @@ model.save_pretrained(tune_config.lora_out_dir)
 Quantized QuIP# models are available on the official [QuIP# codebase](https://github.com/Cornell-RelaxML/quip-sharp) and on [HF Hub](https://huggingface.co/relaxml). 
 
 
-In our (earlier release)[https://github.com/oseyosey/llmtools/tree/03f06f396df0ab3bd7ef9e6e4f8a666795f4abab], we release our quantized OPTQ weights for LLAMA model set on HF hub for easy access. (We will integrate two versions of the codebase shortly)
+In our [earlier release](https://github.com/oseyosey/llmtools/tree/03f06f396df0ab3bd7ef9e6e4f8a666795f4abab), we release our quantized OPTQ weights for LLAMA model set on HF hub for easy access. (We will integrate two versions of the codebase shortly)
 
 | ModuLoRA LLAMA Weights     | 4-bit              | 3-bit             |
 |----------------------------------|-----------------|-----------------|
@@ -322,7 +322,6 @@ In our (earlier release)[https://github.com/oseyosey/llmtools/tree/03f06f396df0a
 You can also finetune the quantized models with as many GPUs as you want. We provide two ways of parallelism to scale up your training. 
 
 ### Enabling NPP Training
-<br/>
 The LLMTools library supports naive pipeline parallelism (NPP) training for our incorporated quantized models. NPP is a straightforward method for distributing a model across multiple GPUs. By loading both the model and its adapters onto several GPUs, NPP enables the basic communication of activations and gradients across GPUs. This approach essentially evenly fits the model across all available GPUs.
 
 **How To Use NPP**
@@ -354,7 +353,6 @@ if num_of_gpus > 1:
 
 ```
 ### Enabling DDP Training
-<br/>
 The LLMTools library also supportsData Distributed Parallel (DDP) Training. DDP duplicates the model from GPU 0 to all other GPUs. For every batch, each GPU processes its own mini-batch of data independently. During the backward pass, after local gradients have been calculated, they are averaged across all participating processes, facilitating efficient parallel processing and synchronization among the GPUs.
 
 Note that DDP should work **if and only if** the training setup (meaning model weights, gradients + intermediate hidden states) can entirely fit a single GPU. 
