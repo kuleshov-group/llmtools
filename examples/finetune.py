@@ -30,8 +30,6 @@ llm.eval()
 tokenizer = AutoTokenizer.from_pretrained(model_name, device_map=device_map, use_fast=False)
 tokenizer.pad_token = tokenizer.eos_token
 
-llm.eval()
-
 # finetune training config
 mbatch_size_per_device=1
 batch_size= 16 #128

@@ -1,17 +1,20 @@
 # LLMTools: Run & Finetune LLMs on Consumer GPUs
 
 LLMTools is a user-friendly library for running and finetuning LLMs in low-resource settings. Features include:
-* 🔨 LLM finetuning in 2-bit, 3-bit, 4-bit precision using the LP-LoRA algorithm
+* 🔨 LLM finetuning in 2-bit, 3-bit, 4-bit precision using the ModuLoRA algorithm
 * 🐍 Easy-to-use Python API for quantization, inference, and finetuning
 * 🤖 Modular support for multiple LLMs, quantizers, and optimization algorithms
-* 🤗 Share all your LLMs on the HuggingFace Hub
+* 🤗 Share all your finetuned LLMs on the HuggingFace Hub
 
 LLMTools is a research project at Cornell University, and is based on the following publications.
 
-> - Jerry Chee, Yaohui Cai, Volodymyr Kuleshov, Christopher De Sa. QuIP: 2-Bit Quantization of Large Language Models with Guarantees. [NeurIPS 2023](https://arxiv.org/abs/2307.13304)
-> - Junjie Yin, Jiahao Dong, Yingheng Wang, Christopher De Sa, Volodymyr Kuleshov ModuLoRA: Finetuning 3-Bit LLMs on Consumer GPUs by Integrating with Modular Quantizers. [ArXiv](https://arxiv.org/abs/2309.16119)
+> - Junjie Yin, Jiahao Dong, Yingheng Wang, Christopher De Sa, Volodymyr Kuleshov ModuLoRA: Finetuning 2-Bit LLMs on Consumer GPUs by Integrating with Modular Quantizers. TMLR 2023, **Featured Certificte**. [LINK] (https://arxiv.org/pdf/2309.16119)
+> - Jerry Chee, Yaohui Cai, Volodymyr Kuleshov, Christopher De Sa. QuIP: 2-Bit Quantization of Large Language Models with Guarantees. NeurIPS 2023, **Spotlight**.[LINK](https://arxiv.org/abs/2307.13304)
+> - Tseng, Albert, Jerry Chee, Qiyao Sun, Volodymyr Kuleshov, Christopher De Sa. "Quip#: Even better LLM quantization with hadamard incoherence and lattice codebooks." arXiv preprint arXiv:2402.04396 (2024). [LINK](https://arxiv.org/html/2402.04396v1)
 
-LLMTools implements low precision LoRA, a new memory-efficient finetuning algorithm that integrates with an *arbitrary* quantization module. When using the state-of-the-art OPTQ quantizer, LP-LoRA can finetune 3-bit LLMs for the first time (see [results](#benchmark) below).
+LLMTools implements low precision LoRA, a new memory-efficient finetuning algorithm that integrates with an *arbitrary* quantization module. When using the state-of-the-art QUIP# quantizer, LP-LoRA can finetune 2-bit LLMs for the first time (see [results](#benchmark) below).
+
+For a detailed walk through of LLMTools and ModuLoRA, please refer to our [**Blog Post**](https://oseyincs.io/llmtools/). 
 
 ## Overview
 
@@ -22,10 +25,13 @@ import torch
 from transformers import AutoTokenizer
 from llmtools.llms.autollm import AutoLLMForCausalLM
 
-# load model and tokenizer
-model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
-llm = AutoLLMForCausalLM.from_pretrained(model_name).to('cuda')
-tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
+# load quip model and tokenizer
+model_name = 'relaxml/Llama-1-7b-E8P-2Bit' # pulls from HF hub
+llm, quip_config = AutoLLMForCausalLM.from_pretrained(model_name, load_in_quip=True, device_map="auto")
+llm.eval()
+tokenizer = AutoTokenizer.from_pretrained(model_name, device_map="auto", use_fast=False)
+tokenizer.pad_token = tokenizer.eos_token
+
 
 # encode prompt
 prompt = 'The pyramids were built by'
@@ -43,7 +49,7 @@ output = tokenizer.decode([el.item() for el in generated_ids[0]])
 print(output)
 ```
 
-LLMTools comes with a patched version of the PEFT library that can be used to finetune the quantized models using the LP-LoRA method.
+LLMTools comes with a patched version of the PEFT library that can be used to finetune the quantized models using the ModuLoRA method.
 
 ```python
 from transformers import AutoTokenizer
@@ -51,9 +57,9 @@ from llmtools.llms.autollm import AutoLLMForCausalLM
 from llmtools.engine.lora.peft import quant_peft
 
 # load model and tokenizer
-model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
-llm = AutoLLMForCausalLM.from_pretrained(model_name).to('cuda')
-tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
+model_name = 'relaxml/Llama-1-65b-E8P-2Bit' # pulls from HF hub
+llm, quip_config = AutoLLMForCausalLM.from_pretrained(model_name, load_in_quip=True, device_map="auto")
+tokenizer = AutoTokenizer.from_pretrained(model_name, device_map="auto")
 
 # set up finetuning config
 from llmtools.engine.lora.config import FinetuneConfig
@@ -65,6 +71,7 @@ tune_config = FinetuneConfig(
 lora_config = quant_peft.LoraConfig(
     # ... create a lora config object
 )
+
 model = quant_peft.get_peft_model(llm, lora_config)
     
 
@@ -78,7 +85,8 @@ training_arguments = transformers.TrainingArguments(
 )
 
 # start trainer
-trainer = transformers.Trainer(
+from llmtools.engine.hf.trainer import Trainer
+trainer = Trainer(
     model=model,
     train_dataset=data.train_data,
     eval_dataset=data.val_data,
@@ -101,21 +109,26 @@ For more examples of how to perform model quantization, inference, and finetunin
 
 ### Requirements
 
-LLMTools requires a UNIX environment supporting Python (3.8 or greater) and PyTorch (we tested with 1.13.1+cu116). See `requirements.txt` for details.
+LLMTools requires a UNIX environment supporting Python (3.9) and PyTorch (we tested with 1.13.1+cu116). See `requirements.txt` for details.
 
 To ensure maximum reproducibility, consider creating a new conda environment:
 ```python
-conda create -n llmtools
+conda create -n llmtools python=3.9.18
 conda activate llmtools
-conda install git pip virtualenv
+cd llmtools/third-party/quip
+python -m pip install -r requirements.txt
+cd ../../
+python -m pip install -r requirements.txt
 ```
 LLMTools also requries an NVIDIA GPU (Pascal architecture or newer); other platforms are currently unsupported.
 
 ### Setup
 
 We use `distutils` to package llmtools. If you are not running conda, you can also create a `virtualenv`.
-```
-pip install -r requirements.txt   # installs torch and two other packages
+``` 
+cd llmtools/third-party/quip/quiptools
+python setup.py install           # installs quantizaiton module in your environment
+cd ../../../
 python setup.py install           # installs llmtools in your environment
 ```
 
@@ -123,57 +136,21 @@ Note that this process compiles and installs a custom CUDA kernel that is necess
 
 ## Running LLMTools
 
-### Download and Quantize Models
+### Download Quantized Models
 
-First, start by downloading the weights of a base LLM model. Currently the LLAMA, OPT, and BLOOM are supported. (Pre-quantized weights can be found [here](#quantized-model-weights))
+
+First, start by downloading the quantized model weights. Currently the LLAMA 1/2 models are supported with 2-bit and 4-bit precisions. (Pre-quantized weights with Quip# and OPTQ can be found [here](#quantized-model-weights))
+
 ```python
 from llmtools.llms.autollm import AutoLLMForCausalLM
-
-model_name = 'decapoda-research/llama-7b-hf'
-llm = AutoLLMForCausalLM.from_pretrained(model_name)
-llm.eval()
+model_name = 'relaxml/Llama-1-30b-E8P-2Bit' # pulls from HF hub
+llm, quip_config = AutoLLMForCausalLM.from_pretrained(model_name, load_in_quip=True, device_map="auto")
 ```
-You can quantize these models within `llmtools`.
-```python
-from llmtools.engine.quant.config import QuantConfig
-from llmtools.engine.quant.gptq.executor import GPTQAlgorithm
-from llmtools.data.calibration import get_calibration_loaders
 
-# set up quantization config
-config = QuantConfig(
-  bits=4,
-  dataset='c4',
-  seed=0,
-  nsamples=128,
-  percdamp=.01,
-  groupsize=64,
-  act_order=True,
-  nearest=False,
-  save='./llama-7b-quantized'
-)
-
-# load gptq calibration data
-dataloader, _ = get_calibration_loaders(
-    config.dataset, 
-    nsamples=config.nsamples, 
-    seed=config.seed, 
-    model=llm.base_model.name_or_path, 
-    seqlen=llm.base_model.seqlen
-)
-
-# create quantization algorithm
-gptq = GPTQAlgorithm(config)
-llm = gptq.quantize(llm, dataloader)
-```
-You can save the quantized model to disk or to the HF hub.
-```python
-llm.save_pretrained(config.save)
-print(f'Model weights saved to: {config.save}')
-```
 
 ### Generation
 
-Next, we generate text fron a quantized model. We first load the model.
+Next, we generate text fron a quantized model. 
 
 ```python
 import torch
@@ -181,9 +158,9 @@ from transformers import AutoTokenizer
 from llmtools.llms.autollm import AutoLLMForCausalLM
 
 # load model and tokenizer
-model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
-llm = AutoLLMForCausalLM.from_pretrained(model_name).to('cuda')
-tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
+model_name = 'relaxml/Llama-1-65b-E8P-2Bit' # pulls from HF hub
+llm, quip_config = AutoLLMForCausalLM.from_pretrained(model_name, load_in_quip=True, device_map="auto")
+tokenizer = AutoTokenizer.from_pretrained(model_name, device_map="auto")
 ```
 
 We encode the prompt and generate.
@@ -213,9 +190,9 @@ from transformers import AutoTokenizer
 from llmtools.llms.autollm import AutoLLMForCausalLM
 
 # load model and tokenizer
-model_name = 'kuleshov/llama-13b-3bit' # pulls from HF hub
-llm = AutoLLMForCausalLM.from_pretrained(model_name).to('cuda')
-tokenizer = AutoTokenizer.from_pretrained('huggyllama/llama-13b')
+model_name = 'relaxml/Llama-1-65b-E8P-2Bit' # pulls from HF hub
+llm, quip_config = AutoLLMForCausalLM.from_pretrained(model_name, load_in_quip=True, device_map="auto")
+tokenizer = AutoTokenizer.from_pretrained(model_name, device_map="auto")
 ```
 
 We can set parameters via the finetune config object.
@@ -243,17 +220,20 @@ tune_config = FinetuneConfig(
 ```
 
 We instatiate a PEFT model using our custom patched version of PEFT.
+
 ```python
 # set up lora    
 from llmtools.engine.lora.peft import quant_peft
 lora_config = quant_peft.LoraConfig(
+    task_type="CAUSAL_LM",
     r=tune_config.lora_r,
     lora_alpha=tune_config.lora_alpha,
-    target_modules=["q_proj", "v_proj"],
     lora_dropout=tune_config.lora_dropout,
     bias="none",
-    task_type="CAUSAL_LM",
+    target_modules=["qkv_proj"],
 )
+
+# create a new lora from config
 model = quant_peft.get_peft_model(llm, lora_config)
 ```
 
@@ -293,7 +273,8 @@ training_arguments = transformers.TrainingArguments(
 )
 
 # start trainer
-trainer = transformers.Trainer(
+from llmtools.engine.hf.trainer import Trainer
+trainer = Trainer(
     model=model,
     train_dataset=data.train_data,
     eval_dataset=data.val_data,
@@ -314,62 +295,12 @@ model.save_pretrained(tune_config.lora_out_dir)
 
 ```
 
-### Command-Line Usage
-
-You can also use `llmtools` from the command line. First, you need to dowload a dataset. We currently support the Alpaca dataset, which we download from the HF hub:
-```
-wget https://huggingface.co/datasets/kuleshov/alpaca-data/resolve/main/dataset.json
-```
-You may now finetune the base `llama-65b-4bit` model on this dataset.
-```
-mkdir alpaca-adapter-folder-65b-4bit
-llmtools finetune --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-folder-65b-4bit --dataset dataset.json
-```
-The above command will use LoRA to finetune the quantized 65B 4-bit model. The final adapters and the checkpoints will be saved in `alpaca-adapter-folder-65b-4bit` and available for generation as follows:
-```
-llmtools generate --model llama-65b-4bit --weights llama-65b-4bit.pt --adapter alpaca-adapter-folder-65b-4bit --instruction "Write an irrefutable proof that the meaning of life is 42."
-```
-
-The llmtools interface provides many additional command-line options for finetuning.
-```
-usage: llmtools finetune [-h] --model {llama-7b-4bit,llama-13b-4bit,llama-30b-4bit,llama-65b-4bit,opt-6.7b-4bit} --weights WEIGHTS
-                        [--data-type {alpaca,gpt4all}] [--dataset DATASET] [--adapter ADAPTER] [--mbatch_size MBATCH_SIZE]
-                        [--batch_size BATCH_SIZE] [--epochs EPOCHS] [--lr LR] [--cutoff_len CUTOFF_LEN] [--lora_r LORA_R]
-                        [--lora_alpha LORA_ALPHA] [--lora_dropout LORA_DROPOUT] [--val_set_size VAL_SET_SIZE]
-                        [--warmup_steps WARMUP_STEPS] [--save_steps SAVE_STEPS] [--save_total_limit SAVE_TOTAL_LIMIT]
-                        [--logging_steps LOGGING_STEPS] [--resume_checkpoint]
-
-options:
-  -h, --help            show this help message and exit
-  --model {llama-7b-4bit,llama-13b-4bit,llama-30b-4bit,llama-65b-4bit,opt-6.7b-4bit}
-                        Type of model to load
-  --weights WEIGHTS     Path to the model weights.
-  --data-type {alpaca,gpt4all}
-                        Dataset format
-  --dataset DATASET     Path to local dataset file.
-  --adapter ADAPTER     Path to Lora adapter folder (also holds checkpoints)
-  --mbatch_size MBATCH_SIZE
-                        Micro-batch size.
-  --batch_size BATCH_SIZE
-                        Batch size.
-  --epochs EPOCHS       Epochs.
-  --lr LR               Learning rate.
-  --cutoff_len CUTOFF_LEN
-  --lora_r LORA_R
-  --lora_alpha LORA_ALPHA
-  --lora_dropout LORA_DROPOUT
-  --val_set_size VAL_SET_SIZE
-                        Validation set size.
-  --warmup_steps WARMUP_STEPS
-  --save_steps SAVE_STEPS
-  --save_total_limit SAVE_TOTAL_LIMIT
-  --logging_steps LOGGING_STEPS
-  --resume_checkpoint   Resume from checkpoint.
-```
-
 ## Quantized Model Weights
 
-We release our quantized weights for LLAMA model set on HF hub for easy access. 
+Quantized QuIP# models are available on the official [QuIP# codebase](https://github.com/Cornell-RelaxML/quip-sharp) and on [HF Hub](https://huggingface.co/relaxml). 
+
+
+In our (earlier release)[https://github.com/oseyosey/llmtools/tree/03f06f396df0ab3bd7ef9e6e4f8a666795f4abab], we release our quantized OPTQ weights for LLAMA model set on HF hub for easy access. (We will integrate two versions of the codebase shortly)
 
 | ModuLoRA LLAMA Weights     | 4-bit              | 3-bit             |
 |----------------------------------|-----------------|-----------------|
@@ -386,13 +317,84 @@ We release our quantized weights for LLAMA model set on HF hub for easy access.
 | 13B         | [🤗 Link](https://huggingface.co/kuleshov/opt-13b-4bit) |   [🤗 Link](https://huggingface.co/kuleshov/opt-13b-3bit) |
 | 30B | [🤗 Link](https://huggingface.co/kuleshov/opt-30b-4bit) | [🤗 Link](https://huggingface.co/kuleshov/opt-30b-3bit) | 
 
+## Advanced Usage 
 
+You can also finetune the quantized models with as many GPUs as you want. We provide two ways of parallelism to scale up your training. 
+
+### Enabling NPP Training
+<br/>
+The LLMTools library supports naive pipeline parallelism (NPP) training for our incorporated quantized models. NPP is a straightforward method for distributing a model across multiple GPUs. By loading both the model and its adapters onto several GPUs, NPP enables the basic communication of activations and gradients across GPUs. This approach essentially evenly fits the model across all available GPUs.
+
+**How To Use NPP**
+
+Check out this example on how to launch NPP training. 
+
+You need to set up your device map such that the process will dispatch model's module correctly on multiple GPUs. 
+
+```python
+num_of_gpus = torch.cuda.device_count()
+if num_of_gpus > 1:
+    print("Enabling Naive Pipeline Parallel")
+    max_memory = get_balanced_memory(
+        model,
+        max_memory=None,
+        no_split_module_classes=["LlamaDecoderLayer", "LlamaMLP"],
+        dtype='float16',
+        low_zero=False,
+    )
+
+    device_map = infer_auto_device_map(
+        model,
+        max_memory=max_memory,
+        no_split_module_classes=["LlamaDecoderLayer", "LlamaMLP"],
+        dtype='float16'
+    )
+
+    model = dispatch_model(model, device_map=device_map)
+
+```
+### Enabling DDP Training
+<br/>
+The LLMTools library also supportsData Distributed Parallel (DDP) Training. DDP duplicates the model from GPU 0 to all other GPUs. For every batch, each GPU processes its own mini-batch of data independently. During the backward pass, after local gradients have been calculated, they are averaged across all participating processes, facilitating efficient parallel processing and synchronization among the GPUs.
+
+Note that DDP should work **if and only if** the training setup (meaning model weights, gradients + intermediate hidden states) can entirely fit a single GPU. 
+
+**How To Use DDP**
+
+Check out this example on how to launch DDP training. 
+
+You need to set up device_map such that each working process will load the entire model on the correct GPU. You can set up the device_map as followed:
+
+```python
+device_index = Accelerator().process_index
+device_map = {"": device_index}
+```
+
+ If used, gradient accumulation step should be evently split on multiple GPUs:
+
+```python
+world_size = int(os.environ.get("WORLD_SIZE", 1))
+ddp = world_size != 1
+if ddp:
+    num_of_gpus = torch.cuda.device_count()
+    device_map = {"": int(os.environ.get("LOCAL_RANK") or 0)}
+    gradient_accumulation_steps = tune_config.batch_size // (tune_config.mbatch_size*num_of_gpus)
+    print("gradient_accumulation_steps: ", gradient_accumulation_steps)
+```
+
+You can launch ModuLoRA Finetuning with DDP training by using:
+
+```
+accelerate launch {script_name.py} --arg1 --arg2 ...
+```
+
+For more information on how to use accelerate, please see the official [accelerate doc](https://huggingface.co/docs/accelerate/en/basic_tutorials/launch) in HuggingFace.
 
 
 ## Benchmark
 
 
-Our method shows competitive performance comparable or superior to baselines and 4bit / 8bit Bits&Bytes finetuning by [Dettmers et al., 2023](https://arxiv.org/pdf/2305.14314) on SAMSum benchmark with the [Llama (Touvron et al., 2023)](https://arxiv.org/pdf/2302.13971) model set. 4-bit 65B LLAMA models finetuned with ModuLoRA outperform the GPT-3 [LoRA baseline (Hu et al., 2021)](https://arxiv.org/abs/2106.09685) and even reach new state-of-the-art performance on this dataset.
+Our method shows competitive performance comparable or superior to baselines and 4bit / 8bit Bits&Bytes finetuning by [Dettmers et al., 2023](https://arxiv.org/pdf/2305.14314) on SAMSum benchmark with the [Llama (Touvron et al., 2023)](https://arxiv.org/pdf/2302.13971) model set. 4-bit 65B LLAMA models finetuned with ModuLoRA outperform the GPT-3 [LoRA baseline (Hu et al., 2021)](https://arxiv.org/abs/2106.09685) and even reach new state-of-the-art performance on this dataset.2-bit ModuLoRA models match the performance of 8-bit LoRAs in BitsAndBytes and LLM.int8() and 4-bit LoRAs in BitsAndBytes and QLoRA.
 
 We release complementary codebase [ModuLoRA-Experiment](https://github.com/kuleshov-group/MODULoRA-Experiment) to reproduce our results. 
 
@@ -404,18 +406,26 @@ We release complementary codebase [ModuLoRA-Experiment](https://github.com/kules
 | **Pegasus**| SliC                  | 2B                     | **54.4 / 29.9 / 45.9**     |
 
 
-| LLAMA Finetuning (*Rouge 1/2/L*)         | 7B              | 13B             | 30B               | 65B             |
-|----------------------------------|-----------------|-----------------|-----------------|-----------------|
-| **llmtune (3-bit)**              | 51.2 / 28.2 / 44.0 | 52.4 / 29.6 / 45.1 | 53.6 / 30.8 / 46.3 | 54.1 / 30.9 / 46.5 |
-| **llmtune (4-bit)**              | 51.7 / 28.3 / 44.4 | 53.2 / 30.2 / 46.1 | 53.9 / 31.2 / 46.9 | **55.9 / 32.7 / 49.0** |
-| **Bits&Bytes 4-bit (QLoRA)**     | 51.6 / 28.3 / 44.5 | 51.3 / 28.1 / 44.1 | 53.0 / 30.2 / 45.7 | 53.8 / 30.5 / 45.9 |
-| **Bits&Bytes 8-bit (LLM.int8())**| 51.9 / 28.1 / 44.5 | 51.3 / 28.2 / 43.6 | 50.8 / 28.4 / 44.1 | 53.9 / 30.4 / 46.3 |
+| LLAMA Finetuning | Quantizer | 7B | 13B | 30B | 65B |
+|------------------|-----------|----|-----|-----|-----|
+| LLMA Tools (2-bit) | QuIP# (E8) | 51.3 / 27.3 / 43.7 | 52.3 / 29.0 / 45.0 | 53.3 / 30.2 / 46.0 | 54.0 / 30.6 / 46.2 |
+| LLMA Tools (3-bit) | OPTQ | 51.2 / 28.2 / 44.0 | 52.4 / 29.6 / 45.1 | 53.6 / 30.8 / 46.3 | 54.1 / 30.9 / 46.5 |
+| LLMA Tools (4-bit) | OPTQ | 51.7 / 28.3 / 44.4 | 53.2 / 30.2 / 46.1 | 53.9 / 31.2 / 46.9 | **54.8 / 31.3 / 47.2** |
+| Bits&Bytes (4-bit) | QLoRA | 51.6 / 28.3 / 44.5 | 51.3 / 28.1 / 44.1 | 53.0 / 30.2 / 45.7 | 53.8 / 30.5 / 45.9 |
+| Bits&Bytes (8-bit) | LLMA.int8() | 51.9 / 28.1 / 44.5 | 51.3 / 28.2 / 43.6 | 50.8 / 28.4 / 44.1 | 53.9 / 30.4 / 46.3 |
 
-
+ 
 
 ## Hardware Requirements
 
 The following hardware is needed to run different models in LLMTools:
+
+| Model Size | GPU Memory Requirements | Compatible GPUs |
+| ----- | -------------------- | --------------- |
+| 7b-2bit | 3GB | GTX 1080, RTX 2060, 3050, 3060 |
+| 13b-2bit | 5GB | GTX 1080, RTX 2060, 3060, 3080 |
+| 30b-2bit | 12GB |  RTX 3080, 3090, 4090, V100 |
+| 65b-2bit | 21GB | A100, A40, RTX 3090, 4090, A6000, 5000 |
 
 | Model Size | GPU Memory Requirements | Compatible GPUs |
 | ----- | -------------------- | --------------- |
@@ -508,8 +518,7 @@ This is experimental work in progress. Work that stills needs to be done:
 ## Acknowledgements
 
 LLMTools is based on the following projects:
-* The GPTQ algorithm and codebase by the [IST-DASLAB](https://github.com/IST-DASLab/gptq) with modifications by [@qwopqwop200](https://github.com/qwopqwop200/)
-* The `alpaca_lora_4bit` repo by [johnsmith0031](https://github.com/johnsmith0031)
+* The Quip and Quip# algorithm and codebase by the [Relax-ML Lab](https://relax-ml.cs.cornell.edu/)
 * The PEFT repo and its implementation of LoRA
 * The LLAMA, OPT, and BLOOM models by META FAIR and the BigScience consortium
 
@@ -519,9 +528,9 @@ Please cite this repository if you use our code.
 
 ```
 @misc{LLMTools,
-  author = {Volodymyr Kuleshov},
+  author = {Junjie Oscar Yin, Volodymyr Kuleshov},
   title = {LLMTools: Fine-Tuning Large Language Models on One Consumer GPU},
-  year = {2023},
+  year = {2024},
   publisher = {GitHub},
   journal = {GitHub repository},
   howpublished = {\url{https://github.com/kuleshov-group/LLMTools}},
@@ -532,4 +541,4 @@ We also recommend you cite the above projects on which this work is based.
 
 ## Feedback
 
-Please send feedback to [Volodymyr Kuleshov](https://twitter.com/volokuleshov).
+Please send feedback to [Junjie Oscar Yin](https://oseyincs.io/) and [Volodymyr Kuleshov](https://twitter.com/volokuleshov).
