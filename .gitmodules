@@ -1,4 +1,3 @@
-[submodule "quip"]
+[submodule "third-party/quip"]
 	path = third-party/quip
-	url = https://github.com/oseyosey/quip-sharp/tree/modulora
-	branch = modulora
+	url = https://github.com/oseyosey/quip-sharp.git
