@@ -15,7 +15,6 @@ from accelerate import Accelerator
 os.environ['NUMEXPR_MAX_THREADS'] = '24'
 
 # model config
-#model_name = '/share/kuleshov/jy928/llmtools-2bit/quip/quantized_weights/llama1-quip-7b-D4' # local dir.
 model_name = 'relaxml/Llama-1-30b-E8P-2Bit' # HF dir.
 
 # device_map = "auto"
@@ -49,7 +48,7 @@ logging_steps=1
 
 data_type = 'alpaca'
 dataset = None # will load alpaca from HF
-adapter_path = './llama1-30b-samsum-seed42-ddp'
+adapter_path = './llama1-30b-alpaca-ddp'
 
 # set up finetuning config
 tune_config = FinetuneConfig(

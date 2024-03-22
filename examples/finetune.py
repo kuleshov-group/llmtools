@@ -16,8 +16,8 @@ from accelerate.utils import get_balanced_memory
 
 
 # model config
-model_name = 'relaxml/Llama-1-13b-E8P-2Bit' # HF dir.
-# model_name = 'relaxml/Llama-1-7b-E8PRVQ-4Bit' # HF dir-4bit
+model_name = 'relaxml/Llama-1-7b-E8P-2Bit' # HF dir 2bit
+# model_name = 'relaxml/Llama-1-7b-E8PRVQ-4Bit' # HF dir 4bit
 
 device_map = "auto"
 accelerator = Accelerator()
@@ -49,7 +49,7 @@ logging_steps=1
 
 data_type = 'alpaca'
 dataset = None # will load alpaca from HF
-adapter_path = './llama1-13b-samsum-seed42'
+adapter_path = './llama1-7b-alpaca'
 
 # set up finetuning config
 tune_config = FinetuneConfig(
@@ -90,7 +90,6 @@ model = accelerator.prepare(model)
 world_size = int(os.environ.get("WORLD_SIZE", 1))
 ddp = world_size != 1
 if not ddp and torch.cuda.device_count() > 1:
-    # print("Enable Pipeline Parallel")
     model.is_parallelizable = True
     model.model_parallel = True
 

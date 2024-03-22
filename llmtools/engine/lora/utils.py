@@ -155,10 +155,13 @@ def rename_modulora_adapters_in_dict(original_dict, adapter_name="default"):
                 if i+1 < len(segments) and segments[i+1] == adapter_name:
                     segments[i] = prefix  # Update the current segment
                     segments[i+1] = f'{adapter_name}_{num}'  # Update the 'default' segment
-                    
+
                     # Construct the new key and update the dictionary
                     new_key = '.'.join(segments)
                     updated_dict[new_key] = updated_dict.pop(key)  # Replace key in the dict
+
+                    #make sure they are on the same device
+                    updated_dict[new_key].to(original_dict[key].device)
                     
                     break  # Assuming only one modification per key
     

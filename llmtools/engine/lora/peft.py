@@ -20,7 +20,10 @@ import peft as quant_peft
 from llmtools.engine.lora.peft_model import PeftModel
 from llmtools.engine.lora.peft_model import PeftModelForCausalLM 
 from llmtools.engine.lora.mapping import get_peft_model
+
 quant_peft.peft_model.PeftModel = PeftModel
+quant_peft.PeftModel = PeftModel
 quant_peft.peft_model.PeftModelForCausalLM = PeftModelForCausalLM
+
 
 quant_peft.get_peft_model = get_peft_model

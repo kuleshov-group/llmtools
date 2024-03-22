@@ -1513,6 +1513,12 @@ class QuipQuantLTLinear(QuipQuantLinear, LoraLayer):
         if self.disable_adapters:
             return result
         elif self.r[self.active_adapter] > 0:
+
+            #* Hacky way to address device issues for now *#
+            self.lora_A[self.active_adapter].to(self.Qidxs.device)
+            self.lora_B[self.active_adapter].to(self.Qidxs.device)
+            self.lora_dropout[self.active_adapter].to(self.Qidxs.device)
+
             if not torch.is_autocast_enabled():
                 expected_dtype = result.dtype
                 x = x.to(self.lora_A[self.active_adapter].weight.dtype)
@@ -1577,7 +1583,7 @@ class FusedQuipQuantLTLinear(FusedQuipQuantLinear, LoraLayer):
                     in_features=in_features, 
                     out_features=out_features,
                     fuse_sizes=fuse_sizes)
-        self.weight = self.Qidxs
+        self.weight = self.Qidxs ##TODO: self.weight.device not the same as self.Qidxs.device!!
 
 
         # Actual trainable parameters
@@ -1618,12 +1624,24 @@ class FusedQuipQuantLTLinear(FusedQuipQuantLinear, LoraLayer):
                 
                 for i in range(len(self.fuse_sizes)):
                     adapter_name_fused = f"{self.active_adapter}_{i}"
+
+                    #* Hacky way to address device issues for now *#
+                    self.lora_A[adapter_name_fused].to(self.Qidxs.device)
+                    self.lora_B[adapter_name_fused].to(self.Qidxs.device)
+                    self.lora_dropout[adapter_name_fused].to(self.Qidxs.device)
+
                     query_states += self.lora_B[adapter_name_fused](self.lora_A[adapter_name_fused](self.lora_dropout[adapter_name_fused](x))).to(expected_dtype) * self.scaling[adapter_name_fused]
                     key_states += self.lora_B[adapter_name_fused](self.lora_A[adapter_name_fused](self.lora_dropout[adapter_name_fused](x))).to(expected_dtype) * self.scaling[adapter_name_fused]
                     value_states += self.lora_B[adapter_name_fused](self.lora_A[adapter_name_fused](self.lora_dropout[adapter_name_fused](x))).to(expected_dtype) * self.scaling[adapter_name_fused]
             else:
                 for i in range(len(self.fuse_sizes)):
                     adapter_name_fused = f"{self.active_adapter}_{i}"
+
+                    #* Hacky way to address device issues for now *#
+                    self.lora_A[adapter_name_fused].to(self.Qidxs.device)
+                    self.lora_B[adapter_name_fused].to(self.Qidxs.device)
+                    self.lora_dropout[adapter_name_fused].to(self.Qidxs.device)
+
                     query_states += self.lora_B[adapter_name_fused](self.lora_A[adapter_name_fused](self.lora_dropout[adapter_name_fused](x))) * self.scaling[adapter_name_fused]
                     key_states += self.lora_B[adapter_name_fused](self.lora_A[adapter_name_fused](self.lora_dropout[adapter_name_fused](x))) * self.scaling[adapter_name_fused]
                     value_states += self.lora_B[adapter_name_fused](self.lora_A[adapter_name_fused](self.lora_dropout[adapter_name_fused](x))) * self.scaling[adapter_name_fused]
