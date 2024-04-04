@@ -12,9 +12,11 @@ LLMTools is a research project at Cornell University, and is based on the follow
 > - Jerry Chee, Yaohui Cai, Volodymyr Kuleshov, Christopher De Sa. QuIP: 2-Bit Quantization of Large Language Models with Guarantees. NeurIPS 2023, **Spotlight**. [LINK](https://arxiv.org/abs/2307.13304)
 > - Tseng, Albert, Jerry Chee, Qiyao Sun, Volodymyr Kuleshov, Christopher De Sa. "Quip#: Even better LLM quantization with hadamard incoherence and lattice codebooks." arXiv preprint arXiv:2402.04396 (2024). [LINK](https://arxiv.org/html/2402.04396v1)
 
-LLMTools implements low precision LoRA, a new memory-efficient finetuning algorithm that integrates with an *arbitrary* quantization module. When using the state-of-the-art QUIP# quantizer, LP-LoRA can finetune 2-bit LLMs for the first time (see [results](#benchmark) below).
-
+LLMTools implements low precision LoRA, a new memory-efficient finetuning algorithm that integrates with an *arbitrary* quantization module. When using the state-of-the-art QUIP# quantizer, ModuLoRA can finetune 2-bit LLMs for the first time (see [results](#benchmark) below).
+ 
 For a detailed walk through of LLMTools and ModuLoRA, please refer to our [**Blog Post**](https://oseyincs.io/llmtools/). 
+
+_Please open a GitHub ticket if you have any questions about the code or QuIP# in general._
 
 ## Overview
 
