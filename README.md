@@ -16,7 +16,7 @@ LLMTools implements low precision LoRA, a new memory-efficient finetuning algori
  
 For a detailed walk through of LLMTools and ModuLoRA, please refer to our [**Blog Post**](https://oseyincs.io/llmtools/). 
 
-_Please open a GitHub ticket if you have any questions about the code or QuIP# in general._
+_Please open a GitHub ticket if you have any questions about the code or ModuLoRA in general._
 
 ## Overview
 
