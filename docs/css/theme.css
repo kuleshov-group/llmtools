@@ -184,10 +184,10 @@ body {
 
 @media (prefers-color-scheme: dark) {
   .only-light-mode {
-    display: none;
+    display: inherit;
   }
   .only-dark-mode {
-    display: inherit;
+    display: none;
   }
 }
 /* }}} */
