@@ -535,13 +535,11 @@ LLMTools is based on the following projects:
 Please cite this repository if you use our code.
 
 ```
-@misc{LLMTools,
-  author = {Junjie Oscar Yin, Volodymyr Kuleshov},
-  title = {LLMTools: Fine-Tuning Large Language Models on One Consumer GPU},
-  year = {2024},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/kuleshov-group/LLMTools}},
+@article{yin2023modulora,
+  title={Modulora: Finetuning 2-bit llms on consumer gpus by integrating with modular quantizers},
+  author={Yin, Junjie and Dong, Jiahao and Wang, Yingheng and De Sa, Christopher and Kuleshov, Volodymyr},
+  journal={TMLR},
+  year={2024}
 }
 ```
 
