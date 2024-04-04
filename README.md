@@ -8,9 +8,9 @@ LLMTools is a user-friendly library for running and finetuning LLMs in low-resou
 
 LLMTools is a research project at Cornell University, and is based on the following publications.
 
-> - Junjie Yin, Jiahao Dong, Yingheng Wang, Christopher De Sa, Volodymyr Kuleshov ModuLoRA: Finetuning 2-Bit LLMs on Consumer GPUs by Integrating with Modular Quantizers. TMLR 2023, **Featured Certificte**. [LINK](https://arxiv.org/pdf/2309.16119)
+> - Junjie Yin, Jiahao Dong, Yingheng Wang, Christopher De Sa, Volodymyr Kuleshov ModuLoRA: Finetuning 2-Bit LLMs on Consumer GPUs by Integrating with Modular Quantizers. TMLR 2023, **Featured Certificate**. [LINK](https://arxiv.org/pdf/2309.16119)
 > - Jerry Chee, Yaohui Cai, Volodymyr Kuleshov, Christopher De Sa. QuIP: 2-Bit Quantization of Large Language Models with Guarantees. NeurIPS 2023, **Spotlight**. [LINK](https://arxiv.org/abs/2307.13304)
-> - Tseng, Albert, Jerry Chee, Qiyao Sun, Volodymyr Kuleshov, Christopher De Sa. "Quip#: Even better LLM quantization with hadamard incoherence and lattice codebooks." arXiv preprint arXiv:2402.04396 (2024). [LINK](https://arxiv.org/html/2402.04396v1)
+> - Tseng, Albert, Jerry Chee, Qingyao Sun, Volodymyr Kuleshov, Christopher De Sa. "Quip#: Even better LLM quantization with hadamard incoherence and lattice codebooks." arXiv preprint arXiv:2402.04396 (2024). [LINK](https://arxiv.org/html/2402.04396v1)
 
 LLMTools implements low precision LoRA, a new memory-efficient finetuning algorithm that integrates with an *arbitrary* quantization module. When using the state-of-the-art QUIP# quantizer, ModuLoRA can finetune 2-bit LLMs for the first time (see [results](#benchmark) below).
  
