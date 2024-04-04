@@ -111,6 +111,13 @@ For more examples of how to perform model quantization, inference, and finetunin
 
 LLMTools requires a UNIX environment supporting Python (3.9) and PyTorch (we tested with 2.1.1 with 12.1 Cuda). See `requirements.txt` for details.
 
+First clone the repo and its submodules
+
+```python
+git clone --recursive https://github.com/kuleshov-group/llmtools.git
+git submodule update --init --recursive
+```
+
 To ensure maximum reproducibility, consider creating a new conda environment:
 ```python
 conda create -n llmtools python=3.9.18
