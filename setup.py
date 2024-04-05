@@ -11,9 +11,16 @@ setup(
 )
 
 setup(
+    name='quip',
+    version='0.1.0',
+    packages=find_packages(where='third-party'),
+    package_dir={'': 'third-party'}, 
+)
+
+setup(
     name='quant_cuda',
     ext_modules=[cpp_extension.CUDAExtension(
-        'llmtune.engine.quant.quant_cuda',
+        'quant_cuda', 
         [
         	'llmtools/engine/inference/cuda/quant_cuda.cpp', 
         	'llmtools/engine/inference/cuda/quant_cuda_kernel.cu'
@@ -21,3 +28,4 @@ setup(
     )],
     cmdclass={'build_ext': cpp_extension.BuildExtension}
 )
+

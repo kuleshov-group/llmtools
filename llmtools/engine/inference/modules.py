@@ -6,10 +6,17 @@ from llmtools.engine.inference.autograd import (
     Autograd2bit, Autograd4bit, Autograd3bit
 )
 
+
+## QUIP Implementation
+import quiptools_cuda
+from quip.lib.utils import matmul_hadU_cuda, matmul_hadUt_cuda, dtype_from_str
+from quip.lib import codebook
+
 try:
     import quant_cuda
 except:
-    print('CUDA extension not installed. Inference will not work.')
+    print('CUDA extension not installed. Inference will not work for (OPTQ)')
+
 
 # Assumes layer is perfectly divisible into 256 * 256 blocks
 class QuantLinear(nn.Module): 
@@ -100,7 +107,7 @@ class QuantLinear(nn.Module):
         qweight = qweight.astype(np.int32)
         self.qweight = torch.from_numpy(qweight) 
         
-        zeros -= 1;
+        zeros -= 1
         zeros = zeros.numpy().astype(np.uint32)
         qzeros = np.zeros(
             (zeros.shape[0], zeros.shape[1] // 32 * self.bits), dtype=np.uint32
@@ -174,3 +181,4 @@ class QuantLinear(nn.Module):
         else:
             raise NotImplementedError()
         return out
+

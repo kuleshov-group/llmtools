@@ -2,54 +2,59 @@ import os
 import torch
 import transformers
 from transformers import AutoTokenizer
+from transformers import TrainingArguments
+
 from llmtools.llms.autollm import AutoLLMForCausalLM
 from llmtools.engine.lora.config import FinetuneConfig
 from llmtools.data import TrainSAD
 from llmtools.engine.lora.peft import quant_peft
-from llmtools.utils import to_half_precision
+from llmtools.engine.hf.trainer import Trainer
+
+from accelerate import Accelerator
+from accelerate import dispatch_model, infer_auto_device_map
+from accelerate.utils import get_balanced_memory
+
 
 # model config
-model_name = 'kuleshov/llama-7b-4bit'
-# model_name = './llama-7b-quantized' # can generate local dir via quantize.py
-tokenizer_name = 'huggyllama/llama-13b'
-DEV = 'cuda'
+model_name = 'relaxml/Llama-1-7b-E8P-2Bit' # HF dir 2bit
+# model_name = 'relaxml/Llama-1-7b-E8PRVQ-4Bit' # HF dir 4bit
+
+device_map = "auto"
+accelerator = Accelerator()
 
 # load model
-transformers.logging.set_verbosity_info()
-llm = AutoLLMForCausalLM.from_pretrained(model_name)
+llm, quip_config = AutoLLMForCausalLM.from_pretrained(model_name, load_in_quip=True, device_map=device_map)
 llm.eval()
-llm = llm.to(DEV)
-llm = to_half_precision(llm)
 
-# load tokenizer
-tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
-tokenizer.pad_token_id = 0
+#* AutoTokenizer is the lateste version of tokenizer, avoid tokenizer warning and error *#
+tokenizer = AutoTokenizer.from_pretrained(model_name, device_map=device_map, use_fast=False)
+tokenizer.pad_token = tokenizer.eos_token
 
 # finetune training config
-mbatch_size=1
-batch_size=2
+mbatch_size_per_device=1
+batch_size= 16 #128
 epochs=3
-lr=2e-4
+lr=1e-3
 cutoff_len=256
 lora_r=8
 lora_alpha=16
 lora_dropout=0.05
 val_set_size=0.2
-warmup_steps=50
-save_steps=50
+warmup_steps=0
+save_steps=10
 save_total_limit=3
-logging_steps=10
+logging_steps=1
 
 data_type = 'alpaca'
 dataset = None # will load alpaca from HF
-adapter_path = './llama-7b-quantized-lora'
+adapter_path = './llama1-7b-alpaca'
 
 # set up finetuning config
 tune_config = FinetuneConfig(
     dataset=dataset, 
     ds_type=data_type, 
     lora_out_dir=adapter_path, 
-    mbatch_size=mbatch_size,
+    mbatch_size=mbatch_size_per_device,
     batch_size=batch_size,
     epochs=epochs, 
     lr=lr,
@@ -64,18 +69,51 @@ tune_config = FinetuneConfig(
     logging_steps=logging_steps,
 )
 
+
 # set up lora config    
 lora_config = quant_peft.LoraConfig(
+    task_type="CAUSAL_LM",
     r=tune_config.lora_r,
     lora_alpha=tune_config.lora_alpha,
-    target_modules=["q_proj", "v_proj"],
     lora_dropout=tune_config.lora_dropout,
     bias="none",
-    task_type="CAUSAL_LM",
+    target_modules=["qkv_proj"],
 )
 
 # create a new lora from config
 model = quant_peft.get_peft_model(llm, lora_config)
+model = accelerator.prepare(model)
+
+# Data Parallel Training
+world_size = int(os.environ.get("WORLD_SIZE", 1))
+ddp = world_size != 1
+if not ddp and torch.cuda.device_count() > 1:
+    model.is_parallelizable = True
+    model.model_parallel = True
+
+# print(model)
+
+
+#* Enable Naive Pipeline Parallel *#
+num_of_gpus = torch.cuda.device_count()
+if num_of_gpus > 1:
+    print("Enabling Naive Pipeline Parallel")
+    max_memory = get_balanced_memory(
+        model,
+        max_memory=None,
+        no_split_module_classes=["LlamaDecoderLayer", "LlamaMLP"],
+        dtype='float16',
+        low_zero=False,
+    )
+
+    device_map = infer_auto_device_map(
+        model,
+        max_memory=max_memory,
+        no_split_module_classes=["LlamaDecoderLayer", "LlamaMLP"],
+        dtype='float16'
+    )
+
+    model = dispatch_model(model, device_map=device_map)
 
 # load stanford alpaca data
 data = TrainSAD(
@@ -87,7 +125,7 @@ data = TrainSAD(
 data.prepare_data() # this tokenizes the dataset
 
 # training args
-training_arguments = transformers.TrainingArguments(
+training_arguments = TrainingArguments(
     per_device_train_batch_size=tune_config.mbatch_size,
     gradient_accumulation_steps=tune_config.gradient_accumulation_steps,
     warmup_steps=tune_config.warmup_steps,
@@ -97,7 +135,7 @@ training_arguments = transformers.TrainingArguments(
     logging_steps=tune_config.logging_steps,
     evaluation_strategy="no",
     save_strategy="steps",
-    eval_steps=None,
+    eval_steps=None, #None
     save_steps=tune_config.save_steps,
     output_dir=tune_config.lora_out_dir,
     save_total_limit=tune_config.save_total_limit,
@@ -106,7 +144,7 @@ training_arguments = transformers.TrainingArguments(
 )
 
 # start trainer
-trainer = transformers.Trainer(
+trainer = Trainer(
     model=model,
     train_dataset=data.train_data,
     eval_dataset=data.val_data,
@@ -115,11 +153,8 @@ trainer = transformers.Trainer(
         tokenizer, mlm=False
     ),
 )
-print(training_arguments.parallel_mode)
 model.config.use_cache = False
 
-# use half precision
-model = to_half_precision(model)
 
 # start training
 checkpoint_dir = tune_config.lora_out_dir

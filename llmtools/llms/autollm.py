@@ -13,6 +13,8 @@ from llmtools.llms.llama2.model import load_llama2, load_llama2_tokenizer
 from llmtools.llms.opt.model import load_opt, load_opt_tokenizer
 from llmtools.llms.bloom.model import load_bloom, load_bloom_tokenizer
 
+from llmtools.llms.llamaquip.model import load_llama_quip ## QUIP Integration
+
 def get_default_tokenizer(name_or_path, model_type=None):
     if model_type is not None:
         if model_type == 'llama':
@@ -91,44 +93,58 @@ class AutoLLMForCausalLM(nn.Module, PushToHubMixin):
     def from_pretrained(
         cls,
         model_name_or_path: str,
+        load_in_quip: Optional[bool] = False,
+        load_in_gbtq: Optional[bool] = False,
         device_map: Optional[Union[str, Dict[str, Union[int, str]]]] = None,
         device: Optional[Union[str, int]] = None,
+        trust_remote_code: Optional[bool] = False, # currently unused. 
     ):
         # load config
         llm_config = AutoLLMConfig.from_pretrained(model_name_or_path)
-        load_quantized = llm_config.quant_config is not None
+        
+        if load_in_quip:
+            print("LOADING QUIP MODEL...")
+            if device_map is None:
+                quip_model, quip_tokenizer, quip_config = load_llama_quip(model_name_or_path)
+            else:
+                quip_model, quip_tokenizer, quip_config = load_llama_quip(model_name_or_path, device_map=device_map)
+            return quip_model, quip_config
+        elif load_in_gbtq:
+            print("LOADING GBTQ MODEL...")
+            load_quantized = llm_config.quant_config is not None
 
-        # resolve path to checkpoint (could be None)
-        checkpoint = None
-        if load_quantized:
-            if os.path.isdir(model_name_or_path):
-                checkpoint = os.path.join(
-                    model_name_or_path, 'quantized_weights.pt'
-                )
-            else: # remote
-                checkpoint = cached_file(
-                    model_name_or_path, 'quantized_weights.pt'
-                )
-            if checkpoint is None:
-                raise FileNotFoundError(
-                    f"Couldn't find quantized weights in {model_name_or_path}"
-                )
+            # resolve path to checkpoint (could be None)
+            checkpoint = None
+            if load_quantized:
+                if os.path.isdir(model_name_or_path):
+                    checkpoint = os.path.join(
+                        model_name_or_path, 'quantized_weights.pt'
+                    )
+                else: # remote
+                    checkpoint = cached_file(
+                        model_name_or_path, 'quantized_weights.pt'
+                    )
+                if checkpoint is None:
+                    raise FileNotFoundError(
+                        f"Couldn't find quantized weights in {model_name_or_path}"
+                    )
 
-        # load base model
-        if llm_config.model_type == LLMType.LLAMA.value:
-            model = load_llama(llm_config, checkpoint)
-        elif llm_config.model_type == LLMType.LLAMA2.value:
-            model = load2_llama(llm_config, checkpoint)
-        elif llm_config.model_type == LLMType.OPT.value:
-            model = load_opt(llm_config, checkpoint)
-        elif llm_config.model_type == LLMType.BLOOM.value:
-            model = load_bloom(llm_config, checkpoint)
+            # load base model
+            if llm_config.model_type == LLMType.LLAMA.value:
+                model = load_llama(llm_config, checkpoint)
+            elif llm_config.model_type == LLMType.LLAMA2.value:
+                model = load_llama2(llm_config, checkpoint)
+            elif llm_config.model_type == LLMType.OPT.value:
+                model = load_opt(llm_config, checkpoint)
+            elif llm_config.model_type == LLMType.BLOOM.value:
+                model = load_bloom(llm_config, checkpoint)
+            else:
+                raise NotImplementedError(
+                f'{llm_config.model_type} not supported'
+                )
+            return model, llm_config
         else:
-            raise NotImplementedError(
-               f'{llm_config.model_type} not supported'
-            )
-
-        return cls(model, llm_config)
+            print("No quantizer specified. Plese specify a quantizer (QuIP or GPTQ)")
 
     def save_pretrained(self, save_dir: str):
         os.makedirs(save_dir, exist_ok=True)

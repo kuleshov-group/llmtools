@@ -1,0 +1,3 @@
+[submodule "third-party/quip"]
+	path = third-party/quip
+	url = https://github.com/oseyosey/quip-sharp.git

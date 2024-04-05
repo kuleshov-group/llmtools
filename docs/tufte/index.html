@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc-markdown-css-theme" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="@jez" />
+  <meta name="dcterms.date" content="2021-06-25" />
+  <title>Kitchen Sink Tufte code</title>
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/skylighting-solarized-theme.css" />
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css" />
+  <link rel="stylesheet" href="../css/tufte.css">
+</head>
+<body>
+
+<header>
+<h1 class="title">Kitchen Sink Tufte <code>code</code></h1>
+<blockquote class="metadata">
+<p class="subtitle">“Everything but the kitchen sink.”</p>
+<p class="author">
+      <a href="https://github.com/jez"><span class="citation" data-cites="jez">@jez</span></a>
+  </p>
+<p class="date before-toc"><time datetime="2021-06-25">2021-06-25</time></p>
+</blockquote>
+</header>
+
+<nav id="TOC" role="doc-toc">
+    <a href="..">← Return home</a><br>
+    <strong>Contents</strong><label for="contents">⊕</label>
+  <input type="checkbox" id="contents">
+  <ul>
+  <li><a href="#prose" id="toc-prose">Prose</a></li>
+  <li><a href="#math" id="toc-math">Math</a></li>
+  <li><a href="#headings" id="toc-headings">Headings</a>
+  <ul>
+  <li><a href="#smaller-heading" id="toc-smaller-heading">Smaller heading</a>
+  <ul>
+  <li><a href="#even-smaller-heading-code" id="toc-even-smaller-heading-code">Even smaller heading <code>code</code></a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#level-1-heading-code" id="toc-level-1-heading-code">Level 1 heading <code>code</code></a>
+  <ul>
+  <li><a href="#level-2-heading-code" id="toc-level-2-heading-code">Level 2 heading <code>code</code></a></li>
+  <li><a href="#another-level-2-heading" id="toc-another-level-2-heading">Another level 2 heading</a></li>
+  </ul></li>
+  <li><a href="#lists" id="toc-lists">Lists</a></li>
+  <li><a href="#code-blocks" id="toc-code-blocks">Code blocks</a></li>
+  <li><a href="#block-quotes" id="toc-block-quotes">Block quotes</a></li>
+  <li><a href="#colored-notes" id="toc-colored-notes">Colored notes</a></li>
+  <li><a href="#side-notes" id="toc-side-notes">Side notes</a></li>
+  <li><a href="#images" id="toc-images">Images</a></li>
+  <li><a href="#tables" id="toc-tables">Tables</a></li>
+  </ul>
+</nav>
+
+<main>
+<p>This project provides CSS files and a template for using Pandoc to generate standalone HTML files. It supports most features Pandoc Markdown has to offer, and some extras. The default look can be tweaked via CSS variables, and it does not need JavaScript, even for side notes.</p>
+<div class="note yellow">
+<table>
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">👋 This page is designed to look similar to Tufte CSS, powered by the customization features in <a href="..">Pandoc Markdown CSS Theme</a>.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><a href="https://edwardtufte.github.io/tufte-css/">→ More information on Tufte CSS</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="prose">Prose</h1>
+<p>This is some body text between headings. This project provides CSS files and a template for using Pandoc to generate standalone HTML files. It supports most features Pandoc Markdown has to offer, and some extras. The default look can be tweaked via CSS variables, and it does not need JavaScript, even for side notes.</p>
+<p>This is some <strong>body text between headings</strong>. This project provides CSS files and a template for using Pandoc to generate <em>standalone HTML files</em>. It supports most features <strong>Pandoc Markdown</strong> has to offer, and some extras. The default look can be <em>tweaked via CSS variables</em>, and it does not ~need JavaScript, even for side notes.</p>
+<p>This project <span class="smallcaps">provides CSS files</span> and a template for using Pandoc to generate standalone HTML files. It supports most features <span class="smallcaps"><strong>Pandoc Markdown</strong></span> has to offer, and some <span class="smallcaps"><em>extras</em></span>. The default look can be <u>tweaked via CSS</u> variables, and it does not need JavaScript, <del>even for side notes</del>.</p>
+<p>This is some <a href="#">body text</a> between headings. This project <code>provides CSS files</code> and a template for using <a href="#"><code>pandoc</code></a> to generate standalone HTML files. It supports most features Pandoc Markdown has to offer, and some extras. The <strong><a href="#">default</a></strong> look can be tweaked via <strong><em>CSS variables</em></strong>, and it does not need JavaScript, even for side notes.</p>
+<p>“Hanging punctuation” is really nice.<br />
+Unfortunately it’s only supported in Safari on iOS and macOS.<br />
+“Does it work after line breaks,” or just at the block start?</p>
+<hr />
+<p>Horizontal rules, too!</p>
+<hr />
+<h1 id="math">Math</h1>
+<p>There’s inline math: <span class="math inline">a^2 + b^2 = c^2</span>, and block math:</p>
+<p><span class="math display">60 \, \frac{\textrm{seconds}}{\textrm{minute}} \cdot 60 \, \frac{\textrm{minutes}}{\textrm{hour}} = 3,600 \, \frac{\textrm{seconds}}{\textrm{hour}}</span></p>
+<p><span class="math display">\frac{
+  \Delta \, \Gamma, e : \forall (u :: \kappa). \tau \qquad \Delta \vdash c :: \kappa
+}{
+  \Delta \, \Gamma \vdash e[c] : [c/u]\tau
+}</span></p>
+<figure class="wide">
+<p><span class="math display">\frac{
+  \Delta \, \Gamma, e : \forall (u :: \kappa). \tau \qquad \Delta \vdash c :: \kappa
+}{
+  \Delta \, \Gamma \vdash e[c] : [c/u]\tau
+}</span></p>
+<figcaption>
+Typing rule for ∀ types
+</figcaption>
+</figure>
+<figure class="wide extra-wide">
+<p><span class="math display">\frac{
+  \Delta, u :: \kappa \vdash c :: \kappa’
+}{
+  \Delta \vdash \lambda(u :: \kappa). \, c :: \kappa \to \kappa’
+}\;(\texttt{lambda-kind}) \quad \frac{
+  \Delta, u :: \kappa \vdash c :: *
+}{
+  \Delta \vdash \forall(u :: \kappa). \, c :: *
+}\;(\texttt{forall-kind})</span></p>
+<figcaption>
+Kind rules for two type constructors in System F<sub>ω</sub>. This text is long enough that it wraps on some screens.
+</figcaption>
+</figure>
+<figure class="wide extra-wide left-align-caption">
+<p><span class="math display">\frac{
+  \Delta, u :: \kappa \vdash c :: \kappa’
+}{
+  \Delta \vdash \lambda(u :: \kappa). \, c :: \kappa \to \kappa’
+}\;(\texttt{lambda-kind}) \quad \frac{
+  \Delta, u :: \kappa \vdash c :: *
+}{
+  \Delta \vdash \forall(u :: \kappa). \, c :: *
+}\;(\texttt{forall-kind})</span></p>
+<figcaption>
+This caption will be forcibly left-aligned.
+</figcaption>
+</figure>
+<figure class="wide full-width">
+<p><span class="math display">\frac{
+  \Delta, u :: \kappa_1 \vdash c_2 :: \kappa_2 \qquad \Delta \vdash c_1
+  :: \kappa_1
+}{
+  \Delta \vdash (\lambda(u :: \kappa_1). \, c_2)(c_1) \equiv  [c_1/u]c_2 :: \kappa_2
+} \quad \frac{
+  \Delta, u :: \kappa_1 \vdash c_2 :: \kappa_2 \qquad \Delta \vdash c_1
+  :: \kappa_1
+}{
+  \Delta \vdash (\lambda(u :: \kappa_1). \, c_2)(c_1) \equiv  [c_1/u]c_2 :: \kappa_2
+} \quad \frac{
+  \Delta, u :: \kappa_1 \vdash c_2 :: \kappa_2 \qquad \Delta \vdash c_1
+  :: \kappa_1
+}{
+  \Delta \vdash (\lambda(u :: \kappa_1). \, c_2)(c_1) \equiv  [c_1/u]c_2 :: \kappa_2
+} \\ \quad \\ \frac{
+  \Delta \, \Gamma, e : \forall (u :: \kappa). \tau \qquad \Delta \vdash c :: \kappa
+}{
+  \Delta \, \Gamma \vdash e[c] : [c/u]\tau
+} \quad \frac{
+  \quad
+}{
+  (\Lambda u. \, e)[\tau] \mapsto [\tau / u]e
+}</span></p>
+<figcaption>
+Assorted rules from statics and dynamics of System<sub>ω</sub>
+</figcaption>
+</figure>
+<h1 id="headings">Headings</h1>
+<p>This is some body text between headings. This project provides CSS files and a template for using Pandoc to generate standalone HTML files. It supports most features Pandoc Markdown has to offer, and some extras. The default look can be tweaked via CSS variables, and it does not need JavaScript, even for side notes.</p>
+<h2 id="smaller-heading">Smaller heading</h2>
+<p>This is some body text between headings. This project provides CSS files and a template for using Pandoc to generate standalone HTML files. It supports most features Pandoc Markdown has to offer, and some extras. The default look can be tweaked via CSS variables, and it does not need JavaScript, even for side notes.</p>
+<h3 id="even-smaller-heading-code">Even smaller heading <code>code</code></h3>
+<p>This is some body text between headings. This project provides CSS files and a template for using Pandoc to generate standalone HTML files. It supports most features Pandoc Markdown has to offer, and some extras. The default look can be tweaked via CSS variables, and it does not need JavaScript, even for side notes.</p>
+<h4 id="there-is-no-level-4-heading">There is no level 4 heading</h4>
+<h1 id="level-1-heading-code">Level 1 heading <code>code</code></h1>
+<h2 id="level-2-heading-code">Level 2 heading <code>code</code></h2>
+<p>This is some body text between headings. This project provides CSS files and a template for using Pandoc to generate standalone HTML files. It supports most features Pandoc Markdown has to offer, and some extras. The default look can be tweaked via CSS variables, and it does not need JavaScript, even for side notes.</p>
+<h2 id="another-level-2-heading">Another level 2 heading</h2>
+<p>This is some body text between headings. This project provides CSS files and a template for using Pandoc to generate standalone HTML files. It supports most features Pandoc Markdown has to offer, and some extras. The default look can be tweaked via CSS variables, and it does not need JavaScript, even for side notes.</p>
+<h1 id="lists">Lists</h1>
+<p>This is some body text between lists. It takes up the full width of the line, but only just barely.</p>
+<ul>
+<li>Level 1
+<ul>
+<li>Level 2
+<ul>
+<li>Level 3
+<ul>
+<li>Level 4
+<ul>
+<li>Level 5
+<ul>
+<li>Level 6</li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+<p>This is some body text between lists. It takes up the full width of the line, but only just barely.</p>
+<ol type="1">
+<li>Level 1
+<ol type="1">
+<li>Level 2
+<ol type="1">
+<li>Level 3
+<ol type="1">
+<li>Level 4
+<ol type="1">
+<li>Level 5
+<ol type="1">
+<li>Level 6</li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol>
+<p>This is some body text between lists. It takes up the full width of the line, but only just barely.</p>
+<ul>
+<li>Prose</li>
+<li>Headings</li>
+<li>Lists</li>
+<li>Code blocks</li>
+</ul>
+<p>This is some body text between lists. It takes up the full width of the line, but only just barely.</p>
+<ol type="1">
+<li>This list</li>
+<li>has ten</li>
+<li>items which</li>
+<li>causes it</li>
+<li>to push</li>
+<li>the numbers</li>
+<li>further left</li>
+<li>which extends</li>
+<li>the numbers</li>
+<li>into the</li>
+<li>page margin.</li>
+</ol>
+<p>This is some body text between lists. This project provides CSS files and a template for using Pandoc to generate standalone HTML files. It supports most features Pandoc Markdown has to offer, and some extras.</p>
+<ul>
+<li>Line starts with a short bullet point
+<ul>
+<li>Next line starts with a longer bullet point that wraps around at larger screen sizes because there’s so much text.</li>
+</ul></li>
+<li>Line starts with a short bullet point
+<ul>
+<li>Next line starts with a longer bullet point that wraps around at larger screen sizes because there’s so much text.</li>
+</ul></li>
+</ul>
+<p>This is some body text between lists. This project provides CSS files and a template for using Pandoc to generate standalone HTML files. It supports most features Pandoc Markdown has to offer, and some extras.</p>
+<ol type="1">
+<li>Line starts with a short bullet point
+<ol type="1">
+<li>First line<br> Next line</li>
+</ol></li>
+<li>Notice how the line numbers are <strong>tabular numbers</strong>, not proportional.
+<ul>
+<li>First line, <strong>switch to bullet</strong><br />
+Next line</li>
+</ul></li>
+</ol>
+<p>This is some body text between lists. This project provides CSS files and a template for using Pandoc to generate standalone HTML files. It supports most features Pandoc Markdown has to offer, and some extras.</p>
+<ul class="task-list">
+<li><label><input type="checkbox" />Line starts with a short bullet point</label>
+<ul class="task-list">
+<li><label><input type="checkbox" />First line<br />
+Next line</label></li>
+</ul></li>
+<li><label><input type="checkbox" checked="" />Line starts with a short bullet point</label>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />First line, <strong>checklists are different by browser, even on same OS</strong><br />
+Next line</label></li>
+</ul></li>
+</ul>
+<p>This is some body text between lists. This project provides CSS files and a template for using Pandoc to generate standalone HTML files.</p>
+<ul>
+<li>List item before <strong>should line up</strong> with check box after</li>
+</ul>
+<!-- force break -->
+<ul class="task-list">
+<li><label><input type="checkbox" />First is unchecked<br />
+Next line</label></li>
+<li><label><input type="checkbox" checked="" />Last is checked<br />
+</label></li>
+</ul>
+<!-- force break -->
+<ol type="1">
+<li>List item after <strong>should line up</strong> with check box before</li>
+</ol>
+<p>This is some body text between lists. This project provides CSS files and a template for using Pandoc to generate standalone HTML files.</p>
+<ul>
+<li><p><strong>Common list structure</strong></p>
+<p>Is to have a bold title of the list, with some body text on the same bullet point (multiple paragraphs). The text in the “body” wraps onto multiple lines.</p></li>
+<li><p><strong>Pandoc implementation</strong></p>
+<p>For this technique, the top-level list items have to be separated by new lines. That’s what gets Pandoc to put paragraph tags in the list item bodies.</p></li>
+</ul>
+<p>This is some body text between lists. This project provides CSS files and a template for using Pandoc to generate standalone HTML files.</p>
+<ul>
+<li>First item, first list</li>
+<li>Second item, first list</li>
+</ul>
+<!-- comment to force list break -->
+<ul>
+<li>First item, second list</li>
+<li>Second item, second list</li>
+</ul>
+<p><a href="#">→ Looks like a list</a><br />
+<a href="#">→ Not actually a list</a></p>
+<h1 id="code-blocks">Code blocks</h1>
+<p>Ah yes, who could forget about the code blocks.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource ruby numberLines hl-7 hl-8 hl-9 hl-10"><code class="sourceCode ruby"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># typed: true</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">require</span> <span class="vs">&#39;sorbet-runtime&#39;</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="cf">class</span> A</span>
+<span id="cb1-5"><a href="#cb1-5"></a>  <span class="fu">extend</span> T<span class="kw">::</span><span class="dt">Sig</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a></span>
+<span id="cb1-7"><a href="#cb1-7"></a>  sig <span class="kw">{</span>void<span class="kw">}</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a>  <span class="cf">def</span> <span class="dv">self</span><span class="at">.main</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a>    <span class="fu">puts</span> <span class="st">&quot;Hello, world!&quot;</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a>  <span class="cf">end</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="cf">end</span></span></code></pre></div>
+<p>Here is a short paragraph between code blocks.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource ruby numberLines"><code class="sourceCode ruby"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># This is a really long line that causes the text to wrap onto multiple lines in a code block that uses syntax highlighting AND line numbers.</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">puts</span> <span class="vs">&#39;It should also work without line numbers.&#39;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># This is a really long line that causes the text to wrap onto multiple lines in a code block that uses syntax highlighting BUT NOT line numbers.</span></span></code></pre></div>
+<p>Check out the subtle line numbers. This is <code>some inline code</code> with text after it.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource numberLines hl-1"><code class="sourceCode"><span id="cb4-1"><a href="#cb4-1"></a>This code does not have a language associated with it. This is the point at which the code would wrap a long line.</span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a>Some more lines to make Paper give us line numbers.</span>
+<span id="cb4-4"><a href="#cb4-4"></a>Some more lines to make Paper give us line numbers.</span>
+<span id="cb4-5"><a href="#cb4-5"></a>Some more lines to make Paper give us line numbers.</span>
+<span id="cb4-6"><a href="#cb4-6"></a>Some more lines to make Paper give us line numbers.</span></code></pre></div>
+<pre><code>This code does not have a language associated with it. This is the point at which the code would wrap a long line.
+┌┐
+└┘</code></pre>
+<pre class="tight-code"><code>This is tight code in action.
+This is tight code in action.
+┌┐
+└┘
+This is tight code in action.
+This is tight code in action.</code></pre>
+<figure>
+<div class="sourceCode" id="cb7"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>source <span class="vs">&#39;https://rubygems.org&#39;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>gem <span class="vs">&#39;sorbet&#39;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>gem <span class="vs">&#39;sorbet-runtime&#39;</span></span></code></pre></div>
+<figcaption>
+<code>Gemfile</code> contents
+</figcaption>
+</figure>
+<figure class="wide left-align-caption">
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource numberLines hl-3"><code class="sourceCode"><span id="cb8-1"><a href="#cb8-1"></a>This code block has an absolutely large amount of text in it for who knows what reason. Who is the kind of heathen who would willfully write code with lines this long?</span>
+<span id="cb8-2"><a href="#cb8-2"></a></span>
+<span id="cb8-3"><a href="#cb8-3"></a>Scroll → all the way to the left to double check that this line highlight works.</span>
+<span id="cb8-4"><a href="#cb8-4"></a></span>
+<span id="cb8-5"><a href="#cb8-5"></a>← A current limitation is that `.wide` + `.numberLines` causes the line numbers to</span>
+<span id="cb8-6"><a href="#cb8-6"></a>be hidden.</span></code></pre></div>
+<figcaption>
+This is the code block’s caption. Like many of the other captions on the page, it has a lot of text in it so that it’s forced to wrap eventually.
+</figcaption>
+</figure>
+<p>This is the text after the fig caption. <strong>How is the gap</strong> between the figcaption and this text?</p>
+<div class="wide">
+<pre><code>F
+Plain code block, no div.sourceCode, but it&#39;s wide so the text might wrap around a bit further than code is normally expected to.
+L</code></pre>
+</div>
+<h1 id="block-quotes">Block quotes</h1>
+<blockquote>
+<p>Block quote, right under heading.</p>
+<p>Block quote, right under heading.</p>
+</blockquote>
+<p>A paragraph after the block quote separates it from the second block quote on the page.</p>
+<blockquote>
+<p>This block quote uses <strong>bold text</strong> and <em>italic text</em> in line one.<br />
+It also uses <span class="smallcaps">small caps</span> and <span class="smallcaps"><strong>bold small caps</strong></span> in line two.<br />
+It also uses <u>underlined text</u> and <a href="#">linked text</a> and <code>inline code text</code> in line three.</p>
+<p>“Here’s an example” of hanging-punctuation,<br />
+Followed by normal text again</p>
+<p>— Someone famous</p>
+</blockquote>
+<p>The fun thing about markdown versus Dropbox Paper is that you can have lists in block quotes:</p>
+<blockquote>
+<ul>
+<li>This is a list in a block quote.</li>
+<li>This is a list in a block quote.</li>
+</ul>
+<!-- -->
+<ul>
+<li>This is a list in a block quote.</li>
+<li>This is a list in a block quote.</li>
+</ul>
+</blockquote>
+<h1 id="colored-notes">Colored notes</h1>
+<p>There are inline highlights, with various colors:</p>
+<ul>
+<li>This is some <mark class="red">Red</mark> text.</li>
+<li><mark class="yellow">Yellow</mark></li>
+<li><mark class="green">Green</mark></li>
+<li><mark class="blue">Blue</mark></li>
+<li><mark class="purple">Purple</mark></li>
+</ul>
+<p>If you want you can also use HTML that’s a little more semantic:<br />
+<mark class="yellow">the HTML mark tag</mark>.</p>
+<p>There are also single-element, colored tables, which get treated as colored notes.</p>
+<div class="note red">
+<table>
+<tbody>
+<tr class="odd">
+<td>🛑 Look before you leap!</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="note yellow">
+<table>
+<tbody>
+<tr class="odd">
+<td>⚠️ This is a warning!</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Hopefully this could just fall out if tables work well?</p>
+<div class="note green">
+<table>
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td>✅ Success! The deed is now done.<br><br>Feel free to retry whatever it is you were trying to do.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="note blue">
+<table>
+<tbody>
+<tr class="odd">
+<td>ℹ️ Consecutive notes are like consecutive tables.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="note purple">
+<table>
+<tbody>
+<tr class="odd">
+<td>🔮 Can you see into the future?</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Might make sense to do these in terms of like divs but for now they’re tables.</p>
+<h1 id="side-notes">Side notes</h1>
+<p>Markdown footnotes become side notes.<span class="sidenote-wrapper"><label for="sn-0" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-0" class="margin-toggle"/><span class="sidenote">Is the beginning aligned?<br />
+Is the beginning aligned?<br />
+<br />
+</span></span> Versus sup.<strong><sup>1</sup></strong> It would be neat to associate a range of text with a footnote, rather than a single point. The <strong>second side note baseline</strong> will not line up. If we wrap this third line all the way around, we can see how it behaves for longer lines as well. First: 1<sup>st</sup></p>
+<p>Markdown footnotes become side notes.<span class="sidenote-wrapper"><label for="sn-1" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="marginnote">This is a margin note without a number. It spans just a few lines. Maybe it gets to three?<br />
+<br />
+</span></span> After the note. It would be neat to associate a range of text with a footnote, rather than a single point. This is longer text to give the paragraph some heft to it, so that the side note doesn’t feel overpowering.</p>
+<p>Markdown footnotes become side notes.<span class="sidenote-wrapper"><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="sidenote">There’s <code>code</code> in this side note!<br />
+<br />
+</span></span> After the note. It would be neat to associate a range of text with a footnote, rather than a single point. The <strong>second side note baseline</strong> will not line up. If we wrap this third line all the way around, we can see how it behaves for longer lines as well.</p>
+<p>Markdown footnotes become side notes.<span class="sidenote-wrapper"><label for="sn-3" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="marginnote">In this margin note, we’ve got quite a bit of text. It spans multiple so many lines that even in the Pandoc markdown source it spans multiple lines.<br />
+<br />
+It can have line breaks too. This should be a test of what happens when the margin note is more lines than the paragraph it’s commenting on.<br />
+<br />
+</span></span> After the note. This paragraph is not short, but the margin note next to us is much longer, which pushes the subsequent notes further away from their anchor. But also, footnotes.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<blockquote>
+<p>Without doing anything else,<span class="sidenote-wrapper"><label for="sn-4" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-4" class="margin-toggle"/><span class="sidenote">This side note attaches to a <code>blockquote</code>. Why would that be any different? Not sure. We reset the <code>font-style</code> and that’s it.<br />
+<br />
+</span></span> side notes that attach to text inside a block quote would magically become italic, because they’d inherit the styles of the surrounding block quote. Luckily, we have a test for this case, and that does not to happen because we fixed it.</p>
+</blockquote>
+<h1 id="images">Images</h1>
+<p>We can also handle images:</p>
+<figure>
+<img src="../img/sugarloaf-hill-forest-green.jpg" alt="Sugarloaf Hill, San Mateo, CA, April 2021" />
+<figcaption aria-hidden="true">Sugarloaf Hill, San Mateo, CA, April 2021</figcaption>
+</figure>
+<p>This is some text after the image. The interesting thing is that the presence of a caption pushes the following paragraph down. For example, here’s an image without a caption:</p>
+<p><img src="../img/el-capitan-from-four-mile-trail.jpg" /></p>
+<p><img src="../img/el-capitan-from-four-mile-trail.jpg" /></p>
+<p>Notice how the text after the image resumes further away, instead of being close to the image.</p>
+<p>We can also do extra wide and full width images:</p>
+<div class="wide extra-wide">
+<p><img src="../img/sugarloaf-hill-trail-april-june.jpg" /></p>
+</div>
+<p>This project provides CSS files and a template for using Pandoc to generate standalone HTML files. It supports most features Pandoc Markdown has to offer, and some extras. The default look can be tweaked via CSS variables, and it does not need JavaScript, even for side notes.</p>
+<div class="wide extra-wide">
+<figure>
+<img src="../img/sugarloaf-hill-trail-april-june.jpg" alt="Sugarloaf Hill, San Mateo, CA. Left: April 2021, right: June 2021" />
+<figcaption aria-hidden="true">Sugarloaf Hill, San Mateo, CA. Left: April 2021, right: June 2021</figcaption>
+</figure>
+</div>
+<p>This project provides CSS files and a template for using Pandoc to generate standalone HTML files. It supports most features Pandoc Markdown has to offer, and some extras. The default look can be tweaked via CSS variables, and it does not need JavaScript, even for side notes.</p>
+<div class="wide full-width left-align-caption">
+<figure>
+<img src="../img/upper-crystal-springs-reservoir-facing-northwest.jpg" alt="Upper Crystal Springs Reservoir, near Belmont, CA" />
+<figcaption aria-hidden="true">Upper Crystal Springs Reservoir, near Belmont, CA</figcaption>
+</figure>
+</div>
+<p>And some text after the extra wide image. There’s <strong>currently a bug</strong> making it so that this text isn’t as tight as text for non-extra-wide images because there’s an extra div around it. But maybe that’s actually a feature not a bug.</p>
+<h1 id="tables">Tables</h1>
+<table>
+<thead>
+<tr class="header">
+<th><strong>Column 1</strong></th>
+<th><strong>Column 2</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>This is <code>some</code> text.</td>
+<td>This is some text.</td>
+</tr>
+<tr class="even">
+<td>This is some text.</td>
+<td>This is some text.</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th><strong>Column 1</strong></th>
+<th><strong>Column 2</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>This is some text.</td>
+<td>This is some text.</td>
+</tr>
+<tr class="even">
+<td>This is some text.</td>
+<td>This is some text.</td>
+</tr>
+</tbody>
+</table>
+<p>The wild thing is that this is as tight as the body text gets to the table.</p>
+<table style="width:56%;">
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Column 1</th>
+<th style="text-align: left;">Column 2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">This is some text.</td>
+<td style="text-align: left;">This is some text.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">This is some text.</td>
+<td style="text-align: left;">This is some text.</td>
+</tr>
+</tbody>
+</table>
+<table>
+<caption>This table has a caption.</caption>
+<thead>
+<tr class="header">
+<th><strong>Column 1</strong></th>
+<th><strong>Column 2</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>This is some text.</td>
+<td>This is some text.</td>
+</tr>
+<tr class="even">
+<td>This is some text.</td>
+<td>This is some text.</td>
+</tr>
+</tbody>
+</table>
+<p>We can also make tables become wider than the main text if there’s a lot of stuff in the table. They suffer the same “<strong>margin is too big</strong>” bug that extra wide images do.</p>
+<div class="wide left-align-caption">
+<table>
+<caption>The difference between <code>wide</code> and <code>extra-wide</code> is that extra-wide is the only one that will expand into the left <strong>and</strong> right columns.<br />
+<br />
+Meanwhile, <code>wide</code> will expand past the right column when the center column is smaller than <code>--main-width</code>.</caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Column 1</strong></th>
+<th><strong>Column 2</strong></th>
+<th><strong>Column 3</strong></th>
+<th><strong>Column 4</strong></th>
+<th><strong>Column 5</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>This is some text. This is some text.</td>
+<td>This is some text. This is some text.</td>
+<td>This is some text. This is some text.</td>
+<td>This is some text. This is some text.</td>
+<td>This is some text. This is some text.</td>
+</tr>
+<tr class="even">
+<td>This is some text. This is some text.</td>
+<td>This is some text. This is some text.</td>
+<td>This is some text. This is some text.</td>
+<td>This is some text. This is some text.</td>
+<td>This is some text. This is some text.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="wide extra-wide">
+<table style="width:100%;">
+<caption>This extra wide table also has a caption. It has quite a bit of text in the caption, so it wraps onto multiple lines when rendered at smaller screen sizes.</caption>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Column 1</strong></th>
+<th><strong>Column 2</strong></th>
+<th><strong>Column 3</strong></th>
+<th><strong>Column 4</strong></th>
+<th><strong>Column 5</strong></th>
+<th><strong>Column 6</strong></th>
+<th><strong>Column 7</strong></th>
+<th><strong>Column 8</strong></th>
+<th><strong>Column 9</strong></th>
+<th><strong>Column 10</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+</tr>
+<tr class="even">
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="wide extra-wide">
+<table>
+<caption>This extra wide table also has a caption. It has quite a bit of text in the caption, so it wraps onto multiple lines when rendered at smaller screen sizes.</caption>
+<colgroup>
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Column 1</strong></th>
+<th><strong>Column 2</strong></th>
+<th><strong>Column 3</strong></th>
+<th><strong>Column 4</strong></th>
+<th><strong>Column 5</strong></th>
+<th><strong>Column 6</strong></th>
+<th><strong>Column 7</strong></th>
+<th><strong>Column 8</strong></th>
+<th><strong>Column 9</strong></th>
+<th><strong>Column 10</strong></th>
+<th><strong>Column 11</strong></th>
+<th><strong>Column 12</strong></th>
+<th><strong>Column 13</strong></th>
+<th><strong>Column 14</strong></th>
+<th><strong>Column 15</strong></th>
+<th><strong>Colum 16</strong></th>
+<th><strong>Colum 17</strong></th>
+<th><strong>Colum 18</strong></th>
+<th><strong>Colum 19</strong></th>
+<th><strong>Colum 20</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+</tr>
+<tr class="even">
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="wide full-width">
+<table>
+<caption>A full width table takes up pretty much all space available.</caption>
+<colgroup>
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Column 1</strong></th>
+<th><strong>Column 2</strong></th>
+<th><strong>Column 3</strong></th>
+<th><strong>Column 4</strong></th>
+<th><strong>Column 5</strong></th>
+<th><strong>Column 6</strong></th>
+<th><strong>Column 7</strong></th>
+<th><strong>Column 8</strong></th>
+<th><strong>Column 9</strong></th>
+<th><strong>Column 10</strong></th>
+<th><strong>Column 11</strong></th>
+<th><strong>Column 12</strong></th>
+<th><strong>Column 13</strong></th>
+<th><strong>Column 14</strong></th>
+<th><strong>Column 15</strong></th>
+<th><strong>Colum 16</strong></th>
+<th><strong>Colum 17</strong></th>
+<th><strong>Colum 18</strong></th>
+<th><strong>Colum 19</strong></th>
+<th><strong>Colum 20</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+</tr>
+<tr class="even">
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+<td>This is some text.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Maybe it would be nice to have some way to dynamically say how much extra space a table should take up, but for nowe we have only three break points: wide, extra-wide, and full-width.</p>
+<p>We can use Pandoc’s fancy tables to make some columns wider:</p>
+<div class="wide">
+<table>
+<colgroup>
+<col style="width: 74%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Column 1</th>
+<th style="text-align: left;">Column 2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">This is a really wide column using pandoc’s fancy tables.</td>
+<td style="text-align: left;">This is narrow.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">This is a really wide column using pandoc’s fancy tables.</td>
+<td style="text-align: left;">This is narrow.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<table>
+<tbody>
+<tr class="odd">
+<td>No header</td>
+<td>Still works</td>
+</tr>
+</tbody>
+</table>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Use a prefix of <code>{.}</code> to leave it as a footnote. Unfortunately, side notes and margin notes don’t share the same namespace. If you want to mix side notes and footnotes in the same document, you might want to use margin notes, so that there is only one kind of numbered note.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</main>
+
+<footer>
+<p class="signoff">
+  <a href="..">← Return home</a>
+</p>
+</footer>
+<script>
+;(function() {
+  // Non-essential if user has JavaScript off. Just makes checkboxes look nicer.
+  var selector = '.task-list > li > input[type="checkbox"]';
+  var checkboxes = document.querySelectorAll(selector);
+  Array.from(checkboxes).forEach((checkbox) => {
+    var wasChecked = checkbox.checked;
+    checkbox.disabled = false;
+    checkbox.addEventListener('click', (ev) => {ev.target.checked = wasChecked});
+  });
+})();
+</script>
+</body>
+</html>

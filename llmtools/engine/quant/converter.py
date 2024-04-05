@@ -1,3 +1,4 @@
+#* Modulora Integration: OPTQ *#
 from llmtools.engine.inference.modules import QuantLinear
 
 def make_quant(
