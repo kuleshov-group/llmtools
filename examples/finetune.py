@@ -47,7 +47,7 @@ logging_steps=1
 
 data_type = 'alpaca'
 dataset = None # will load alpaca from HF
-adapter_path = './llama1-7b-alpaca'
+adapter_path = # TODO: path to LoRA MODEL. 
 
 # set up finetuning config
 tune_config = FinetuneConfig(

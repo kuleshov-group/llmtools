@@ -33,7 +33,7 @@ llm.eval()
 
 # finetune training config
 mbatch_size_per_device=1
-batch_size= 16 #128
+batch_size= 16 
 epochs=3
 lr=1e-3
 cutoff_len=256
@@ -87,8 +87,10 @@ if ddp:
     num_of_gpus = torch.cuda.device_count()
     device_map = {"": int(os.environ.get("LOCAL_RANK") or 0)}
     gradient_accumulation_steps = tune_config.batch_size // (tune_config.mbatch_size*num_of_gpus)
-    print("gradient_accumulation_steps: ", gradient_accumulation_steps)
+else:
+    gradient_accumulation_steps = tune_config.batch_size 
 
+print("gradient_accumulation_steps: ", gradient_accumulation_steps)
 
 # create a new lora from config
 model = quant_peft.get_peft_model(llm, lora_config)
