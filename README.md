@@ -16,6 +16,8 @@ LLMTools implements low precision LoRA, a new memory-efficient finetuning algori
  
 For a detailed walk through of LLMTools and ModuLoRA, please refer to our [**Blog Post**](https://oseyincs.io/llmtools/). 
 
+Previous release of LLMTools can be found [here](https://github.com/kuleshov-group/llmtools/tree/llmtools-optq), where we integrate OPTQ as our quantization module. We will integrate two release shortly.  
+
 _Please open a GitHub ticket if you have any questions about the code or ModuLoRA in general._
 
 ## Overview
@@ -124,6 +126,7 @@ To ensure maximum reproducibility, consider creating a new conda environment:
 ```python
 conda create -n llmtools python=3.9.18
 conda activate llmtools
+pip install torch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 --index-url https://download.pytorch.org/whl/cu121
 cd llmtools/third-party/quip
 python -m pip install -r requirements.txt
 cd ../../
