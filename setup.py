@@ -1,31 +1,28 @@
 from setuptools import setup, find_packages, Extension
 from torch.utils import cpp_extension
 
-setup(
-    name='llmtools',
-    version='0.1.0',
-    packages=find_packages(include=['llmtools', 'llmtools.*']),
-    entry_points={
-        'console_scripts': ['llmtools=llmtools.run:main']
-    }
-)
 
 setup(
-    name='quip',
-    version='0.1.0',
-    packages=find_packages(where='third-party'),
-    package_dir={'': 'third-party'}, 
-)
-
-setup(
-    name='quant_cuda',
-    ext_modules=[cpp_extension.CUDAExtension(
-        'quant_cuda', 
-        [
-        	'llmtools/engine/inference/cuda/quant_cuda.cpp', 
-        	'llmtools/engine/inference/cuda/quant_cuda_kernel.cu'
-        ]
-    )],
+    ext_modules=[
+        cpp_extension.CUDAExtension(
+            'quant_cuda', 
+            [
+                'kernels/quant_cuda/quant_cuda.cpp', 
+                'kernels/quant_cuda/quant_cuda_kernel.cu'
+            ]
+        ),
+        cpp_extension.CUDAExtension(
+            'quiptools_cuda',
+            [
+                'kernels/quiptools_cuda/quiptools_wrapper.cpp',
+                'kernels/quiptools_cuda/quiptools.cu',
+                'kernels/quiptools_cuda/quiptools_e8p_gemv.cu'
+            ],
+            extra_compile_args={
+                'cxx': ['-g', '-lineinfo'],
+                'nvcc': ['-O2', '-g', '-Xcompiler', '-rdynamic', '-lineinfo']
+            }
+        )
+    ],
     cmdclass={'build_ext': cpp_extension.BuildExtension}
 )
-

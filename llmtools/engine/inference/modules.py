@@ -8,14 +8,14 @@ from llmtools.engine.inference.autograd import (
 
 
 ## QUIP Implementation
-import quiptools_cuda
-from quip.lib.utils import matmul_hadU_cuda, matmul_hadUt_cuda, dtype_from_str
-from quip.lib import codebook
+# import quiptools_cuda
+# from quip_sharp.lib.utils import matmul_hadU_cuda, matmul_hadUt_cuda, dtype_from_str
+# from quip_sharp.lib import codebook
 
-try:
-    import quant_cuda
-except:
-    print('CUDA extension not installed. Inference will not work for (OPTQ)')
+# try:
+#     import quant_cuda
+# except:
+#     print('CUDA extension not installed. Inference will not work for (OPTQ)')
 
 
 # Assumes layer is perfectly divisible into 256 * 256 blocks

@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools", "torch"]
+
+[tool.setuptools.packages.find]
+include = ["llmtools*"]
+
+[project]
+name = "llmtools"
+version = "0.1.0"
+authors = [
+  { name="Volodymyr Kuleshov", email="kuleshov@cornell.edu" },
+  { name="Junjie Oscar Yin", email="jyin27@jhu.edu" }
+]
+
+description = "llmtools: Finetuning Large Language Models on One Consumer GPU in Under 4 Bits"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+]
+dependencies = [
+    "torch >= 2",
+    "transformers>=4.36.0",
+    "peft==0.5.0",
+    "datasets",
+    "bitsandbytes",
+    "quip_sharp@git+https://github.com/osbm/quip-sharp@main"
+]
+
+[project.scripts]
+console_scripts = "llmtools.run:main"
+
+[project.urls]
+Homepage = "https://github.com/kuleshov-group/llmtools"
+Issues = "https://github.com/kuleshov-group/llmtools/issues"

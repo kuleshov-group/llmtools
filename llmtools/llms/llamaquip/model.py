@@ -1,9 +1,8 @@
-import glog
 import os
 import json
 from transformers import LlamaTokenizer, LlamaConfig
-from quip.model.llama import LlamaForCausalLM #* This is the latest llama with the fused quantized linear layer *#
-#from quip.model.llama_nofuse import LlamaForCausalLM #* This is the latest llama with the unfused quantized linear layer *#
+from quip_sharp.model.llama import LlamaForCausalLM #* This is the latest llama with the fused quantized linear layer *#
+#from quip_sharp.model.llama_nofuse import LlamaForCausalLM #* This is the latest llama with the unfused quantized linear layer *#
 
 def load_llama_quip(hf_path, device_map='auto'):
     model = LlamaForCausalLM.from_pretrained(hf_path,
@@ -22,7 +21,6 @@ def load_llama_quip(hf_path, device_map='auto'):
     _name_or_path = _config['_name_or_path']
     #tokenizer = LlamaTokenizer.from_pretrained(_name_or_path, add_eos_token=True) # Append EOS token to end of the sentence
 
-    glog.info('loaded model!')
     #tokenizer.pad_token = tokenizer.eos_token
 
     return model, _name_or_path, _config
