@@ -22,8 +22,8 @@ import warnings
 from llmtools.engine.inference.modules import QuantLinear
 from llmtools.engine.lora.peft import quant_peft
 #* QUIP Quant Linear Layer path *#
-from quip.lib.linear.quantized_linear import QuantizedLinear
-from quip.lib.linear.fused_quantized_linear import FusedQuantizedLinear
+from quip_sharp.lib.linear.quantized_linear import QuantizedLinear
+from quip_sharp.lib.linear.fused_quantized_linear import FusedQuantizedLinear
 
 # hacky way to do imports for now
 LoraLayer = quant_peft.tuners.lora.LoraLayer
